@@ -1,4 +1,5 @@
 name = WalkHub
+description = This module provide the backend side of the Walkthrough project.
 core = 7.x
 package = Features
 dependencies[] = ctools

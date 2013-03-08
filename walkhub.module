@@ -8,8 +8,6 @@ include_once 'walkhub.features.inc';
 
 /**
  *  Implements hook_node_presave().
- *
- * @param $node
  */
 function walkhub_node_presave($node) {
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid)) {
@@ -181,5 +179,4 @@ function _walkhub_create_step_node($step, $key, $walkthrough_node) {
 
   node_save($node);
   return $node;
-
 }
