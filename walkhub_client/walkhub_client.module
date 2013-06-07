@@ -5,7 +5,7 @@
  */
 function walkhub_client_init() {
   if (($base = variable_get('walkhub_client_base_url'))) {
-    drupal_add_js("$base/compiled.js");
+    drupal_add_js("$base/compiled-drupal.js");
     drupal_add_js(drupal_get_path('module', 'walkhub_client') . '/walkhub.js');
     drupal_add_js(array(
       'walkhub_client' => array(
