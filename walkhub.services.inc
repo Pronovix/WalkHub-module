@@ -133,5 +133,68 @@ function walkhub_default_services_endpoint() {
   $endpoint->debug = 0;
   $export['apiv1'] = $endpoint;
 
+  $endpoint = new stdClass();
+  $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
+  $endpoint->api_version = 3;
+  $endpoint->name = 'apiv2';
+  $endpoint->server = 'rest_server';
+  $endpoint->path = 'api/v2';
+  $endpoint->authentication = array(
+    'services' => 'services',
+  );
+  $endpoint->server_settings = array(
+    'formatters' => array(
+      'json' => TRUE,
+      'jsonp' => TRUE,
+      'bencode' => FALSE,
+      'php' => FALSE,
+      'rss' => FALSE,
+      'xml' => FALSE,
+    ),
+    'parsers' => array(
+      'application/json' => TRUE,
+      'multipart/form-data' => TRUE,
+      'application/vnd.php.serialized' => FALSE,
+      'application/x-www-form-urlencoded' => FALSE,
+      'application/xml' => FALSE,
+      'text/xml' => FALSE,
+    ),
+  );
+  $endpoint->resources = array(
+    'walkhub-walkthrough' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'walkhub-step' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'walkhub-list' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'walkhub-state' => array(
+      'operations' => array(
+        'create' => array(
+          'enabled' => '1',
+        ),
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+  );
+  $endpoint->debug = 0;
+  $export['apiv2'] = $endpoint;
+
   return $export;
 }

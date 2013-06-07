@@ -5,13 +5,6 @@
  */
 
 /**
- * Implements hook_views_api().
- */
-function walkhub_views_api() {
-  return array("version" => "3.0");
-}
-
-/**
  * Implements hook_ctools_plugin_api().
  */
 function walkhub_ctools_plugin_api() {

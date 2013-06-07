@@ -7,7 +7,181 @@
 include_once 'walkhub.features.inc';
 
 /**
- *  Implements hook_node_presave().
+ * Implements hook_init().
+ */
+function walkhub_init() {
+  // Adds CORS support.
+  // TODO: check if this is secure. Probably a domain should be added to
+  // walkthroughs or steps.
+  drupal_add_http_header('Access-Control-Allow-Origin', '*');
+  drupal_add_http_header('Access-Control-Allow-Credentials', 'true');
+  drupal_add_http_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    drupal_exit();
+  }
+  drupal_add_js('misc/ajax.js');
+  drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function walkhub_menu() {
+  $items = array();
+
+  $items['node/%walkhub_walkthrough_node/start'] = array(
+    'title' => 'Start walkthrough',
+    'page callback' => 'walkhub_start_walkthrough',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'walkhub.pages.inc',
+  );
+
+  $items['walkhub'] = array(
+    'title' => 'Walkthrough is starting...',
+    'page callback' => 'walkhub_walkhub_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'walkhub.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Loads a node if it's content type is 'walkthrough'.
+ *
+ * @param int $nid
+ *   Node ID.
+ *
+ * @return bool|stdClass
+ *   Node on success, false otherwise.
+ */
+function walkhub_walkthrough_node_load($nid) {
+  $node = node_load($nid);
+
+  if ($node && $node->type === 'walkthrough') {
+    return $node;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($data['actions']['count']) {
+    foreach ($data['actions']['output'] as &$action) {
+      if ($action['#link']['path'] === 'node/%/start') {
+        $action['#link']['localized_options']['attributes']['class'][] = 'walkthrough-start';
+
+        $loadfunc = reset($action['#link']['load_functions']);
+        $path = explode('/', $action['#link']['href']);
+        $nid = $path[1];
+        if (is_callable($loadfunc)) {
+          $walkthrough = $loadfunc($nid);
+          if ($walkthrough) {
+            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
+          }
+        }
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_services_resources().
+ */
+function walkhub_services_resources() {
+  $walkhub_resource = array();
+
+  $inc = array(
+    'type' => 'inc',
+    'module' => 'walkhub',
+  );
+  $walkthroughinc = $inc + array(
+    'name' => 'services/walkthrough',
+  );
+  $stepinc = $inc + array(
+    'name' => 'services/step',
+  );
+  $commentinc = $inc + array(
+    'name' => 'services/comment',
+  );
+  $listinc = $inc + array(
+    'name' => 'services/list',
+  );
+
+  $walkhub_resource['walkhub-walkthrough'] = array(
+    'retrieve' => array(
+      'file' => $walkthroughinc,
+      'callback' => '_walkthrough_resource_retrieve',
+      'args' => array(
+        array(
+          'name' => 'walkthroughid',
+          'optional' => FALSE,
+          'source' => array('path' => 0),
+          'type' => 'string',
+        ),
+      ),
+      'access callback' => '_walkthrough_resource_access',
+      'access callback file' => $walkthroughinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+    ),
+  );
+
+  $walkhub_resource['walkhub-step'] = array(
+    'retrieve' => array(
+      'file' => $stepinc,
+      'callback' => '_step_resource_retrieve',
+      'args' => array(
+        array(
+          'name' => 'stepid',
+          'optional' => FALSE,
+          'source' => array('path' => 0),
+          'type' => 'string',
+        ),
+      ),
+      'access callback' => '_step_resource_access',
+      'access callback file' => $stepinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+    ),
+  );
+
+  $walkhub_resource['walkhub-comment'] = array();
+
+  $walkhub_resource['walkhub-list'] = array(
+    'retrieve' => array(
+      'file' => $listinc,
+      'callback' => '_list_resource_retrieve',
+      'args' => array(
+        array(
+          'name' => 'listname',
+          'optional' => FALSE,
+          'source' => array('path' => 0),
+          'type' => 'string',
+        ),
+      ),
+      'access callback' => '_list_resource_access',
+      'access callback file' => $listinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+    ),
+  );
+
+  return $walkhub_resource;
+}
+
+/**
+ * Implements hook_node_presave().
+ *
+ * @param $node
  */
 function walkhub_node_presave($node) {
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid)) {
@@ -179,4 +353,5 @@ function _walkhub_create_step_node($step, $key, $walkthrough_node) {
 
   node_save($node);
   return $node;
+
 }
