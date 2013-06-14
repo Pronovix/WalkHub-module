@@ -1,3 +1,5 @@
 name = WalkHub Client
 description = WalkHub Client module
 core = 7.x
+
+dependencies[] = jquery_update
