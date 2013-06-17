@@ -294,7 +294,7 @@ function _walkhub_break_up_to_steps($source) {
       if ($steps[$step]['action'] === 'open') {
         $components = parse_url($steps[$step]['xpath']);
         if (empty($components['host'])) {
-          $steps[$step]['xpath'] = $base . trim($steps[$step]['xpath'], '/');
+          $steps[$step]['xpath'] = _walkhub_assemble_url($base, $steps[$step]['xpath']);
         }
       }
     }
@@ -304,6 +304,28 @@ function _walkhub_break_up_to_steps($source) {
 
 function endsWith($haystack, $needle) {
   return substr($haystack, -strlen($needle)) == $needle;
+}
+
+function _walkhub_assemble_url($base, $url) {
+  if ($url[0] === '/') {
+    $base_parts = parse_url($base);
+    $base = $base_parts['scheme'] . '://';
+    if (!empty($base_parts['user']) || !empty($base_parts['pass'])) {
+      if (!empty($base_parts['user'])) {
+        $base .= $base_parts['user'];
+      }
+      if (!empty($base_parts['pass'])) {
+        $base .= ':' . $base_parts['pass'];
+      }
+      $base .= '@';
+    }
+    $base .= $base_parts['host'];
+    if (!empty($base_parts['port'])) {
+      $base .= ':' . $base_parts['port'];
+    }
+  }
+
+  return trim($base, '/') . '/' . trim($url, '/');
 }
 
 /**
