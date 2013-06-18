@@ -6,6 +6,7 @@ class WalkhubWalkthrough implements WalkhubObject {
   public $steps;
   public $prerequisite;
   public $postrequisite;
+  public $tokens;
 
   public function __construct(stdClass $node = NULL) {
     if ($node) {
@@ -21,6 +22,7 @@ class WalkhubWalkthrough implements WalkhubObject {
       if (is_array($this->postrequisite) && count($this->postrequisite)) {
         $this->postrequisite = $this->postrequisite[0];
       }
+      $this->tokens = _walkhub_get_tokens($node);
     }
   }
 }

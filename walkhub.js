@@ -5,14 +5,69 @@
     return window.location.protocol + '//' + window.location.hostname + Drupal.settings.basePath;
   }
 
+  function createDialogForm(walkthroughlink, server) {
+    var tokens = {};
+    data = walkthroughlink.data();
+    var dialog = $('<div />')
+      .attr('id', 'walkthrough-dialog-' + Math.random().toString())
+      .attr('title', Drupal.t('Walkthrough parameters'))
+      .hide()
+      .append($('<form><fieldset></fieldset></form>'));
+    var fieldset = dialog.find('fieldset');
+    for (var k in data) {
+      if (k.indexOf('walkthroughToken') == 0) {
+        var token = k.substr('walkthroughToken'.length).toLowerCase();
+        var default_value = data[k];
+        tokens[token] = default_value;
+        $('<label/>')
+          .attr('for', token)
+          .html(token)
+          .appendTo(fieldset);
+        $('<input />')
+          .attr('type', 'text')
+          .attr('name', token)
+          .attr('value', default_value)
+          .attr('id', token)
+          .addClass('text')
+          .addClass('ui-widget-content')
+          .addClass('ui-corner-all')
+          .appendTo(fieldset);
+      }
+    }
+
+    var buttons = {};
+    buttons[Drupal.t('Start walkthrough')] = function () {
+      for (var k in tokens) {
+        tokens[k] = $('input[name=' + k + ']', dialog).val();
+      }
+      server.startWalkthrough(tokens);
+      buttons[Drupal.t('Cancel')]();
+    };
+    buttons[Drupal.t('Cancel')] = function () {
+      dialog.dialog('close');
+      dialog.remove();
+    };
+
+
+    dialog.appendTo($('body'));
+    dialog.dialog({
+      autoOpen: true,
+      modal: true,
+      buttons: buttons
+    });
+  }
+
   function WalkhubServer() {
     var key = Math.random().toString();
+
+    var self = this;
 
     var state = {
       walkthrough: null,
       step: null,
       completed: false,
-      stepIndex: 0
+      stepIndex: 0,
+      tokens: {}
     };
 
     function maybeProxy(newdata, olddata) {
@@ -103,6 +158,15 @@
       event.preventDefault();
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
       state.step = null;
+      if ($(this).attr('data-walkthrough-has-tokens')) {
+        createDialogForm($(this), self);
+      } else {
+        this.startWalkthrough({});
+      }
+    };
+
+    this.startWalkthrough = function (tokens) {
+      state.tokens = tokens;
       window.open(baseurl() + 'walkhub#' + window.location.origin);
     };
   }

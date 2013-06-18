@@ -21,6 +21,7 @@ function walkhub_init() {
   }
   drupal_add_js('misc/ajax.js');
   drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js');
+  drupal_add_library('system', 'ui.dialog');
 }
 
 /**
@@ -85,10 +86,32 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
             $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
+            $action['#link']['localized_options']['attributes']['data-walkthrough-has-tokens'] = (bool) $walkthrough->field_tokens;
+            foreach (_walkhub_get_tokens($walkthrough) as $token => $default_value) {
+              $action['#link']['localized_options']['attributes']["data-walkthrough-token-{$token}"] = $default_value;
+            }
           }
         }
         break;
       }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_validate().
+ */
+function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
+  if ($entity_type == 'field_collection_item' && !empty($entity->field_token)) {
+    $lang = $entity->langcode();
+    if (!$lang) {
+      $lang = LANGUAGE_NONE;
+    }
+    if (!preg_match('/^[a-z]+$/', $entity->field_token[$lang][0]['value'])) {
+      $errors['field_token'][$lang][0][] = array(
+        'error' => 'field_token_invalid',
+        'message' => t('The token must contain only lowercase letters.'),
+      );
     }
   }
 }
@@ -375,5 +398,37 @@ function _walkhub_create_step_node($step, $key, $walkthrough_node) {
 
   node_save($node);
   return $node;
+}
 
+/**
+ * Extracts token data from a walkthrough node.
+ *
+ * @param stdClass $walkthrough
+ *   Walkthrough node.
+ *
+ * @return array
+ *   Array in a format of $token => $default_value.
+ */
+function _walkhub_get_tokens($walkthrough) {
+  $result = array();
+
+  if ($walkthrough->field_tokens) {
+    $tokens = field_collection_item_load_multiple(array_map(function ($item) {
+      return $item['value'];
+    }, $walkthrough->field_tokens[$walkthrough->language]));
+    foreach ($tokens as $tokendata) {
+      if (!($langcode = $tokendata->langcode())) {
+        $langcode = LANGUAGE_NONE;
+      }
+      $token = isset($tokendata->field_token[$langcode][0]['safe_value']) ?
+        $tokendata->field_token[$langcode][0]['safe_value'] : NULL;
+      $value = isset($tokendata->field_default_value[$langcode][0]['safe_value']) ?
+        $tokendata->field_default_value[$langcode][0]['safe_value'] : NULL;
+      if ($token !== NULL && $value !== NULL) {
+        $result[$token] = $value;
+      }
+    }
+  }
+
+  return $result;
 }
