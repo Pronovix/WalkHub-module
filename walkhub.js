@@ -161,7 +161,7 @@
       if ($(this).attr('data-walkthrough-has-tokens')) {
         createDialogForm($(this), self);
       } else {
-        this.startWalkthrough({});
+        self.startWalkthrough({});
       }
     };
 
