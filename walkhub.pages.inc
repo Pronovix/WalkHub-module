@@ -9,3 +9,17 @@ function walkhub_walkhub_page() {
 
   return $content;
 }
+
+/**
+ * Autostart page callback.
+ */
+function walkhub_start_walkthrough($node) {
+  $getparams = $_GET;
+  unset($getparams['q']);
+  $uri = entity_uri('node', $node);
+  drupal_goto($uri['path'], array(
+    'query' => array(
+      'autostart' => 1,
+    ) + $getparams,
+  ));
+}

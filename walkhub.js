@@ -1,45 +1,64 @@
 (function ($) {
   var walkthroughOrigin;
 
+  var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
+    str = str.split('=');
+    obj[str.shift()] = str.join('=');
+    return obj;
+  }, {});
+
   function baseurl() {
     return window.location.protocol + '//' + window.location.hostname + Drupal.settings.basePath;
   }
 
-  function createDialogForm(walkthroughlink, server) {
+  function getDefaultTokens(walkthroughlink) {
     var tokens = {};
     data = walkthroughlink.data();
+
+    for (var k in data) {
+      if (k.indexOf('walkthroughToken') == 0) {
+        var token = k.substr('walkthroughToken'.length).toLowerCase();
+        var default_value = data[k];
+        tokens[token] = getdata[token] || default_value;
+      }
+    }
+
+    return tokens;
+  }
+
+  function createDialogForm(walkthroughlink, server) {
+    var tokens = getDefaultTokens(walkthroughlink);
     var dialog = $('<div />')
       .attr('id', 'walkthrough-dialog-' + Math.random().toString())
       .attr('title', Drupal.t('Walkthrough parameters'))
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
     var fieldset = dialog.find('fieldset');
-    for (var k in data) {
-      if (k.indexOf('walkthroughToken') == 0) {
-        var token = k.substr('walkthroughToken'.length).toLowerCase();
-        var default_value = data[k];
-        tokens[token] = default_value;
-        $('<label/>')
-          .attr('for', token)
-          .html(token)
-          .appendTo(fieldset);
-        $('<input />')
-          .attr('type', 'text')
-          .attr('name', token)
-          .attr('value', default_value)
-          .attr('id', token)
-          .addClass('text')
-          .addClass('ui-widget-content')
-          .addClass('ui-corner-all')
-          .appendTo(fieldset);
+    for (var token in tokens) {
+      $('<label/>')
+        .attr('for', token)
+        .html(token)
+        .appendTo(fieldset);
+      $('<input />')
+        .attr('type', 'text')
+        .attr('name', token)
+        .attr('value', tokens[token])
+        .attr('id', token)
+        .addClass('text')
+        .addClass('ui-widget-content')
+        .addClass('ui-corner-all')
+        .appendTo(fieldset);
+    }
+
+    function updateTokens() {
+      for (var k in tokens) {
+        tokens[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
 
     var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
-      for (var k in tokens) {
-        tokens[k] = $('input[name=' + k + ']', dialog).val();
-      }
+      updateTokens();
       server.startWalkthrough(tokens);
       buttons[Drupal.t('Cancel')]();
     };
@@ -48,6 +67,28 @@
       dialog.remove();
     };
 
+    var simplelink = $('<a />').html(Drupal.t('Permalink'));
+    var autolink = $('<a />').html(Drupal.t('Automatic start link'));
+
+    function regenLinks() {
+      updateTokens();
+      var link = window.location.href + '?';
+      for (var token in tokens) {
+        link += token + '=' + encodeURIComponent(tokens[token]) + '&';
+      }
+      link = link.substr(0, link.length - 1);
+      simplelink.attr('href', link);
+      autolink.attr('href', link + '&autostart=1');
+    }
+
+    dialog.append($('<p />').append(simplelink));
+    dialog.append($('<p />').append(autolink));
+
+    regenLinks();
+
+    $('input', dialog)
+      .blur(regenLinks)
+      .keyup(regenLinks);
 
     dialog.appendTo($('body'));
     dialog.dialog({
@@ -178,6 +219,9 @@
         .each(function () {
           var appserver = new WalkhubServer();
           $(this).click(appserver.clickEventHandler);
+          if (getdata.autostart) {
+            $(this).click();
+          }
         });
     }
   };

@@ -102,12 +102,22 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  * Implements hook_field_attach_validate().
  */
 function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
+  static $token_blacklist = array(
+    'q', 'destination', 'autostart',
+  );
   if ($entity_type == 'field_collection_item' && !empty($entity->field_token)) {
     $lang = $entity->langcode();
     if (!$lang) {
       $lang = LANGUAGE_NONE;
     }
-    if (!preg_match('/^[a-z]+$/', $entity->field_token[$lang][0]['value'])) {
+    $field_value = $entity->field_token[$lang][0]['value'];
+    if (in_array($field_value, $token_blacklist)) {
+      $errors['field_token'][$lang][0][] = array(
+        'error' => 'field_token_blacklisted',
+        'message' => t('This name is restricted. It cannot be used for tokens.'),
+      );
+    }
+    if ($field_value !== '' && !preg_match('/^[a-z]+$/', $field_value)) {
       $errors['field_token'][$lang][0][] = array(
         'error' => 'field_token_invalid',
         'message' => t('The token must contain only lowercase letters.'),
