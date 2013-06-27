@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Walkthrough sets feature.
+ */
+
+include_once 'walkthrough_sets.features.inc';
