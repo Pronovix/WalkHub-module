@@ -22,21 +22,21 @@ function walkthrough_sets_services_resources() {
 
   $walkthrough_set_resource['walkthrough-set'] = array(
     'retrieve' => array(
-    'file' => $setinc,
-    'callback' => '_walkthrough_set_resource_retrieve',
-    'args' => array(
-      array(
-        'name' => 'walkthroughsetid',
-        'optional' => FALSE,
-        'source' => array('path' => 0),
-        'type' => 'string',
+      'file' => $setinc,
+      'callback' => '_walkthrough_set_resource_retrieve',
+      'args' => array(
+        array(
+          'name' => 'walkthroughsetid',
+          'optional' => FALSE,
+          'source' => array('path' => 0),
+          'type' => 'string',
+        ),
       ),
+      'access callback' => '_walkthrough_set_resource_access',
+      'access callback file' => $setinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
     ),
-    'access callback' => '_walkthrough_set_resource_access',
-    'access callback file' => $setinc,
-    'access arguments' => array('view'),
-    'access arguments append' => TRUE,
-  ),
   );
 
   return $walkthrough_set_resource;
