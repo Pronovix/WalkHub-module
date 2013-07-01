@@ -1,6 +1,8 @@
 (function ($) {
   var walkthroughOrigin;
 
+  var LINK_CHECK_TIMEOUT = 500;
+
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
     str = str.split('=');
     obj[str.shift()] = str.join('=');
@@ -98,10 +100,36 @@
     });
   }
 
+  function createInProgressDialog(frame, cancel) {
+    var dialog = $('<div />')
+      .attr('id', 'walkthrough-in-progress-dialog-' + Math.random().toString())
+      .attr('title', Drupal.t('Walkthrough is in progress'))
+      .hide();
+
+    dialog.append($('<p />').html(Drupal.t('Please do not close this window. This message will disappear when you finish your walkthrough.')));
+
+    return dialog.dialog({
+      autoOpen: true,
+      modal: true,
+      closeOnEscape: false,
+      dialogClass: 'walkthrough-in-progress',
+      buttons: {
+        'Cancel walkthrough': function () {
+          if (cancel) {
+            cancel();
+          }
+          frame.close();
+        }
+      }
+    });
+  }
+
   function WalkhubServer() {
     var key = Math.random().toString();
 
     var self = this;
+
+    var currentURL = null;
 
     var state = {
       walkthrough: null,
@@ -110,6 +138,8 @@
       stepIndex: 0,
       tokens: {}
     };
+
+    var finished = false;
 
     function maybeProxy(newdata, olddata) {
       if (olddata.proxy_key) {
@@ -121,6 +151,7 @@
     var handlers = {
       connect: function (data, source) {
         walkthroughOrigin = data.origin;
+        currentURL = data.url;
         post(maybeProxy({
           type: 'connect_ok',
           origin: window.location.origin,
@@ -171,6 +202,9 @@
       log: function (data, source) {
         // TODO set a variable to enable/disable logging
         window.console && console.log && console.log('REMOTE LOG', data.log);
+      },
+      finished: function (data, source) {
+        finished = true;
       }
     };
 
@@ -199,6 +233,11 @@
       event.preventDefault();
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
       state.step = null;
+      state.stepIndex = 0;
+      state.tokens = {};
+      state.completed = false;
+      finished = false;
+      currentURL = null;
       if ($(this).attr('data-walkthrough-has-tokens')) {
         createDialogForm($(this), self);
       } else {
@@ -208,7 +247,33 @@
 
     this.startWalkthrough = function (tokens) {
       state.tokens = tokens;
-      window.open(baseurl() + 'walkhub#' + window.location.origin);
+      var wtwindow = window.open(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
+      var dialog = createInProgressDialog(wtwindow, function () {
+        finished = true;
+      });
+
+      function checkLink() {
+        if (finished || wtwindow.closed) {
+          dialog.dialog('close');
+        }
+        if (wtwindow.closed) {
+          if (!finished) {
+            var cancel = function () {};
+            Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
+              'Reopen': function () {
+                self.startWalkthrough(tokens);
+              },
+              'Cancel': cancel
+            }, cancel);
+          } else {
+            // Tear down the server
+          }
+        } else {
+          setTimeout(checkLink, LINK_CHECK_TIMEOUT);
+        }
+      }
+
+      checkLink();
     };
   }
 

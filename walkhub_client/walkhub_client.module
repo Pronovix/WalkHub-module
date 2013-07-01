@@ -17,5 +17,10 @@ function walkhub_client_init() {
       'every_page' => TRUE,
       'preprocess' => FALSE,
     ));
+    drupal_add_css("$base/walkthrough.css", array(
+      'type' => 'external',
+      'every_page' => TRUE,
+      'preprocess' => FALSE,
+    ));
   }
 }
