@@ -1,13 +1,45 @@
 <?php
 
 class WalkhubStep implements WalkhubObject {
+
+  /**
+   * @filter check_plain
+   */
   public $title;
+
+  /**
+   * @filter check_plain
+   */
   public $description;
+
+  /**
+   * @filter check_plain
+   */
   public $command;
+
+  /**
+   * @filter check_plain
+   */
   public $pureCommand;
+
+  /**
+   * @filter none
+   */
   public $arg1;
+
+  /**
+   * @filter none
+   */
   public $arg2;
+
+  /**
+   * @filter none
+   */
   public $highlight;
+
+  /**
+   * @filter none
+   */
   public $andWait;
 
   public function __construct(stdClass $node = NULL) {
@@ -28,7 +60,7 @@ class WalkhubStep implements WalkhubObject {
 function _step_resource_retrieve($uuid) {
   module_load_include('inc', 'walkhub');
   $node = _walkhub_node_retrieve($uuid, 'step');
-  return $node ? (new WalkhubStep($node)) : $node;
+  return $node ? walkhub_serialize_safely(new WalkhubStep($node)) : $node;
 }
 
 function _step_resource_access($op = 'view', $args = array()) {

@@ -1,11 +1,35 @@
 <?php
 
 class WalkhubWalkthrough implements WalkhubObject {
+
+  /**
+   * @filter check_plain
+   */
   public $name;
+
+  /**
+   * @filter check_plain
+   */
   public $description;
+
+  /**
+   * @filter none
+   */
   public $steps;
+
+  /**
+   * @filter none
+   */
   public $prerequisite;
+
+  /**
+   * @filter none
+   */
   public $postrequisite;
+
+  /**
+   * @filter check_plain
+   */
   public $tokens;
 
   public function __construct(stdClass $node = NULL) {
@@ -30,7 +54,7 @@ class WalkhubWalkthrough implements WalkhubObject {
 function _walkthrough_resource_retrieve($uuid) {
   module_load_include('inc', 'walkhub');
   $node = _walkhub_node_retrieve($uuid, 'walkthrough');
-  return $node ? (new WalkhubWalkthrough($node)) : $node;
+  return $node ? walkhub_serialize_safely(new WalkhubWalkthrough($node)) : $node;
 }
 
 function _walkthrough_resource_access($op = 'view', $args = array()) {

@@ -6,6 +6,77 @@
 interface WalkhubObject {}
 
 /**
+ * Extracts and filter the properties of WalkhubObject descendants.
+ *
+ * This function works differently on object. If an object is a descendant of
+ * WalkhubObject, then only those accessible properties will be serialized which
+ * have the @filter directive in its docblock. This directive must be followed
+ * by a name of the filtering function.
+ *
+ * Example:
+ * @filter check_plain
+ *
+ * If the object is a regular object, then all of its accessible properties will
+ * be added to the extraction.
+ *
+ * @param object $obj
+ *   Object to serialize
+ *
+ * @return stdClass
+ *   Extracted object
+ */
+function walkhub_serialize_safely($obj) {
+  $result = new stdClass;
+
+  $refl = new ReflectionObject($obj);
+  foreach ($refl->getProperties() as $property) {
+    $doc = $property->getDocComment();
+    $matches = array();
+    if (preg_match('/@filter ([a-z0-9_]+)/im', $doc, $matches)) {
+      $filter = $matches[1];
+      if ($filter === 'none') {
+        $filter = function ($val) { return $val; };
+      }
+      if (!is_callable($filter)) {
+        continue;
+      }
+
+      $result->{$property->getName()} = _walkhub_serialize_safely_filter_value($property->getValue($obj), $filter);
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Helper callback for walkhub_serialize_safely().
+ *
+ * This function applies the filter function on scalar values, or calls itself
+ * recursively in case of arrays or objects.
+ *
+ * @param mixed $value
+ *   Value to filter
+ * @param $filter
+ *   Filter funciton
+ *
+ * @return array
+ */
+function _walkhub_serialize_safely_filter_value($value, $filter) {
+  if (is_object($value)) {
+    $value = ($value instanceof WalkhubObject) ?
+      walkhub_serialize_safely($value) :
+      (array) $value;
+  }
+  if (is_array($value)) {
+    return array_map(function ($item) use ($filter) {
+      return _walkhub_serialize_safely_filter_value($item, $filter);
+    }, $value);
+  }
+
+  return $filter($value);
+}
+
+/**
  * Loads an entity from it's UUID.
  *
  * @param string $type
