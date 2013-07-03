@@ -206,6 +206,56 @@ function walkhub_services_resources() {
       'access arguments' => array('view'),
       'access arguments append' => TRUE,
     ),
+    'index' => array(
+      'file' => $listinc,
+      'callback' => '_list_resource_index',
+      'access callback' => '_list_resource_access',
+      'access callback file' => $listinc,
+      'access arguments' => array('index'),
+      'access arguments append' => TRUE,
+      'args' => array(
+        'name' => array(
+          'name' => 'name',
+          'type' => 'string',
+          'description' => 'The name of the view',
+          'source' => array('param' => 'name'),
+          'optional' => TRUE,
+          'default value' => '',
+        ),
+        'description' => array(
+          'name' => 'description',
+          'type' => 'string',
+          'description' => 'The description of the view',
+          'source' => array('param' => 'description'),
+          'optional' => TRUE,
+          'default value' => '',
+        ),
+        'tag' => array(
+          'name' => 'tag',
+          'type' => 'string',
+          'description' => 'The tag of the view',
+          'source' => array('param' => 'tag'),
+          'optional' => TRUE,
+          'default value' => '',
+        ),
+        'base_table' => array(
+          'name' => 'base_table',
+          'type' => 'string',
+          'description' => 'The base table of the view',
+          'source' => array('param' => 'base_table'),
+          'optional' => TRUE,
+          'default value' => '',
+        ),
+        'human_name' => array(
+          'name' => 'human_name',
+          'type' => 'string',
+          'description' => 'The human name of the view',
+          'source' => array('param' => 'human_name'),
+          'optional' => TRUE,
+          'default value' => '',
+        ),
+      ),
+    ),
   );
 
   return $walkhub_resource;
