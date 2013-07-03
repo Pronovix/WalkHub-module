@@ -13,16 +13,25 @@ class WalkhubWalkthroughSet implements WalkhubObject {
   public $description;
 
   /**
-   * @filter none
+   * @filter check_plain
    */
-  public $links;
+  public $tokens;
+
+  /**
+   * @filter check_plain
+   */
+  public $references;
 
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
       $this->title = $node->title;
       $this->description = walkhub_field_get_value($node, 'description');
-      $this->links = walkhub_field_get_value($node, 'field_walkthroughs', TRUE);
+      $this->tokens = _walkhub_get_tokens($node);
+      $this->references = array_map(function ($item) {
+        $item['walkthrough'] = $item['walkthrough']->uuid;
+        return $item;
+      }, _walkthrough_sets_get_references($node));
     }
   }
 }

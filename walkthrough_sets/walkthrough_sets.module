@@ -14,7 +14,7 @@ function walkthrough_sets_services_resources() {
 
   $inc = array(
     'type' => 'inc',
-    'module' => 'walkhub_sets',
+    'module' => 'walkthrough_sets',
   );
   $setinc = $inc + array(
     'name' => 'services/set',
@@ -40,4 +40,62 @@ function walkthrough_sets_services_resources() {
   );
 
   return $walkthrough_set_resource;
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function walkthrough_sets_node_view_alter(&$build) {
+  if ($build['#node']->type === 'walkthrough_set') {
+    $node = $build['#node'];
+    $tokens = _walkhub_get_tokens($node);
+    $refs = _walkthrough_sets_get_references($node);
+    $links = array();
+    foreach ($refs as $ref) {
+      $links[] = array(
+        'title' => $ref['walkthrough']->title,
+        'href' => "node/{$ref['walkthrough']->nid}",
+        'query' => $ref['tokens'] + $tokens + array('autostart' => 1),
+      );
+    }
+    $build = array(
+      'set_links' => array(
+        '#theme' => 'links',
+        '#links' => $links,
+      ),
+    ) + $build;
+  }
+}
+
+/**
+ * Extracts the references from a walkthrough set node.
+ *
+ * @param stdClass $set
+ *   Node to extract the data from.
+ *
+ * @return array
+ *   List of a data array with two keys. The first key, 'walkthrough' is a
+ *   reference to the walkthrough node, the second key, 'tokens' are the list
+ *   of the custom tokens for this reference.
+ *
+ * @see _walkhub_get_tokens()
+ */
+function _walkthrough_sets_get_references($set) {
+  $refs = array();
+
+  if ($set->field_walkthrough) {
+    module_load_include('inc', 'walkhub');
+    $fc_refs = field_collection_item_load_multiple(array_map(function ($item) {
+      return $item['value'];
+    }, $set->field_walkthrough[$set->language]));
+    foreach ($fc_refs as $fc_ref) {
+      $fc_ref->language = $fc_ref->langcode() ?: LANGUAGE_NONE;
+      $refs[] = array(
+        'walkthrough' => node_load(walkhub_field_get_value($fc_ref, 'field_walkthrough_reference', FALSE, $fc_ref->language, 'target_id')),
+        'tokens' => _walkhub_get_tokens($fc_ref),
+      );
+    }
+  }
+
+  return $refs;
 }
