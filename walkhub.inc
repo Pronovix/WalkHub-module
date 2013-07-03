@@ -122,6 +122,31 @@ function walkhub_field_get_value($entity, $field, $multi = FALSE, $language = LA
 }
 
 /**
+ * Returns a condensed representation of a Drupal image field.
+ *
+ * @param $entity
+ *   Entity.
+ * @param $field
+ *   Field name.
+ * @param bool $multi
+ *   FALSE if it's a single value field, TRUE otherwise.
+ * @param string $language
+ *   Field language.
+ *
+ * @return array|mixed
+ */
+function walkhub_image_field_get_url($entity, $field, $multi = FALSE, $language = LANGUAGE_NONE) {
+  $values = (array) walkhub_field_get_value($entity, $field, $multi, $language, 'uri');
+  $values = array_filter(array_map(function ($uri) {
+    return ($wrapper = file_stream_wrapper_get_instance_by_uri($uri)) ?
+      $wrapper->getExternalUrl() :
+      FALSE;
+  }, $values));
+
+  return $multi ? $values : reset($values);
+}
+
+/**
  * Extracts entity references from a reference field.
  *
  * @param string $entity_type
@@ -161,7 +186,8 @@ function walkhub_field_get_references($entity_type, $entity, $field, $language =
  * @return bool|stdClass
  */
 function _walkhub_node_retrieve($uuid, $type) {
-  $node = reset(walkhub_load_entity('node', $uuid));
+  $entities = walkhub_load_entity('node', $uuid);
+  $node = reset($entities);
   if (!$node) {
     return FALSE;
   }
