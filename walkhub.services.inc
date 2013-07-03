@@ -180,14 +180,7 @@ function walkhub_default_services_endpoint() {
         'retrieve' => array(
           'enabled' => '1',
         ),
-      ),
-    ),
-    'walkhub-state' => array(
-      'operations' => array(
-        'create' => array(
-          'enabled' => '1',
-        ),
-        'retrieve' => array(
+        'index' => array(
           'enabled' => '1',
         ),
       ),
