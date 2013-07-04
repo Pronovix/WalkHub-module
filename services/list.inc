@@ -33,7 +33,7 @@ function _list_resource_index($name = '', $description = '', $tag = '', $base_ta
     $q->condition('description', $description, 'LIKE');
   }
   if ($tag) {
-    $q->condition('tag', $tag, 'LIKE');
+    $q->condition('tag', "%{$tag}%", 'LIKE');
   }
   if ($base_table) {
     $q->condition('base_table', $base_table, 'LIKE');
@@ -42,10 +42,10 @@ function _list_resource_index($name = '', $description = '', $tag = '', $base_ta
     $q->condition('human_name', $human_name, 'LIKE');
   }
 
-  return array_filter($q->execute()->fetchAllAssoc('vid'), function ($view) {
+  return array_values(array_filter($q->execute()->fetchAllAssoc('vid'), function ($view) {
     $loaded_view = views_get_view($view->name);
     return $loaded_view && $loaded_view->access('default');
-  });
+  }));
 }
 
 function _list_resource_access($op = 'view', $args = array()) {
