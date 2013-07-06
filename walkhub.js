@@ -1,6 +1,7 @@
 (function ($) {
   var walkthroughOrigin;
 
+  var MAXIMUM_ZINDEX = 2147483647;
   var LINK_CHECK_TIMEOUT = 500;
 
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
@@ -12,6 +13,52 @@
   function baseurl() {
     return window.location.protocol + '//' + window.location.hostname + Drupal.settings.basePath;
   }
+
+  var iOS = navigator.platform === 'iPad' || navigator.platform === 'iPhone' || navigator.platform === 'iPod';
+
+  var methods = {
+    popup: {
+      name: 'Popup',
+      linkcheck: true,
+      execute: function (url) {
+        return window.open(url);
+      },
+      valid: !iOS
+    },
+    iframe: {
+      name: 'iFrame',
+      linkcheck: false,
+      execute: function (url) {
+        if (!iOS && !confirm(Drupal.t('Starting the walkthrough in the iframe is less secure.'))) {
+          return null;
+        }
+
+        var iframe = $('<iframe />')
+          .attr('src', url)
+          .attr('frameborder', 0)
+          .attr('scrolling', 'auto')
+          .attr('allowtransparency', 'true');
+
+        iframe
+          .appendTo($('body'))
+          .dialog({
+            modal: true,
+            autoOpen: true,
+            height: $(window).height() - 20,
+            width: $(window).width() - 20
+          });
+        // TODO resize dialog with window
+
+        iframe
+          .css('width', '100%')
+          .parent()
+            .css('z-index', MAXIMUM_ZINDEX);
+
+        return iframe.get(0).contentWindow;
+      },
+      valid: true
+    }
+  };
 
   function getDefaultTokens(walkthroughlink) {
     var tokens = {};
@@ -36,6 +83,33 @@
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
     var fieldset = dialog.find('fieldset');
+
+    $('<label />')
+      .attr('for', 'method')
+      .html(Drupal.t('Method'))
+      .appendTo(fieldset);
+
+    var first = true;
+    for (var m in methods) {
+      if (methods[m].valid) {
+        var label = $('<label />');
+        var radio = $('<input />')
+          .attr('type', 'radio')
+          .attr('name', 'method')
+          .attr('value', m)
+          .attr('id', 'method')
+          .addClass('ui-corner-all')
+          .appendTo(label);
+        if (first) {
+          first = false;
+          radio.attr('checked', 'checked');
+        }
+        label
+          .append($('<span />').html(' ' + methods[m].name))
+          .appendTo(fieldset);
+      }
+    }
+
     for (var token in tokens) {
       $('<label/>')
         .attr('for', token)
@@ -61,7 +135,8 @@
     var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
       updateTokens();
-      server.startWalkthrough(tokens);
+      var method_name = $('input[name=method]:checked', dialog).val();
+      server.startWalkthrough(tokens, methods[method_name]);
       buttons[Drupal.t('Cancel')]();
     };
     buttons[Drupal.t('Cancel')] = function () {
@@ -83,8 +158,10 @@
       autolink.attr('href', link + '&autostart=1');
     }
 
-    dialog.append($('<p />').append(simplelink));
-    dialog.append($('<p />').append(autolink));
+    dialog.append($('<p />')
+      .append(simplelink)
+      .append('<br />')
+      .append(autolink));
 
     regenLinks();
 
@@ -205,14 +282,18 @@
       },
       finished: function (data, source) {
         finished = true;
+      },
+      ping: function (data, source) {
+        post({type: 'pong', tag: 'server'}, source, data.origin);
       }
     };
 
     handlers.connect.keyBypass = true;
+    handlers.ping.keyBypass = true;
 
-    function post(message, source) {
+    function post(message, source, origin) {
       if (source.postMessage) {
-        source.postMessage(JSON.stringify(message), walkthroughOrigin);
+        source.postMessage(JSON.stringify(message), origin || walkthroughOrigin);
       } else {
         window.console && console.log && console.log('Sending message failed.');
       }
@@ -238,42 +319,48 @@
       state.completed = false;
       finished = false;
       currentURL = null;
-      if ($(this).attr('data-walkthrough-has-tokens')) {
-        createDialogForm($(this), self);
-      } else {
-        self.startWalkthrough({});
-      }
+      createDialogForm($(this), self);
     };
 
-    this.startWalkthrough = function (tokens) {
+    this.startWalkthrough = function (tokens, method) {
+      if (window.proxy) {
+        window.proxy.pause();
+        // TODO call window.proxy.resume() when the walkthrough finishes.
+      }
       state.tokens = tokens;
-      var wtwindow = window.open(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
-      var dialog = createInProgressDialog(wtwindow, function () {
-        finished = true;
-      });
-
-      function checkLink() {
-        if (finished || wtwindow.closed) {
-          dialog.dialog('close');
-        }
-        if (wtwindow.closed) {
-          if (!finished) {
-            var cancel = function () {};
-            Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
-              'Reopen': function () {
-                self.startWalkthrough(tokens);
-              },
-              'Cancel': cancel
-            }, cancel);
-          } else {
-            // Tear down the server
-          }
-        } else {
-          setTimeout(checkLink, LINK_CHECK_TIMEOUT);
-        }
+      var wtwindow = method.execute(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
+      if (!wtwindow) {
+        return;
       }
 
-      checkLink();
+      if (method.linkcheck) {
+        var dialog = createInProgressDialog(wtwindow, function () {
+          finished = true;
+        });
+
+        function checkLink() {
+          if (finished || wtwindow.closed) {
+            dialog.dialog('close');
+          }
+          if (wtwindow.closed) {
+            if (!finished) {
+              var cancel = function () {};
+              Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
+                'Reopen': function () {
+                  self.startWalkthrough(tokens, method);
+                },
+                'Cancel': cancel
+              }, cancel);
+            } else {
+              // Tear down the server
+            }
+          } else {
+            setTimeout(checkLink, LINK_CHECK_TIMEOUT);
+          }
+        }
+
+        checkLink();
+      }
     };
   }
 

@@ -86,7 +86,6 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
             $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-            $action['#link']['localized_options']['attributes']['data-walkthrough-has-tokens'] = (bool) $walkthrough->field_tokens;
             foreach (_walkhub_get_tokens($walkthrough) as $token => $default_value) {
               $action['#link']['localized_options']['attributes']["data-walkthrough-token-{$token}"] = $default_value;
             }
@@ -103,7 +102,7 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
   static $token_blacklist = array(
-    'q', 'destination', 'autostart',
+    'q', 'destination', 'autostart', 'method',
   );
   if ($entity_type == 'field_collection_item' && !empty($entity->field_token)) {
     $lang = $entity->langcode();
