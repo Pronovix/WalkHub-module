@@ -168,21 +168,45 @@ function walkhub_services_resources() {
   );
 
   $walkhub_resource['walkhub-step'] = array(
-    'retrieve' => array(
-      'file' => $stepinc,
-      'callback' => '_step_resource_retrieve',
-      'args' => array(
-        array(
-          'name' => 'stepid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
+    'operations' => array(
+      'retrieve' => array(
+        'file' => $stepinc,
+        'callback' => '_step_resource_retrieve',
+        'args' => array(
+          array(
+            'name' => 'stepid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+          ),
         ),
+        'access callback' => '_step_resource_access',
+        'access callback file' => $stepinc,
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
       ),
-      'access callback' => '_step_resource_access',
-      'access callback file' => $stepinc,
-      'access arguments' => array('view'),
-      'access arguments append' => TRUE,
+      'update' => array(
+        'file' => $stepinc,
+        'callback' => '_step_resource_update',
+        'args' => array(
+          array(
+            'name' => 'stepid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+          ),
+          array(
+            'name' => 'step',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'array',
+          )
+        ),
+        'access callback' => '_step_resource_access',
+        'access callback file' => $stepinc,
+        'access arguments' => array('update'),
+        'access arguments append' => TRUE,
+      ),
     ),
   );
 

@@ -3,7 +3,15 @@
 /**
  * Interface for all Walkhub response objects.
  */
-interface WalkhubObject {}
+interface WalkhubObject {
+
+  /**
+   * Applies the contents of this container object to an existing entity.
+   *
+   * @param stdClass $entity
+   */
+  public function applyOnEntity(stdClass $entity);
+}
 
 /**
  * Extracts and filter the properties of WalkhubObject descendants.
@@ -218,4 +226,27 @@ function _walkhub_node_resource_access($type, $op = 'view', $args = array()) {
     return FALSE;
   }
   return _node_resource_access($op, array($node));
+}
+
+/**
+ * Converts an stdClass into a real object.
+ *
+ * This function is helpful restoring the original object from a JSON object.
+ *
+ * @param stdClass $object
+ *   The object, holding the data.
+ * @param string $type
+ *   Type of the object to restore.
+ *
+ * @return mixed
+ *   Restored object.
+ */
+function walkhub_convert_stdclass_to_object(stdClass $object, $type) {
+  $result = new $type();
+
+  foreach ($object as $property => $value) {
+    $result->{$property} = $value;
+  }
+
+  return $result;
 }

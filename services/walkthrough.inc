@@ -32,6 +32,11 @@ class WalkhubWalkthrough implements WalkhubObject {
    */
   public $tokens;
 
+  /**
+   * @filter none
+   */
+  public $url;
+
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
@@ -47,7 +52,17 @@ class WalkhubWalkthrough implements WalkhubObject {
         $this->postrequisite = $this->postrequisite[0];
       }
       $this->tokens = _walkhub_get_tokens($node);
+      $this->url = call_user_func_array('url', node_uri($node) + array('options' => array('absolute' => TRUE))) . '/start';
     }
+  }
+
+  /**
+   * Applies the contents of this container object to an existing entity.
+   *
+   * @param stdClass $entity
+   */
+  public function applyOnEntity(stdClass $entity) {
+    // TODO: Implement applyOnEntity() method.
   }
 }
 

@@ -40,6 +40,15 @@ class WalkhubWalkthroughSet implements WalkhubObject {
       $this->logo = walkhub_image_field_get_url($node, 'field_logo');
     }
   }
+
+  /**
+   * Applies the contents of this container object to an existing entity.
+   *
+   * @param stdClass $entity
+   */
+  public function applyOnEntity(stdClass $entity) {
+    // TODO: Implement applyOnEntity() method.
+  }
 }
 
 function _walkthrough_set_resource_retrieve($uuid) {

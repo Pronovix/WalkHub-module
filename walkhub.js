@@ -4,6 +4,8 @@
   var MAXIMUM_ZINDEX = 2147483647;
   var LINK_CHECK_TIMEOUT = 500;
 
+  var csrf_token = null;
+
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
     str = str.split('=');
     obj[str.shift()] = str.join('=');
@@ -237,34 +239,54 @@
         }, data), source);
       },
       request: function (data, source) {
-        var opts = {
-          url: data.URL,
-          method: 'GET',
-          success: function (respdata) {
-            post(maybeProxy({
-              ticket: data.ticket,
-              type: 'success',
-              data: respdata
-            }, data), source);
-          },
-          error: function (xhr, status, err) {
-            post(maybeProxy({
-              ticket: data.ticket,
-              type: 'error',
-              error: err,
-              status: status
-            }, data), source);
-          },
-          dataType: 'json',
-          accept: 'application/json'
+        var request = function () {
+          var opts = {
+            url: data.URL,
+            type: 'GET',
+            success: function (respdata) {
+              post(maybeProxy({
+                ticket: data.ticket,
+                type: 'success',
+                data: respdata
+              }, data), source);
+            },
+            error: function (xhr, status, err) {
+              post(maybeProxy({
+                ticket: data.ticket,
+                type: 'error',
+                error: err,
+                status: status
+              }, data), source);
+            },
+            dataType: 'json',
+            accept: 'application/json',
+            headers: {
+              'X-CSRF-Token': csrf_token
+            }
+          };
+
+          if (data.data) {
+            opts.data = JSON.stringify(data.data);
+            opts.contentType = 'application/json; charset=utf-8';
+            opts.type = 'PUT';
+          }
+
+          $.ajax(opts);
         };
-
-        if (data.data) {
-          opts.data = data;
-          opts.method = 'POST';
+        if (!data.data || csrf_token) {
+          request();
+        } else {
+          $.ajax({
+            url: Drupal.settings.basePath + 'services/session/token',
+            dataType: 'text',
+            type: 'GET',
+            success: function (data) {
+              console.log('CSRF TOKEN: ' + data);
+              csrf_token = data;
+              request();
+            }
+          });
         }
-
-        $.ajax(opts);
       },
       getState: function (data, source) {
         post(maybeProxy({
