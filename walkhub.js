@@ -81,7 +81,7 @@
     var tokens = getDefaultTokens(walkthroughlink);
     var dialog = $('<div />')
       .attr('id', 'walkthrough-dialog-' + Math.random().toString())
-      .attr('title', Drupal.t('Walkthrough parameters'))
+      .attr('title', Drupal.t('Start Walkthrough'))
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
     var fieldset = dialog.find('fieldset');
@@ -111,6 +111,8 @@
           .appendTo(fieldset);
       }
     }
+
+    fieldset.append($('<br />'));
 
     for (var token in tokens) {
       $('<label/>')
@@ -146,23 +148,19 @@
       dialog.remove();
     };
 
-    var simplelink = $('<a />').html(Drupal.t('Permalink'));
     var autolink = $('<a />').html(Drupal.t('Automatic start link'));
 
     function regenLinks() {
       updateTokens();
-      var link = window.location.href + '?';
+      var link = window.location.origin + window.location.pathname + '?';
       for (var token in tokens) {
         link += token + '=' + encodeURIComponent(tokens[token]) + '&';
       }
       link = link.substr(0, link.length - 1);
-      simplelink.attr('href', link);
       autolink.attr('href', link + '&autostart=1');
     }
 
     dialog.append($('<p />')
-      .append(simplelink)
-      .append('<br />')
       .append(autolink));
 
     regenLinks();

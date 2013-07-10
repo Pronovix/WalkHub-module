@@ -507,7 +507,7 @@ function _walkhub_get_tokens($walkthrough) {
         $tokendata->field_token[$langcode][0]['safe_value'] : NULL;
       $value = isset($tokendata->field_default_value[$langcode][0]['safe_value']) ?
         $tokendata->field_default_value[$langcode][0]['safe_value'] : NULL;
-      if ($token !== NULL && $value !== NULL) {
+      if ($token !== NULL) {
         $result[$token] = $value;
       }
     }
