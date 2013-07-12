@@ -98,6 +98,15 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 }
 
 /**
+ * Implements hook_node_view_alter().
+ */
+function walkhub_node_view_alter(&$build) {
+  if ($build['#node']->type == 'walkthrough') {
+    $build['#attached']['css'][] = drupal_get_path('module', 'walkhub') . '/walkhub.css';
+  }
+}
+
+/**
  * Implements hook_field_attach_validate().
  */
 function walkhub_field_attach_validate($entity_type, $entity, &$errors) {

@@ -1,0 +1,26 @@
+.walkthrough-dialog fieldset legend {
+  background: none;
+  border: none;
+  height: 1em;
+  position: static;
+  font-family: inherit;
+  text-indent: 0;
+  text-shadow: none;
+  line-height: inherit;
+  padding: inherit;
+  width: auto;
+}
+
+.walkthrough-dialog textarea.share {
+  font-size: 10px;
+  width: 100%;
+  height: auto;
+}
+
+.walkthrough-start-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+  float: left;
+}
+
+.walkthrough-start-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button:last-child {
+  font-size: smaller;
+}

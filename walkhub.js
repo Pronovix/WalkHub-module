@@ -19,14 +19,6 @@
   var iOS = navigator.platform === 'iPad' || navigator.platform === 'iPhone' || navigator.platform === 'iPod';
 
   var methods = {
-    popup: {
-      name: 'Popup',
-      linkcheck: true,
-      execute: function (url) {
-        return window.open(url);
-      },
-      valid: !iOS
-    },
     iframe: {
       name: 'iFrame',
       linkcheck: false,
@@ -59,6 +51,14 @@
         return iframe.get(0).contentWindow;
       },
       valid: true
+    },
+    popup: {
+      name: 'Popup',
+      linkcheck: true,
+      execute: function (url) {
+        return window.open(url);
+      },
+      valid: !iOS
     }
   };
 
@@ -82,14 +82,20 @@
     var dialog = $('<div />')
       .attr('id', 'walkthrough-dialog-' + Math.random().toString())
       .attr('title', Drupal.t('Start Walkthrough'))
+      .addClass('walkthrough-dialog')
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
     var fieldset = dialog.find('fieldset');
+    $('<p />')
+      .html(Drupal.t('The following parameters are available in this walkthrough:'))
+      .appendTo(fieldset);
+    var advanced = $('<fieldset><legend></legend></fieldset>');
+    $('legend', advanced).html(Drupal.t('Advanced settings'));
 
     $('<label />')
       .attr('for', 'method')
       .html(Drupal.t('Method'))
-      .appendTo(fieldset);
+      .appendTo(advanced);
 
     var first = true;
     for (var m in methods) {
@@ -108,11 +114,9 @@
         }
         label
           .append($('<span />').html(' ' + methods[m].name))
-          .appendTo(fieldset);
+          .appendTo(advanced);
       }
     }
-
-    fieldset.append($('<br />'));
 
     for (var token in tokens) {
       $('<label/>')
@@ -148,7 +152,16 @@
       dialog.remove();
     };
 
-    var autolink = $('<a />').html(Drupal.t('Automatic start link'));
+    $('<label />')
+      .attr('for', 'sharelink')
+      .html(Drupal.t('Share with these parameters: '))
+      .appendTo(dialog.find('form'));
+
+    var share = $('<textarea />')
+      .attr('name', 'sharelink')
+      .attr('readonly', 'readonly')
+      .addClass('share')
+      .appendTo(dialog.find('form'));
 
     function regenLinks() {
       updateTokens();
@@ -157,11 +170,10 @@
         link += token + '=' + encodeURIComponent(tokens[token]) + '&';
       }
       link = link.substr(0, link.length - 1);
-      autolink.attr('href', link + '&autostart=1');
+      share.val(link + '&autostart=1');
     }
 
-    dialog.append($('<p />')
-      .append(autolink));
+    dialog.append(advanced);
 
     regenLinks();
 
@@ -169,11 +181,24 @@
       .blur(regenLinks)
       .keyup(regenLinks);
 
+    advanced.hide();
+    $('<a />')
+      .attr('href', '#')
+      .click(function (event) {
+        event.preventDefault();
+        advanced.show();
+        $(this).hide();
+      })
+      .html(Drupal.t('Show advanced settings'))
+      .appendTo(dialog);
+
+
     dialog.appendTo($('body'));
     dialog.dialog({
       autoOpen: true,
       modal: true,
-      buttons: buttons
+      buttons: buttons,
+      dialogClass: 'walkthrough-start-dialog'
     });
   }
 
