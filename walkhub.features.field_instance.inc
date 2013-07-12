@@ -244,7 +244,7 @@ function walkhub_field_default_field_instances() {
     'label' => 'Description',
     'required' => 0,
     'settings' => array(
-      'display_summary' => 1,
+      'display_summary' => 0,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
@@ -252,11 +252,11 @@ function walkhub_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => -4,
+      'weight' => 1,
     ),
   );
 
@@ -299,7 +299,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete_tags',
-      'weight' => 1,
+      'weight' => 6,
     ),
   );
 
@@ -342,7 +342,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete_tags',
-      'weight' => 0,
+      'weight' => 5,
     ),
   );
 
@@ -381,7 +381,7 @@ function walkhub_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => -3,
+      'weight' => 2,
     ),
   );
 
@@ -421,7 +421,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => -2,
+      'weight' => 4,
     ),
   );
 
@@ -461,7 +461,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 3,
+      'weight' => 7,
     ),
   );
 
@@ -504,7 +504,7 @@ function walkhub_field_default_field_instances() {
       'module' => 'field_collection',
       'settings' => array(),
       'type' => 'field_collection_embed',
-      'weight' => 4,
+      'weight' => 8,
     ),
   );
 
