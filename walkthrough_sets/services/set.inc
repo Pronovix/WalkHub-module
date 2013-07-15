@@ -15,7 +15,7 @@ class WalkhubWalkthroughSet implements WalkhubObject {
   /**
    * @filter check_plain
    */
-  public $tokens;
+  public $parameters;
 
   /**
    * @filter check_plain
@@ -32,7 +32,7 @@ class WalkhubWalkthroughSet implements WalkhubObject {
       module_load_include('inc', 'walkhub');
       $this->title = $node->title;
       $this->description = walkhub_field_get_value($node, 'description');
-      $this->tokens = _walkhub_get_tokens($node);
+      $this->parameters = _walkhub_get_parameters($node);
       $this->references = array_map(function ($item) {
         $item['walkthrough'] = $item['walkthrough']->uuid;
         return $item;

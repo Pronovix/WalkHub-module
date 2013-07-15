@@ -86,8 +86,8 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
             $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-            foreach (_walkhub_get_tokens($walkthrough) as $token => $default_value) {
-              $action['#link']['localized_options']['attributes']["data-walkthrough-token-{$token}"] = $default_value;
+            foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
+              $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
             }
           }
         }
@@ -110,25 +110,25 @@ function walkhub_node_view_alter(&$build) {
  * Implements hook_field_attach_validate().
  */
 function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
-  static $token_blacklist = array(
+  static $parameter_blacklist = array(
     'q', 'destination', 'autostart', 'method',
   );
-  if ($entity_type == 'field_collection_item' && !empty($entity->field_token)) {
+  if ($entity_type == 'field_collection_item' && !empty($entity->field_parameter_name)) {
     $lang = $entity->langcode();
     if (!$lang) {
       $lang = LANGUAGE_NONE;
     }
-    $field_value = $entity->field_token[$lang][0]['value'];
-    if (in_array($field_value, $token_blacklist)) {
-      $errors['field_token'][$lang][0][] = array(
-        'error' => 'field_token_blacklisted',
-        'message' => t('This name is restricted. It cannot be used for tokens.'),
+    $field_value = $entity->field_parameter_name[$lang][0]['value'];
+    if (in_array($field_value, $parameter_blacklist)) {
+      $errors['field_parameter_name'][$lang][0][] = array(
+        'error' => 'field_parameter_name_blacklisted',
+        'message' => t('This name is restricted. It cannot be used for parameters.'),
       );
     }
     if ($field_value !== '' && !preg_match('/^[a-z]+$/', $field_value)) {
-      $errors['field_token'][$lang][0][] = array(
-        'error' => 'field_token_invalid',
-        'message' => t('The token must contain only lowercase letters.'),
+      $errors['field_parameter_name'][$lang][0][] = array(
+        'error' => 'field_parameter_name_invalid',
+        'message' => t('The parameter name must contain only lowercase letters.'),
       );
     }
   }
@@ -493,31 +493,31 @@ function _walkhub_create_step_node($step, $key, $walkthrough_node) {
 }
 
 /**
- * Extracts token data from a walkthrough node.
+ * Extracts parameter data from a walkthrough node.
  *
  * @param stdClass $walkthrough
  *   Walkthrough node.
  *
  * @return array
- *   Array in a format of $token => $default_value.
+ *   Array in a format of $parameter => $default_value.
  */
-function _walkhub_get_tokens($walkthrough) {
+function _walkhub_get_parameters($walkthrough) {
   $result = array();
 
-  if ($walkthrough->field_tokens) {
-    $tokens = field_collection_item_load_multiple(array_map(function ($item) {
+  if ($walkthrough->field_parameters) {
+    $parameters = field_collection_item_load_multiple(array_map(function ($item) {
       return $item['value'];
-    }, $walkthrough->field_tokens[$walkthrough->language]));
-    foreach ($tokens as $tokendata) {
-      if (!($langcode = $tokendata->langcode())) {
+    }, $walkthrough->field_parameters[$walkthrough->language]));
+    foreach ($parameters as $parameterdata) {
+      if (!($langcode = $parameterdata->langcode())) {
         $langcode = LANGUAGE_NONE;
       }
-      $token = isset($tokendata->field_token[$langcode][0]['safe_value']) ?
-        $tokendata->field_token[$langcode][0]['safe_value'] : NULL;
-      $value = isset($tokendata->field_default_value[$langcode][0]['safe_value']) ?
-        $tokendata->field_default_value[$langcode][0]['safe_value'] : NULL;
-      if ($token !== NULL) {
-        $result[$token] = $value;
+      $parameter = isset($parameterdata->field_parameter_name[$langcode][0]['safe_value']) ?
+        $parameterdata->field_parameter_name[$langcode][0]['safe_value'] : NULL;
+      $value = isset($parameterdata->field_parameter_default_value[$langcode][0]['safe_value']) ?
+        $parameterdata->field_parameter_default_value[$langcode][0]['safe_value'] : NULL;
+      if ($parameter !== NULL) {
+        $result[$parameter] = $value;
       }
     }
   }

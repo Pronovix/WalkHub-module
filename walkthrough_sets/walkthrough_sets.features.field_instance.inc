@@ -54,7 +54,7 @@ function walkthrough_sets_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
@@ -114,28 +114,35 @@ function walkthrough_sets_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
-  // Exported field_instance: 'node-walkthrough_set-field_tokens'
-  $field_instances['node-walkthrough_set-field_tokens'] = array(
+  // Exported field_instance: 'node-walkthrough_set-field_parameters'
+  $field_instances['node-walkthrough_set-field_parameters'] = array(
     'bundle' => 'walkthrough_set',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Default parameters to be used for all the walkthroughs in this set. Parameters specified for individual walkthroughs will override these defaults.',
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
+        'module' => 'field_collection',
+        'settings' => array(
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
+        ),
+        'type' => 'field_collection_view',
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -145,8 +152,8 @@ function walkthrough_sets_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_tokens',
-    'label' => 'Tokens',
+    'field_name' => 'field_parameters',
+    'label' => 'Default Parameters',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -156,12 +163,12 @@ function walkthrough_sets_field_default_field_instances() {
       'module' => 'field_collection',
       'settings' => array(),
       'type' => 'field_collection_embed',
-      'weight' => 2,
+      'weight' => 4,
     ),
   );
 
-  // Exported field_instance: 'node-walkthrough_set-field_walkthrough'
-  $field_instances['node-walkthrough_set-field_walkthrough'] = array(
+  // Exported field_instance: 'node-walkthrough_set-field_walkthroughs'
+  $field_instances['node-walkthrough_set-field_walkthroughs'] = array(
     'bundle' => 'walkthrough_set',
     'default_value' => NULL,
     'deleted' => 0,
@@ -169,15 +176,22 @@ function walkthrough_sets_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 2,
+        'module' => 'field_collection',
+        'settings' => array(
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
+        ),
+        'type' => 'field_collection_view',
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -187,8 +201,8 @@ function walkthrough_sets_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_walkthrough',
-    'label' => 'Walkthrough',
+    'field_name' => 'field_walkthroughs',
+    'label' => 'Walkthrough list',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -204,10 +218,11 @@ function walkthrough_sets_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Default Parameters');
+  t('Default parameters to be used for all the walkthroughs in this set. Parameters specified for individual walkthroughs will override these defaults.');
   t('Description');
   t('Logo');
-  t('Tokens');
-  t('Walkthrough');
+  t('Walkthrough list');
 
   return $field_instances;
 }

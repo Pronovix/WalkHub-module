@@ -48,14 +48,14 @@ function walkthrough_sets_services_resources() {
 function walkthrough_sets_node_view_alter(&$build) {
   if ($build['#node']->type === 'walkthrough_set') {
     $node = $build['#node'];
-    $tokens = _walkhub_get_tokens($node);
+    $parameters = _walkhub_get_parameters($node);
     $refs = _walkthrough_sets_get_references($node);
     $links = array();
     foreach ($refs as $ref) {
       $links[] = array(
         'title' => $ref['walkthrough']->title,
         'href' => "node/{$ref['walkthrough']->nid}",
-        'query' => $ref['tokens'] + $tokens + array('autostart' => 1),
+        'query' => $ref['parameters'] + $parameters + array('autostart' => 1),
       );
     }
     $build = array(
@@ -75,24 +75,24 @@ function walkthrough_sets_node_view_alter(&$build) {
  *
  * @return array
  *   List of a data array with two keys. The first key, 'walkthrough' is a
- *   reference to the walkthrough node, the second key, 'tokens' are the list
- *   of the custom tokens for this reference.
+ *   reference to the walkthrough node, the second key, 'parameters' are the
+ *   list of the custom parameters for this reference.
  *
- * @see _walkhub_get_tokens()
+ * @see _walkhub_get_parameters()
  */
 function _walkthrough_sets_get_references($set) {
   $refs = array();
 
-  if ($set->field_walkthrough) {
+  if ($set->field_walkthroughs) {
     module_load_include('inc', 'walkhub');
     $fc_refs = field_collection_item_load_multiple(array_map(function ($item) {
       return $item['value'];
-    }, $set->field_walkthrough[$set->language]));
+    }, $set->field_walkthroughs[$set->language]));
     foreach ($fc_refs as $fc_ref) {
       $fc_ref->language = $fc_ref->langcode() ?: LANGUAGE_NONE;
       $refs[] = array(
-        'walkthrough' => node_load(walkhub_field_get_value($fc_ref, 'field_walkthrough_reference', FALSE, $fc_ref->language, 'target_id')),
-        'tokens' => _walkhub_get_tokens($fc_ref),
+        'walkthrough' => node_load(walkhub_field_get_value($fc_ref, 'field_walkthrough', FALSE, $fc_ref->language, 'target_id')),
+        'parameters' => _walkhub_get_parameters($fc_ref),
       );
     }
   }

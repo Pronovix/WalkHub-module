@@ -15,7 +15,7 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'step',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'You can use parameters such as [path], [username], [password] or any custom parameters of your choice in this field.',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -47,11 +47,11 @@ function walkhub_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => -4,
+      'weight' => 1,
     ),
   );
 
@@ -91,7 +91,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => -3,
+      'weight' => 3,
     ),
   );
 
@@ -131,7 +131,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => -2,
+      'weight' => 4,
     ),
   );
 
@@ -171,7 +171,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => -1,
+      'weight' => 5,
     ),
   );
 
@@ -180,7 +180,7 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'step',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'The Selenium locator that will be used to position the step description call-out.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -211,7 +211,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 0,
+      'weight' => 2,
     ),
   );
 
@@ -252,72 +252,33 @@ function walkhub_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => -4,
-    ),
-  );
-
-  // Exported field_instance: 'node-walkthrough-field_postrequisite'
-  $field_instances['node-walkthrough-field_postrequisite'] = array(
-    'bundle' => 'walkthrough',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_postrequisite',
-    'label' => 'Postrequisite',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete_tags',
       'weight' => 1,
     ),
   );
 
-  // Exported field_instance: 'node-walkthrough-field_prerequisite'
-  $field_instances['node-walkthrough-field_prerequisite'] = array(
+  // Exported field_instance: 'node-walkthrough-field_parameters'
+  $field_instances['node-walkthrough-field_parameters'] = array(
     'bundle' => 'walkthrough',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>',
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
+        'module' => 'field_collection',
         'settings' => array(
-          'link' => FALSE,
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
         ),
-        'type' => 'entityreference_label',
-        'weight' => 4,
+        'type' => 'field_collection_view',
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -327,22 +288,18 @@ function walkhub_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_prerequisite',
-    'label' => 'Prerequisite',
+    'field_name' => 'field_parameters',
+    'label' => 'Parameters',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete_tags',
-      'weight' => 0,
+      'active' => 0,
+      'module' => 'field_collection',
+      'settings' => array(),
+      'type' => 'field_collection_embed',
+      'weight' => 4,
     ),
   );
 
@@ -351,7 +308,7 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'walkthrough',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'When you create a new walkthrough, you can automatically generate steps from a Selenium test. <a href="https://github.com/kvantomme/Walkthrough/wiki/How-to-create-a-walkthrough-with-automated-steps">Learn more</a>',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -368,7 +325,7 @@ function walkhub_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_raw_input',
-    'label' => 'Raw input',
+    'label' => 'Create from Selenium test',
     'required' => 0,
     'settings' => array(
       'text_processing' => 0,
@@ -381,7 +338,7 @@ function walkhub_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => -3,
+      'weight' => 5,
     ),
   );
 
@@ -390,7 +347,7 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'walkthrough',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'You can add existing steps to your walkthrough. If you are creating a Walkthrough from a Selenium test you can leave this blank.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -421,7 +378,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => -2,
+      'weight' => 3,
     ),
   );
 
@@ -461,50 +418,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 3,
-    ),
-  );
-
-  // Exported field_instance: 'node-walkthrough-field_tokens'
-  $field_instances['node-walkthrough-field_tokens'] = array(
-    'bundle' => 'walkthrough',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'field_collection',
-        'settings' => array(
-          'add' => 'Add',
-          'delete' => 'Delete',
-          'description' => TRUE,
-          'edit' => 'Edit',
-          'view_mode' => 'full',
-        ),
-        'type' => 'field_collection_view',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_tokens',
-    'label' => 'Tokens',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'field_collection',
-      'settings' => array(),
-      'type' => 'field_collection_embed',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -513,14 +427,17 @@ function walkhub_field_default_field_instances() {
   t('Command 1');
   t('Command 2');
   t('Command 3');
+  t('Create from Selenium test');
   t('Description');
-  t('Postrequisite');
-  t('Prerequisite');
-  t('Raw input');
+  t('Parameters');
+  t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
   t('Step Highlight');
   t('Steps');
   t('Tags');
-  t('Tokens');
+  t('The Selenium locator that will be used to position the step description call-out.');
+  t('When you create a new walkthrough, you can automatically generate steps from a Selenium test. <a href="https://github.com/kvantomme/Walkthrough/wiki/How-to-create-a-walkthrough-with-automated-steps">Learn more</a>');
+  t('You can add existing steps to your walkthrough. If you are creating a Walkthrough from a Selenium test you can leave this blank.');
+  t('You can use parameters such as [path], [username], [password] or any custom parameters of your choice in this field.');
 
   return $field_instances;
 }

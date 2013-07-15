@@ -62,23 +62,23 @@
     }
   };
 
-  function getDefaultTokens(walkthroughlink) {
-    var tokens = {};
+  function getDefaultParameters(walkthroughlink) {
+    var parameters = {};
     data = walkthroughlink.data();
 
     for (var k in data) {
-      if (k.indexOf('walkthroughToken') == 0) {
-        var token = k.substr('walkthroughToken'.length).toLowerCase();
+      if (k.indexOf('walkthroughParameter') == 0) {
+        var parameter = k.substr('walkthroughParameter'.length).toLowerCase();
         var default_value = data[k];
-        tokens[token] = getdata[token] || default_value;
+        parameters[parameter] = getdata[parameter] || default_value;
       }
     }
 
-    return tokens;
+    return parameters;
   }
 
   function createDialogForm(walkthroughlink, server) {
-    var tokens = getDefaultTokens(walkthroughlink);
+    var parameters = getDefaultParameters(walkthroughlink);
     var dialog = $('<div />')
       .attr('id', 'walkthrough-dialog-' + Math.random().toString())
       .attr('title', Drupal.t('Start Walkthrough'))
@@ -118,33 +118,33 @@
       }
     }
 
-    for (var token in tokens) {
+    for (var parameter in parameters) {
       $('<label/>')
-        .attr('for', token)
-        .html(token)
+        .attr('for', parameter)
+        .html(parameter)
         .appendTo(fieldset);
       $('<input />')
         .attr('type', 'text')
-        .attr('name', token)
-        .attr('value', tokens[token])
-        .attr('id', token)
+        .attr('name', parameter)
+        .attr('value', parameters[parameter])
+        .attr('id', parameter)
         .addClass('text')
         .addClass('ui-widget-content')
         .addClass('ui-corner-all')
         .appendTo(fieldset);
     }
 
-    function updateTokens() {
-      for (var k in tokens) {
-        tokens[k] = $('input[name=' + k + ']', dialog).val();
+    function updateParameters() {
+      for (var k in parameters) {
+        parameters[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
 
     var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
-      updateTokens();
+      updateParameters();
       var method_name = $('input[name=method]:checked', dialog).val();
-      server.startWalkthrough(tokens, methods[method_name]);
+      server.startWalkthrough(parameters, methods[method_name]);
       buttons[Drupal.t('Cancel')]();
     };
     buttons[Drupal.t('Cancel')] = function () {
@@ -164,10 +164,10 @@
       .appendTo(dialog.find('form'));
 
     function regenLinks() {
-      updateTokens();
+      updateParameters();
       var link = window.location.origin + window.location.pathname + '?';
-      for (var token in tokens) {
-        link += token + '=' + encodeURIComponent(tokens[token]) + '&';
+      for (var parameter in parameters) {
+        link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
       share.val(link + '&autostart=1');
@@ -238,7 +238,7 @@
       step: null,
       completed: false,
       stepIndex: 0,
-      tokens: {}
+      parameters: {}
     };
 
     var finished = false;
@@ -360,19 +360,19 @@
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
       state.step = null;
       state.stepIndex = 0;
-      state.tokens = {};
+      state.parameters = {};
       state.completed = false;
       finished = false;
       currentURL = null;
       createDialogForm($(this), self);
     };
 
-    this.startWalkthrough = function (tokens, method) {
+    this.startWalkthrough = function (parameters, method) {
       if (window.proxy) {
         window.proxy.pause();
         // TODO call window.proxy.resume() when the walkthrough finishes.
       }
-      state.tokens = tokens;
+      state.parameters = parameters;
       var wtwindow = method.execute(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
       if (!wtwindow) {
         return;
@@ -392,7 +392,7 @@
               var cancel = function () {};
               Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
                 'Reopen': function () {
-                  self.startWalkthrough(tokens, method);
+                  self.startWalkthrough(parameters, method);
                 },
                 'Cancel': cancel
               }, cancel);
