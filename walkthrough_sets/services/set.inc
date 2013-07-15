@@ -5,6 +5,11 @@ class WalkhubWalkthroughSet implements WalkhubObject {
   /**
    * @filter check_plain
    */
+  public $uuid;
+
+  /**
+   * @filter check_plain
+   */
   public $title;
 
   /**
@@ -30,6 +35,7 @@ class WalkhubWalkthroughSet implements WalkhubObject {
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
+      $this->uuid = $node->uuid;
       $this->title = $node->title;
       $this->description = walkhub_field_get_value($node, 'description');
       $this->parameters = _walkhub_get_parameters($node);

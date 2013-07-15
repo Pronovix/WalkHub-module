@@ -3,6 +3,11 @@
 class WalkhubStep implements WalkhubObject {
 
   /**
+   * @filter none
+   */
+  public $uuid;
+
+  /**
    * @filter check_plain
    */
   public $title;
@@ -70,6 +75,7 @@ class WalkhubStep implements WalkhubObject {
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
+      $this->uuid = $node->uuid;
       $this->titleRaw = $this->title = $node->title;
       $this->descriptionRaw = $this->description = walkhub_field_get_value($node, 'body');
       $this->commandRaw = $this->command = walkhub_field_get_value($node, 'field_command_1');
