@@ -106,7 +106,7 @@ function _walkthrough_sets_get_references($set) {
 function walkthrough_sets_field_extra_fields() {
   $extra_fields['node']['walkthrough'] = array(
     'display' => array(
-      '_walkthrough_sets_step_list' => array(
+      'walkthrough_sets_step_list' => array(
         'label' => t('Rendered step list'),
         'description' => t(''),
         'weight' => 0,
@@ -157,17 +157,12 @@ function walkthrough_sets_theme($existing, $type, $theme, $path) {
   );
 }
 
-/*
-function walkthrough_sets_preprocess_walkthrough_sets_list_steps(&$variables) {
-  $variables['walkthrough_steps'] = array_map(
-    function($node) {
-      return $node->title;
-    },
-    $variables['walkthrough_steps']
-  );
-}
+/**
+ * Theme callback for rendering the steps list.
+ *
+ * @param array $steps
+ *   Array of node objects.
  */
-
 function theme_walkthrough_sets_list_steps(array $steps) {
   $rendered_steps = array_map(
     function($node) {
