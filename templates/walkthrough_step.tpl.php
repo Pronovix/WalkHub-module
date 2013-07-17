@@ -1,5 +1,5 @@
 <div class="walkthrough-step">
-  <div class="walkthrough-step-title"><?php print check_plain($node->title); ?></div>
+  <span class="walkthrough-step-title"><?php print check_plain($node->title); ?></span>
 
   <?php if(!empty($node->content['body'][0]['#markup'])): ?>
     <div class="walkthrough-step-body"><?php print $node->content['body'][0]['#markup']; ?></div>
