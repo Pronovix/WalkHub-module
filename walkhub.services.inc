@@ -161,6 +161,33 @@ function walkhub_default_services_endpoint() {
     ),
   );
   $endpoint->resources = array(
+    'system' => array(
+      'actions' => array(
+        'connect' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'user' => array(
+      'actions' => array(
+        'login' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services' => array(
+              'resource_api_version' => '1.0',
+            ),
+          ),
+        ),
+        'logout' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services' => array(
+              'resource_api_version' => '1.0',
+            ),
+          ),
+        ),
+      ),
+    ),
     'walkhub-walkthrough' => array(
       'operations' => array(
         'retrieve' => array(
