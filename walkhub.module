@@ -301,7 +301,10 @@ function walkhub_services_resources() {
 function walkhub_node_presave($node) {
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
-    $steps = _walkhub_break_up_to_steps($source[0]['value']);
+    list($steps, $base) = _walkhub_break_up_to_steps($source[0]['value']);
+    if ($base) {
+      _walkhub_add_default_parameters($base, $node);
+    }
     if (!empty($steps)) {
       // Delete the previously attached steps.
       $old_steps_nids = array();
@@ -322,6 +325,29 @@ function walkhub_node_presave($node) {
       $node->field_steps[LANGUAGE_NONE] = $walkthrough_steps;
     }
   }
+}
+
+/**
+ * Adds the 'domain' as a default parameter to the node object.
+ *
+ * @param string $base
+ *   THe base url from the selenium test.
+ * @param stdClass $node
+ *   THe newly created node object.
+ */
+function _walkhub_add_default_parameters($base, $node) {
+  $host = parse_url($base, PHP_URL_HOST);
+  $item = new FieldCollectionItemEntity();
+  $item->is_new = TRUE;
+  $item->field_name = 'field_parameters';
+  $item->setHostEntity('node', $node, $node->language, FALSE);
+  $item->field_parameter_name[$node->language][0]['value'] = 'domain';
+  $item->field_parameter_default_value[$node->language][0]['value'] = $host;
+  $item->save(TRUE);
+  $node->field_parameters[$node->language][] = array(
+    'value' => $item->identifier(),
+    'revision_id' => $item->revision_id,
+  );
 }
 
 /**
@@ -375,6 +401,7 @@ function _walkhub_break_up_to_steps($source) {
   );
 
   $steps = array();
+  $first = TRUE;
   $doc = new DOMDocument();
   // Load the selenium test case.
   $doc->loadHTML($source);
@@ -409,19 +436,23 @@ function _walkhub_break_up_to_steps($source) {
       if ($steps[$step]['action'] === 'open') {
         $components = parse_url($steps[$step]['xpath']);
         if (empty($components['host'])) {
-          $steps[$step]['xpath'] = _walkhub_assemble_url($base, $steps[$step]['xpath']);
+          $steps[$step]['xpath'] = _walkhub_assemble_url($base, $steps[$step]['xpath'], $first);
+          if ($first) {
+            $first = FALSE;
+          }
         }
       }
     }
   }
-  return $steps;
+  // TODO I think this function should be an iterator object.
+  return array($steps, $base);
 }
 
 function endsWith($haystack, $needle) {
   return substr($haystack, -strlen($needle)) == $needle;
 }
 
-function _walkhub_assemble_url($base, $url) {
+function _walkhub_assemble_url($base, $url, $parameter = FALSE) {
   if ($url[0] === '/') {
     $base_parts = parse_url($base);
     $base = $base_parts['scheme'] . '://';
@@ -434,7 +465,7 @@ function _walkhub_assemble_url($base, $url) {
       }
       $base .= '@';
     }
-    $base .= $base_parts['host'];
+    $base .= $parameter ? '[domain]' : $base_parts['host'];
     if (!empty($base_parts['port'])) {
       $base .= ':' . $base_parts['port'];
     }
