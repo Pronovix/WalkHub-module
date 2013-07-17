@@ -37,7 +37,7 @@ class WalkhubWalkthroughSet implements WalkhubObject {
       module_load_include('inc', 'walkhub');
       $this->uuid = $node->uuid;
       $this->title = $node->title;
-      $this->description = walkhub_field_get_value($node, 'description');
+      $this->description = walkhub_field_get_value($node, 'body');
       $this->parameters = _walkhub_get_parameters($node);
       $this->references = array_map(function ($item) {
         $item['walkthrough'] = $item['walkthrough']->uuid;
