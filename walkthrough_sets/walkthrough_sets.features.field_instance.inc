@@ -10,6 +10,80 @@
 function walkthrough_sets_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'field_collection_item-field_walkthroughs-field_parameters'
+  $field_instances['field_collection_item-field_walkthroughs-field_parameters'] = array(
+    'bundle' => 'field_walkthroughs',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'field_collection',
+        'settings' => array(
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
+        ),
+        'type' => 'field_collection_view',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_parameters',
+    'label' => 'Walkthrough parameters',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'field_collection',
+      'settings' => array(),
+      'type' => 'field_collection_embed',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_walkthroughs-field_walkthrough'
+  $field_instances['field_collection_item-field_walkthroughs-field_walkthrough'] = array(
+    'bundle' => 'field_walkthroughs',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_walkthrough',
+    'label' => 'Walkthrough',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 1,
+    ),
+  );
+
   // Exported field_instance: 'node-walkthrough_set-body'
   $field_instances['node-walkthrough_set-body'] = array(
     'bundle' => 'walkthrough_set',
@@ -222,7 +296,9 @@ function walkthrough_sets_field_default_field_instances() {
   t('Default parameters to be used for all the walkthroughs in this set. Parameters specified for individual walkthroughs will override these defaults.');
   t('Description');
   t('Logo');
+  t('Walkthrough');
   t('Walkthrough list');
+  t('Walkthrough parameters');
 
   return $field_instances;
 }
