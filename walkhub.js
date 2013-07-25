@@ -23,10 +23,6 @@
       name: 'iFrame',
       linkcheck: false,
       execute: function (url) {
-        if (!iOS && !confirm(Drupal.t('Starting the walkthrough in the iframe is less secure.'))) {
-          return null;
-        }
-
         var iframe = $('<iframe />')
           .attr('src', url)
           .attr('frameborder', 0)
