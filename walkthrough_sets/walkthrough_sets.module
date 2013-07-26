@@ -99,3 +99,4 @@ function _walkthrough_sets_get_references($set) {
 
   return $refs;
 }
+
