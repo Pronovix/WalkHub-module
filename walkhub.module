@@ -582,7 +582,7 @@ function walkhub_node_view($node, $view_mode) {
       function($step) {
         return node_load($step['target_id']);
       },
-      $node->field_steps[LANGUAGE_NONE]
+      isset($node->field_steps[$node->language]) ? $node->field_steps[$node->language] : array()
     );
 
     $node->content['walkhub_step_list'] = array(
