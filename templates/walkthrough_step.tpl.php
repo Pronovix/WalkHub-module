@@ -5,5 +5,7 @@
     <div class="walkthrough-step-body"><?php print $node->content['body'][0]['#markup']; ?></div>
   <?php endif; ?>
 
-  <span>(<a class="walkthrough-edit" href="<?php print url("node/{$node->nid}/edit"); ?>">Edit</a>)</span>
+  <?php if (node_access('update', $node)): ?>
+    <span>(<a class="walkthrough-edit" href="<?php print url("node/{$node->nid}/edit"); ?>">Edit</a>)</span>
+  <?php endif; ?>
 </div>
