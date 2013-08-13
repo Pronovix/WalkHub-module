@@ -190,18 +190,23 @@ function walkhub_field_get_references($entity_type, $entity, $field, $language =
  *   Node UUID.
  * @param string $type
  *   Node type.
+ * @param bool $disable_exception
+ *   Disables throwing an exception.
  *
+ * @throws ServicesException
  * @return bool|stdClass
  */
-function _walkhub_node_retrieve($uuid, $type) {
+function _walkhub_node_retrieve($uuid, $type, $disable_exception = FALSE) {
   $entities = walkhub_load_entity('node', $uuid);
   $node = reset($entities);
-  if (!$node) {
-    return FALSE;
-  }
 
-  if ($node->type !== $type) {
-    return FALSE;
+  if ((!$node) || ($node->type !== $type)) {
+    if ($disable_exception) {
+      return FALSE;
+    }
+    else {
+      throw new ServicesException(t('Failed to load !uuid', array('!uuid' => $uuid)), 404);
+    }
   }
 
   return $node;
