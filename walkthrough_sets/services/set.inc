@@ -32,6 +32,16 @@ class WalkhubWalkthroughSet implements WalkhubObject {
    */
   public $logo;
 
+  /**
+   * @filter none
+   */
+  public $icon;
+
+  /**
+   * @filter none
+   */
+  public $detail_image;
+
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
@@ -44,6 +54,8 @@ class WalkhubWalkthroughSet implements WalkhubObject {
         return $item;
       }, _walkthrough_sets_get_references($node));
       $this->logo = walkhub_image_field_get_url($node, 'field_logo');
+      $this->icon = walkhub_image_field_get_url($node, 'field_icon');
+      $this->detail_image = walkhub_image_field_get_url($node, 'field_detail_image');
     }
   }
 
