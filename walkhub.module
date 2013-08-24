@@ -156,6 +156,9 @@ function walkhub_services_resources() {
   $listinc = $inc + array(
     'name' => 'services/list',
   );
+  $listinginc = $inc + array(
+    'name' => 'services/listing',
+  );
 
   $walkhub_resource['walkhub-walkthrough'] = array(
     'retrieve' => array(
@@ -287,6 +290,18 @@ function walkhub_services_resources() {
           'default value' => '',
         ),
       ),
+    ),
+  );
+
+  $walkhub_resource['walkhub-listing'] = array(
+    'index' => array(
+      'file' => $listinginc,
+      'callback' => '_listing_resource_index',
+      'access callback' => '_list_resource_access',
+      'access callback file' => $listinginc,
+      'access arguments' => array('index'),
+      'access arguments append' => TRUE,
+      'args' => array(),
     ),
   );
 
