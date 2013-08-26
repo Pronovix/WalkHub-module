@@ -406,6 +406,7 @@ function _walkhub_break_up_to_steps($source) {
     'mouseUpRightAt' => 0,
     'removeAllSelections' => 0,
     'removeSelection' => 0,
+    'sendKeys' => 0,
     'select' => 0,
     'selectFrame' => 0,
     'setCursorPosition' => 0,
