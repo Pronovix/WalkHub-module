@@ -243,6 +243,49 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-step-field_show_title'
+  $field_instances['node-step-field_show_title'] = array(
+    'bundle' => 'step',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_show_title',
+    'label' => 'Show title',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 6,
+    ),
+  );
+
   // Exported field_instance: 'node-step-field_step_highlight'
   $field_instances['node-step-field_step_highlight'] = array(
     'bundle' => 'step',
@@ -493,6 +536,7 @@ function walkhub_field_default_field_instances() {
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
+  t('Show title');
   t('Step Highlight');
   t('Steps');
   t('Tags');

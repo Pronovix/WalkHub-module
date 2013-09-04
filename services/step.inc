@@ -72,6 +72,11 @@ class WalkhubStep implements WalkhubObject {
    */
   public $canEdit;
 
+  /**
+   * @filter none
+   */
+  public $showTitle;
+
   public function __construct(stdClass $node = NULL) {
     if ($node) {
       module_load_include('inc', 'walkhub');
@@ -85,6 +90,7 @@ class WalkhubStep implements WalkhubObject {
       $this->arg2 = walkhub_field_get_value($node, 'field_command_3');
       $this->highlight = walkhub_field_get_value($node, 'field_step_highlight');
       $this->canEdit = node_access('update', $node);
+      $this->showTitle = (bool) walkhub_field_get_value($node, 'field_show_title');
     }
   }
 
