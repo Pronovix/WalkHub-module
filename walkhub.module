@@ -416,6 +416,9 @@ function _walkhub_break_up_to_steps($source) {
     'uncheck' => 0,
   );
 
+  // Change <br /> to newlines.
+  $source = preg_replace('#<br\s*/?>#i', "\n", $source);
+
   $steps = array();
   $first = TRUE;
   $doc = new DOMDocument();
