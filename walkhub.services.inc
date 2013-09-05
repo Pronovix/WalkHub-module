@@ -215,6 +215,13 @@ function walkhub_default_services_endpoint() {
         ),
       ),
     ),
+    'walkhub-listing' => array(
+      'operations' => array(
+        'index' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'walkhub-branding' => array(
       'operations' => array(
         'retrieve' => array(

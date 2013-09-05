@@ -8,6 +8,7 @@ dependencies[] = features
 dependencies[] = field_collection
 dependencies[] = field_group
 dependencies[] = list
+dependencies[] = options
 dependencies[] = rest_server
 dependencies[] = services
 dependencies[] = services_views
