@@ -10,6 +10,8 @@ function _listing_resource_index() {
   $bundle = isset($parameters['bundle']) ? $parameters['bundle'] : NULL;
   $uuids = isset($parameters['uuids']) ? $parameters['uuids'] : array();
   $orderby = isset($parameters['orderby']) ? $parameters['orderby'] : NULL;
+  $limit = isset($parameters['limit']) ? $parameters['limit'] : 0;
+  $offset = isset($parameters['offset']) ? $parameters['offset'] : 0;
 
   if (empty($bundle) && empty($uuids) && empty($filters)) {
     return array();
@@ -42,7 +44,19 @@ function _listing_resource_index() {
     $q->propertyOrderBy($field, strtoupper($direction));
   }
 
+  $q->addTag('node_access');
+
+  if ($limit) {
+    $q->range($offset, $limit);
+  }
+
+  drupal_alter('walkhub_listing', $q);
+
   $result = $q->execute();
+
+  if (!$result || empty($result['node'])) {
+    return array();
+  }
 
   return array_filter(array_values(array_map(function ($node) {
     $serialize_class = 'Walkhub' . str_replace(' ', '', ucwords(str_replace('_', ' ', $node->type)));

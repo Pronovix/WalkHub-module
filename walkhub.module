@@ -522,21 +522,23 @@ function _walkhub_create_step_node($step, $key, $walkthrough_node) {
   $node->language = $walkthrough_node->language;
   node_object_prepare($node);
 
-  $node->field_command_1[LANGUAGE_NONE][0] = array(
+  $node->field_command_1[$node->language][0] = array(
     'value' => $step['action'],
   );
 
-  $node->field_command_2[LANGUAGE_NONE][0] = array(
+  $node->field_command_2[$node->language][0] = array(
     'value' => $step['xpath'],
   );
 
-  $node->field_command_3[LANGUAGE_NONE][0] = array(
+  $node->field_command_3[$node->language][0] = array(
     'value' => $step['description'],
   );
 
-  $node->field_step_highlight[LANGUAGE_NONE][0] = array(
+  $node->field_step_highlight[$node->language][0] = array(
     'value' => $step['highlight'],
   );
+
+  drupal_alter('walkhub_import_step', $node, $walkthrough_node);
 
   node_save($node);
   return $node;

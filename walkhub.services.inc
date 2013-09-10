@@ -229,6 +229,16 @@ function walkhub_default_services_endpoint() {
         ),
       ),
     ),
+    'walkhub-collection' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+        'index' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'walkthrough-set' => array(
       'operations' => array(
         'retrieve' => array(

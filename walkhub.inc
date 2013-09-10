@@ -172,6 +172,10 @@ function walkhub_image_field_get_url($entity, $field, $multi = FALSE, $language 
  */
 function walkhub_field_get_references($entity_type, $entity, $field, $language = LANGUAGE_NONE, $value_name = 'target_id') {
   $nids = walkhub_field_get_value($entity, $field, TRUE, $language, $value_name);
+  if (!$nids) {
+    return array();
+  }
+
   $uuids = entity_get_uuid_by_id($entity_type, $nids);
   $ordered_uuids = array();
   foreach ($nids as $nid) {
