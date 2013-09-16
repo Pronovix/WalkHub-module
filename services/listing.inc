@@ -24,7 +24,7 @@ function _listing_resource_index() {
     $q->propertyCondition('uuid', $uuids, 'IN');
   }
   if ($bundle) {
-    $q->entityCondition('bundle', $bundle);
+    $q->entityCondition('bundle', $bundle, is_array($bundle) ? 'IN' : '=');
   }
   if ($filters && is_array($filters)) {
     foreach ($filters as $prop => $value) {

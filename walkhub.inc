@@ -204,7 +204,7 @@ function _walkhub_node_retrieve($uuid, $type, $disable_exception = FALSE) {
   $entities = walkhub_load_entity('node', $uuid);
   $node = reset($entities);
 
-  if ((!$node) || ($node->type !== $type)) {
+  if ((!$node) || (is_array($type) ? !in_array($node->type, $type) : ($node->type !== $type))) {
     if ($disable_exception) {
       return FALSE;
     }
