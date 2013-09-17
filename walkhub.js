@@ -33,14 +33,22 @@
           .appendTo($('body'))
           .dialog({
             modal: true,
-            autoOpen: true,
+            autoOpen: true
+          });
+
+        function resize() {
+          iframe.dialog({
             height: $(window).height() - 20,
             width: $(window).width() - 20
           });
-        // TODO resize dialog with window
+          iframe.css('width', '100%');
+        }
+
+        resize();
+
+        window.addEventListener('resize', resize);
 
         iframe
-          .css('width', '100%')
           .parent()
             .css('z-index', MAXIMUM_ZINDEX);
 
