@@ -37,10 +37,8 @@
           });
 
         function resize() {
-          iframe.dialog({
-            height: $(window).height() - 20,
-            width: $(window).width() - 20
-          });
+          iframe.dialog('option', 'width', $(window).width() - 20);
+          iframe.dialog('option', 'height', $(window).height() - 20);
           iframe.css('width', '100%');
         }
 
