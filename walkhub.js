@@ -117,7 +117,7 @@
     var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
       updateParameters();
-      var method_name = $('input[name=method]:checked', dialog).val();
+      var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
       server.startWalkthrough(parameters, methods[method_name]);
       buttons[Drupal.t('Cancel')]();
     };
