@@ -91,34 +91,6 @@
     $('<p />')
       .html(Drupal.t('The following parameters are available in this walkthrough:'))
       .appendTo(fieldset);
-    var advanced = $('<fieldset><legend></legend></fieldset>');
-    $('legend', advanced).html(Drupal.t('Advanced settings'));
-
-    $('<label />')
-      .attr('for', 'method')
-      .html(Drupal.t('Method'))
-      .appendTo(advanced);
-
-    var first = true;
-    for (var m in methods) {
-      if (methods[m].valid) {
-        var label = $('<label />');
-        var radio = $('<input />')
-          .attr('type', 'radio')
-          .attr('name', 'method')
-          .attr('value', m)
-          .attr('id', 'method')
-          .addClass('ui-corner-all')
-          .appendTo(label);
-        if (first) {
-          first = false;
-          radio.attr('checked', 'checked');
-        }
-        label
-          .append($('<span />').html(' ' + methods[m].name))
-          .appendTo(advanced);
-      }
-    }
 
     for (var parameter in parameters) {
       $('<label/>')
@@ -175,25 +147,11 @@
       share.val(link + '&autostart=1');
     }
 
-    dialog.append(advanced);
-
     regenLinks();
 
     $('input', dialog)
       .blur(regenLinks)
       .keyup(regenLinks);
-
-    advanced.hide();
-    $('<a />')
-      .attr('href', '#')
-      .click(function (event) {
-        event.preventDefault();
-        advanced.show();
-        $(this).hide();
-      })
-      .html(Drupal.t('Show advanced settings'))
-      .appendTo(dialog);
-
 
     dialog.appendTo($('body'));
     dialog.dialog({
