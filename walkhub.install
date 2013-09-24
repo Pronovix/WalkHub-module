@@ -3,3 +3,11 @@
  * @file
  * Walkhub module update and install functions.
  */
+
+/**
+ * Convert step content type nodes to field collection items.
+ */
+function walkhub_update_7001() {
+
+  return t('Step nodes have been converted to field collection items.');
+}
