@@ -23,6 +23,13 @@ function walkhub_update_7001() {
     // Get all steps.
     foreach ($nodes as $node) {
       $steps = field_get_items('node', $node, 'field_steps');
+
+      if ($steps) {
+        // Load the step nodes to get the stored data.
+        foreach ($steps as $step) {
+          $step_node = node_load($step['target_id']);
+        }
+      }
     }
   }
 
