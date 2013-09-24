@@ -9,5 +9,17 @@
  */
 function walkhub_update_7001() {
 
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'walkthrough');
+
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $nodes = entity_load('node', $nids);
+  }
+
   return t('Step nodes have been converted to field collection items.');
 }
