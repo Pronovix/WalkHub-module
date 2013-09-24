@@ -10,6 +10,247 @@
 function walkhub_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_command_1'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_command_1'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_command_1',
+    'label' => 'Command 1',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_command_2'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_command_2'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_command_2',
+    'label' => 'Command 2',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 2,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 5,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_command_3'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_command_3'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 5,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_command_3',
+    'label' => 'Command 3',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 2,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_description'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_description'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_description',
+    'label' => 'Description',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 1,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_highlight'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_highlight'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The Selenium locator that will be used to position the step description call-out.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_highlight',
+    'label' => 'Step highlight',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_name'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_name'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_name',
+    'label' => 'Name',
+    'required' => 1,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 0,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_fc_steps-field_fc_step_show_title'
+  $field_instances['field_collection_item-field_fc_steps-field_fc_step_show_title'] = array(
+    'bundle' => 'field_fc_steps',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 6,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_step_show_title',
+    'label' => 'Show title',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 0,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 7,
+    ),
+  );
+
   // Exported field_instance: 'field_collection_item-field_parameters-field_parameter_default_value'
   $field_instances['field_collection_item-field_parameters-field_parameter_default_value'] = array(
     'bundle' => 'field_parameters',
@@ -371,6 +612,49 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-walkthrough-field_fc_steps'
+  $field_instances['node-walkthrough-field_fc_steps'] = array(
+    'bundle' => 'walkthrough',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'field_collection',
+        'settings' => array(
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
+        ),
+        'type' => 'field_collection_view',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_fc_steps',
+    'label' => 'Steps',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'field_collection',
+      'settings' => array(),
+      'type' => 'field_collection_embed',
+      'weight' => 3,
+    ),
+  );
+
   // Exported field_instance: 'node-walkthrough-field_parameters'
   $field_instances['node-walkthrough-field_parameters'] = array(
     'bundle' => 'walkthrough',
@@ -403,7 +687,7 @@ function walkhub_field_default_field_instances() {
       'module' => 'field_collection',
       'settings' => array(),
       'type' => 'field_collection_embed',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -482,7 +766,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -532,12 +816,14 @@ function walkhub_field_default_field_instances() {
   t('Command 3');
   t('Create from Selenium test');
   t('Description');
+  t('Name');
   t('Parameter default value');
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
   t('Show title');
   t('Step Highlight');
+  t('Step highlight');
   t('Steps');
   t('Tags');
   t('The Selenium locator that will be used to position the step description call-out.');
