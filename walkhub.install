@@ -20,8 +20,12 @@ function walkhub_update_7001() {
     $nids = array_keys($result['node']);
     $nodes = entity_load('node', $nids);
 
+    $limit = 0;
     // Get all steps.
     foreach ($nodes as $node) {
+      if (++$limit == 5) {
+        break;
+      }
       $steps = field_get_items('node', $node, 'field_steps');
 
       if ($steps) {
