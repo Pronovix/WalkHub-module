@@ -19,6 +19,11 @@ function walkhub_update_7001() {
   if (isset($result['node'])) {
     $nids = array_keys($result['node']);
     $nodes = entity_load('node', $nids);
+
+    // Get all steps.
+    foreach ($nodes as $node) {
+      $steps = field_get_items('node', $node, 'field_steps');
+    }
   }
 
   return t('Step nodes have been converted to field collection items.');
