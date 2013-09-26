@@ -8,7 +8,6 @@
  * Convert step content type nodes to field collection items.
  */
 function walkhub_update_7001(&$sandbox) {
-$kka = 'pisi';
   if (empty($sandbox['total'])) {
     $sandbox['progress'] = 0;
     $sandbox['last_nid'] = 0;
