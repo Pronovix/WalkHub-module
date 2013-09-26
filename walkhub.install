@@ -7,25 +7,35 @@
 /**
  * Convert step content type nodes to field collection items.
  */
-function walkhub_update_7001() {
+function walkhub_update_7001(&$sandbox) {
+$kka = 'pisi';
+  if (empty($sandbox['total'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['last_nid'] = 0;
 
+    // Count the total number of the walkthrough nodes.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'walkthrough')
+      ->count();
+    $sandbox['total'] = $query->execute();
+  }
+
+  // Get the next 10 walhtrough node.
   $query = new EntityFieldQuery();
-
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'walkthrough');
-
+    ->entityCondition('bundle', 'walkthrough')
+    ->propertyCondition('nid', $sandbox['last_nid'], '>')
+    ->propertyOrderBy('created')
+    ->range(0, 10);
   $result = $query->execute();
 
   if (isset($result['node'])) {
     $nids = array_keys($result['node']);
     $walkthrough_nodes = entity_load('node', $nids);
 
-    $limit = 0;
     // Get all steps.
     foreach ($walkthrough_nodes as $walkthrough_node) {
-      if (++$limit == 5) {
-        break;
-      }
       $steps = field_get_items('node', $walkthrough_node, 'field_steps');
 
       if ($steps) {
@@ -37,7 +47,11 @@ function walkhub_update_7001() {
           $values = array();
           $values['field_name'] = 'field_fc_steps';
           $values['field_fc_step_name'][$step_node->language][0]['value'] = $step_node->title;
+          // Universal unique ID. This id is used for service requests.
+          $values['uuid'] = $step_node->uuid;
 
+          // An array with the step node field names and the step field
+          // collection field names.
           $fields = array(
             'body' => 'field_fc_step_description',
             'field_step_highlight' => 'field_fc_step_highlight',
@@ -47,6 +61,7 @@ function walkhub_update_7001() {
             'field_show_title' => 'field_fc_step_show_title',
           );
 
+          // Set the field values.
           foreach ($fields as $step_field_name => $entity_field_name) {
             $field = field_get_items('node', $step_node, $step_field_name);
             if ($field) {
@@ -61,8 +76,15 @@ function walkhub_update_7001() {
           $step_entity->save();
         }
       }
+
+      // Store the last node id and update progress.
+      $sandbox['last_nid'] = $walkthrough_node->nid;
+      $sandbox['progress']++;
     }
   }
+
+  // Set the finished variable based on the current progress status.
+  $sandbox['#finished'] = $sandbox['progress'] / $sandbox['total'];
 
   return t('Step nodes have been converted to field collection items.');
 }
