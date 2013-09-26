@@ -18,15 +18,15 @@ function walkhub_update_7001() {
 
   if (isset($result['node'])) {
     $nids = array_keys($result['node']);
-    $nodes = entity_load('node', $nids);
+    $walkthrough_nodes = entity_load('node', $nids);
 
     $limit = 0;
     // Get all steps.
-    foreach ($nodes as $node) {
+    foreach ($walkthrough_nodes as $walkthrough_node) {
       if (++$limit == 5) {
         break;
       }
-      $steps = field_get_items('node', $node, 'field_steps');
+      $steps = field_get_items('node', $walkthrough_node, 'field_steps');
 
       if ($steps) {
         // Load the step nodes to get the stored data.
@@ -57,7 +57,7 @@ function walkhub_update_7001() {
 
           // Create the field collection entry and associate it with the node.
           $step_entity = entity_create('field_collection_item', $values);
-          $step_entity->setHostEntity('node', $node);
+          $step_entity->setHostEntity('node', $walkthrough_node);
           $step_entity->save();
         }
       }
