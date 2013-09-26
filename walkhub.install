@@ -32,6 +32,33 @@ function walkhub_update_7001() {
         // Load the step nodes to get the stored data.
         foreach ($steps as $step) {
           $step_node = node_load($step['target_id']);
+
+          // Store the field collection values.
+          $values = array();
+          $values['field_name'] = 'field_fc_steps';
+          $values['field_fc_step_name'][$step_node->language][0]['value'] = $step_node->title;
+
+          $fields = array(
+            'body' => 'field_fc_step_description',
+            'field_step_highlight' => 'field_fc_step_highlight',
+            'field_command_1' => 'field_fc_step_command_1',
+            'field_command_2' => 'field_fc_step_command_2',
+            'field_command_3' => 'field_fc_step_command_3',
+            'field_show_title' => 'field_fc_step_show_title',
+          );
+
+          foreach ($fields as $step_field_name => $entity_field_name) {
+            $field = field_get_items('node', $step_node, $step_field_name);
+            if ($field) {
+              $field = current($field);
+              $values[$entity_field_name][$step_node->language][0]['value'] = $field['value'];
+            }
+          }
+
+          // Create the field collection entry and associate it with the node.
+          $step_entity = entity_create('field_collection_item', $values);
+          $step_entity->setHostEntity('node', $node);
+          $step_entity->save();
         }
       }
     }
