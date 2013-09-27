@@ -25,7 +25,7 @@ function walkhub_update_7001(&$sandbox) {
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'walkthrough')
     ->propertyCondition('nid', $sandbox['last_nid'], '>')
-    ->propertyOrderBy('created')
+    ->propertyOrderBy('nid')
     ->range(0, 10);
   $result = $query->execute();
 
