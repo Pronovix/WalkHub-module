@@ -12,6 +12,15 @@ function walkhub_update_7001(&$sandbox) {
     $sandbox['progress'] = 0;
     $sandbox['last_nid'] = 0;
 
+    // Forcefully revert all components of walkhub feature.
+    if ($feature = features_load_feature('walkhub', TRUE)) {
+      foreach (array_keys($feature->info['features']) as $component) {
+        if (features_hook($component, 'features_revert')) {
+          features_revert(array('walkhub' => array($component)));
+        }
+      }
+    }
+
     // Count the total number of the walkthrough nodes.
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
