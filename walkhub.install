@@ -32,6 +32,7 @@ function walkhub_update_7001(&$sandbox) {
   if (isset($result['node'])) {
     $nids = array_keys($result['node']);
     $walkthrough_nodes = entity_load('node', $nids);
+    $deletable_steps = array();
 
     // Get all steps.
     foreach ($walkthrough_nodes as $walkthrough_node) {
@@ -41,6 +42,8 @@ function walkhub_update_7001(&$sandbox) {
         // Load the step nodes to get the stored data.
         foreach ($steps as $step) {
           $step_node = node_load($step['target_id']);
+          // Store the deletable step node's ID.
+          $deletable_steps[] = $step_node->nid;
 
           // Store the field collection values.
           $values = array();
@@ -80,6 +83,9 @@ function walkhub_update_7001(&$sandbox) {
       $sandbox['last_nid'] = $walkthrough_node->nid;
       $sandbox['progress']++;
     }
+    // Delete the stored step nodes because they are migrated into field
+    // collection items.
+    node_delete_multiple($deletable_steps);
   }
 
   // Set the finished variable based on the current progress status.
