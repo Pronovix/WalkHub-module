@@ -98,6 +98,9 @@ function walkhub_update_7001(&$sandbox) {
  * Delete Steps reference field.
  */
 function walkhub_update_7002() {
+  field_delete_field('field_steps');
+  $limit = variable_get('field_purge_batch_size', 10);
+  field_purge_batch($limit);
 
   return t('The field Steps has been deleted.');
 }
