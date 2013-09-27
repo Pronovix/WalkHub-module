@@ -24,14 +24,6 @@ function walkhub_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function walkhub_node_info() {
   $items = array(
-    'step' => array(
-      'name' => t('Step'),
-      'base' => 'node_content',
-      'description' => '',
-      'has_title' => '1',
-      'title_label' => t('Name'),
-      'help' => '',
-    ),
     'walkthrough' => array(
       'name' => t('Walkthrough'),
       'base' => 'node_content',
