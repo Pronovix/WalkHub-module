@@ -93,3 +93,11 @@ function walkhub_update_7001(&$sandbox) {
 
   return t('Step nodes have been converted to field collection items.');
 }
+
+/**
+ * Delete Steps reference field.
+ */
+function walkhub_update_7002() {
+
+  return t('The field Steps has been deleted.');
+}
