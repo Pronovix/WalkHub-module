@@ -730,46 +730,6 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-walkthrough-field_steps'
-  $field_instances['node-walkthrough-field_steps'] = array(
-    'bundle' => 'walkthrough',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'You can add existing steps to your walkthrough. If you are creating a Walkthrough from a Selenium test you can leave this blank.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_steps',
-    'label' => 'Steps',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 4,
-    ),
-  );
-
   // Exported field_instance: 'node-walkthrough-field_tags'
   $field_instances['node-walkthrough-field_tags'] = array(
     'bundle' => 'walkthrough',
@@ -828,7 +788,6 @@ function walkhub_field_default_field_instances() {
   t('Tags');
   t('The Selenium locator that will be used to position the step description call-out.');
   t('When you create a new walkthrough, you can automatically generate steps from a Selenium test. <a href="https://github.com/kvantomme/Walkthrough/wiki/How-to-create-a-walkthrough-with-automated-steps">Learn more</a>');
-  t('You can add existing steps to your walkthrough. If you are creating a Walkthrough from a Selenium test you can leave this blank.');
   t('You can use parameters such as [path], [username], [password] or any custom parameters of your choice in this field.');
 
   return $field_instances;
