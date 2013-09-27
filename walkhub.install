@@ -42,6 +42,11 @@ function walkhub_update_7001(&$sandbox) {
         // Load the step nodes to get the stored data.
         foreach ($steps as $step) {
           $step_node = node_load($step['target_id']);
+          // If the referenced step node doesn't exist continue with the next
+          // one.
+          if (!$step_node) {
+            continue;
+          }
           // Store the deletable step node's ID.
           $deletable_steps[] = $step_node->nid;
 
