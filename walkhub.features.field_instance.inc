@@ -142,7 +142,7 @@ function walkhub_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -176,7 +176,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 2,
+      'weight' => 3,
     ),
   );
 
@@ -198,7 +198,7 @@ function walkhub_field_default_field_instances() {
     'entity_type' => 'field_collection_item',
     'field_name' => 'field_fc_step_name',
     'label' => 'Name',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'text_processing' => 0,
       'user_register_form' => FALSE,
@@ -210,7 +210,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 0,
+      'weight' => 1,
     ),
   );
 
@@ -247,7 +247,7 @@ function walkhub_field_default_field_instances() {
         'display_label' => 0,
       ),
       'type' => 'options_onoff',
-      'weight' => 7,
+      'weight' => 0,
     ),
   );
 
