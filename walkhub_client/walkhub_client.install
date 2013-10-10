@@ -1,26 +1,6 @@
 <?php
 
 /**
- * Implements hook_requirements().
- */
-function walkhub_client_requirements($phase) {
-  $requirements = array();
-  $t = get_t();
-  if ($phase == 'runtime') {
-    $jq_update = variable_get('jquery_update_jquery_version', '1.5');
-    $ok = $jq_update >= 1.8;
-    $requirements['walkhub_client_jquery_version'] = array(
-      'title' => $t('jQuery version for walkhub client'),
-      'value' => $jq_update,
-      'description' => $t('The minimum required version is 1.8.'),
-      'severity' => $ok ? REQUIREMENT_OK : REQUIREMENT_ERROR,
-    );
-  }
-
-  return $requirements;
-}
-
-/**
  * Implements hook_install().
  */
 function walkhub_client_install() {
