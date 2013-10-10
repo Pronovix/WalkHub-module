@@ -69,8 +69,8 @@
     data = walkthroughlink.data();
 
     for (var k in data) {
-      if (k.indexOf('walkthroughParameter') == 0) {
-        var parameter = k.substr('walkthroughParameter'.length).toLowerCase();
+      if (k.indexOf('walkthrough-parameter') == 0) {
+        var parameter = k.substr('walkthrough-parameter-'.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
       }
