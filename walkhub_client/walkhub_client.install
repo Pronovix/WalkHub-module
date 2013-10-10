@@ -4,7 +4,6 @@
  * Implements hook_install().
  */
 function walkhub_client_install() {
-  variable_set('jquery_update_jquery_version', '1.8');
   variable_set('walkhub_client_base_url', 'http://walkhub.net/resources');
   variable_set('walkhub_hub_origin', 'http://walkhub.net');
 }
