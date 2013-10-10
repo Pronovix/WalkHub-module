@@ -5,7 +5,7 @@
  */
 function walkhub_client_init() {
   if (($base = variable_get('walkhub_client_base_url')) && ($hub = variable_get('walkhub_hub_origin'))) {
-    drupal_add_js("$base/compiled-drupal.js", array(
+    drupal_add_js("$base/compiled.js", array(
       'type' => 'external',
       'every_page' => TRUE,
       'cache' => FALSE,
