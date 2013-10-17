@@ -40,6 +40,8 @@
           iframe.dialog('option', 'width', $(window).width() - 20);
           iframe.dialog('option', 'height', $(window).height() - 20);
           iframe.css('width', '100%');
+          iframe.dialog('option', 'position', 'center');
+          iframe.parent().css('position', 'fixed');
         }
 
         resize();
