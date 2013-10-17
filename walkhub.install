@@ -144,3 +144,13 @@ function walkhub_update_7002() {
 
   return t('The field Steps has been deleted.');
 }
+
+/**
+ * Create db table for command patterns.
+ */
+function walkhub_update_7003() {
+  $db_schema = drupal_get_schema('walhub_patterns', TRUE);
+  db_create_table('walhub_patterns', $db_schema);
+
+  return t('Walkhub patterns table has been created.');
+}
