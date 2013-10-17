@@ -77,20 +77,23 @@ class WalkhubStep implements WalkhubObject {
    */
   public $showTitle;
 
-  public function __construct(stdClass $node = NULL) {
-    if ($node) {
+  public function __construct(FieldCollectionItemEntity $step = NULL) {
+    if ($step) {
       module_load_include('inc', 'walkhub');
-      $this->uuid = $node->uuid;
-      $this->titleRaw = $this->title = $node->title;
-      $this->descriptionRaw = $this->description = walkhub_field_get_value($node, 'body');
-      $this->commandRaw = $this->command = walkhub_field_get_value($node, 'field_command_1');
+      if ($step->hostEntityType() !== 'node' || $step->hostEntityBundle() !== 'walkthrough') {
+        return;
+      }
+      $this->uuid = $step->uuid;
+      $this->titleRaw = $this->title = walkhub_field_get_value($step, 'field_fc_step_name');
+      $this->descriptionRaw = $this->description = walkhub_field_get_value($step, 'field_fc_step_description');
+      $this->commandRaw = $this->command = walkhub_field_get_value($step, 'field_fc_step_command_1');
       $this->andWait = strlen($this->command) > 7 && substr($this->command, -7) === 'AndWait';
       $this->pureCommandRaw = $this->pureCommand = $this->andWait ? substr($this->command, 0, -7) : $this->command;
-      $this->arg1 = walkhub_field_get_value($node, 'field_command_2');
-      $this->arg2 = walkhub_field_get_value($node, 'field_command_3');
-      $this->highlight = walkhub_field_get_value($node, 'field_step_highlight');
-      $this->canEdit = node_access('update', $node);
-      $this->showTitle = (bool) walkhub_field_get_value($node, 'field_show_title');
+      $this->arg1 = walkhub_field_get_value($step, 'field_fc_step_command_2');
+      $this->arg2 = walkhub_field_get_value($step, 'field_fc_step_command_3');
+      $this->highlight = walkhub_field_get_value($step, 'field_fc_step_highlight');
+      $this->canEdit = node_access('update', $step->hostEntity());
+      $this->showTitle = (bool) walkhub_field_get_value($step, 'field_fc_step_show_title');
     }
   }
 
@@ -100,28 +103,39 @@ class WalkhubStep implements WalkhubObject {
    * @param stdClass $entity
    */
   public function applyOnEntity(stdClass $entity) {
-    $entity->title = $this->titleRaw;
-    $entity->body[$entity->language][0]['value'] = $this->descriptionRaw;
-    $entity->field_show_title[$entity->language][0]['value'] = (int)(bool)$this->showTitle;
+    $entity->field_fc_step_name[$entity->langcode()][0]['value'] = $this->titleRaw;
+    $entity->field_fc_step_description[$entity->langcode()][0]['value'] = $this->descriptionRaw;
+    $entity->field_fc_step_show_title[$entity->langcode()][0]['value'] = (int)(bool)$this->showTitle;
   }
 }
 
 function _step_resource_retrieve($uuid) {
   module_load_include('inc', 'walkhub');
-  $node = _walkhub_node_retrieve($uuid, 'step');
-  return $node ? walkhub_serialize_safely(new WalkhubStep($node)) : $node;
+  $entities = walkhub_load_entity('field_collection_item', $uuid);
+  $entity = reset($entities);
+  return $entity ? walkhub_serialize_safely(new WalkhubStep($entity)) : $entity;
 }
 
 function _step_resource_update($uuid, $step) {
   module_load_include('inc', 'walkhub');
   $step = walkhub_convert_stdclass_to_object((object) $step, 'WalkhubStep');
-  $node = _walkhub_node_retrieve($uuid, 'step');
-  $step->applyOnEntity($node);
-  node_save($node);
-  return walkhub_serialize_safely(new WalkhubStep($node));
+  $fci = _walkhub_field_collection_item_retrieve($uuid, 'field_fc_steps');
+  $step->applyOnEntity($fci);
+  $fci->save(TRUE);
+  return walkhub_serialize_safely(new WalkhubStep($fci));
 }
 
 function _step_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'walkhub');
-  return _walkhub_node_resource_access('step', $op, $args);
+  module_load_include('inc', 'services', 'resources/node_resource.inc');
+  $entities = walkhub_load_entity('field_collection_item', $args[0]);
+  if (!$entities) {
+    return FALSE;
+  }
+  $entity = reset($entities);
+  $node = $entity->hostEntity();
+  if ((!$node) || ($node->type !== 'walkthrough')) {
+    return FALSE;
+  }
+  return _walkhub_node_resource_access('walkthrough', $op, array($node->uuid));
 }

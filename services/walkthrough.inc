@@ -38,7 +38,7 @@ class WalkhubWalkthrough implements WalkhubObject {
       $this->uuid = $node->uuid;
       $this->name = $node->title;
       $this->description = walkhub_field_get_value($node, 'body');
-      $this->steps = walkhub_field_get_references('node', $node, 'field_steps');
+      $this->steps = walkhub_field_get_references('field_collection_item', $node, 'field_fc_steps', $node->language, 'value');
       $this->parameters = _walkhub_get_parameters($node);
       $this->url = call_user_func_array('url', node_uri($node) + array('options' => array('absolute' => TRUE))) . '/start';
     }

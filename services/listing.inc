@@ -19,6 +19,7 @@ function _listing_resource_index() {
 
   $q = new EntityFieldQuery();
 
+  // @TODO fix the listing endpoint for steps
   $q->entityCondition('entity_type', 'node');
   if ($uuids) {
     $q->propertyCondition('uuid', $uuids, 'IN');

@@ -188,12 +188,12 @@ function walkhub_field_get_references($entity_type, $entity, $field, $language =
 }
 
 /**
- * Loads a node from it's UUID with a given type.
+ * Loads a node from its UUID with a given type.
  *
  * @param string $uuid
  *   Node UUID.
- * @param string $type
- *   Node type.
+ * @param string|array $type
+ *   Node type(s).
  * @param bool $disable_exception
  *   Disables throwing an exception.
  *
@@ -214,6 +214,35 @@ function _walkhub_node_retrieve($uuid, $type, $disable_exception = FALSE) {
   }
 
   return $node;
+}
+
+/**
+ * Loads a field collection item from its UUID with a given bundle.
+ *
+ * @param string $uuid
+ *   Field collection item UUID.
+ * @param string $bundle
+ *   Field collection item bundle(s).
+ * @param bool $disable_exception
+ *   Disables throwing an exception.
+ *
+ * @return bool|FieldCollectionItemEntity
+ * @throws ServicesException
+ */
+function _walkhub_field_collection_item_retrieve($uuid, $bundle, $disable_exception = FALSE) {
+  $entities = walkhub_load_entity('field_collection_item', $uuid);
+  $entity = reset($entities);
+
+  if ((!$entity) || (is_array($bundle) ? !in_array($entity->field_name, $bundle) : ($entity->field_name !== $bundle))) {
+    if ($disable_exception) {
+      return FALSE;
+    }
+    else {
+      throw new ServicesException(t('Failed to load !uuid', array('!uuid' => $uuid)), 404);
+    }
+  }
+
+  return $entity;
 }
 
 /**

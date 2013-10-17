@@ -341,23 +341,14 @@ function walkhub_node_presave($node) {
       _walkhub_add_default_parameters($base, $node);
     }
     if (!empty($steps)) {
-      // Delete the previously attached steps.
-      $old_steps_nids = array();
-      $old_steps = field_get_items('node', $node, 'field_steps', LANGUAGE_NONE);
-      if (is_array($old_steps)) {
-        foreach ($old_steps as $old_step) {
-          $old_steps_nids[] = $old_step['target_id'];
-        }
-      }
-      node_delete_multiple($old_steps_nids);
-
       // Create new nodes based on the selenium source.
       $walkthrough_steps = array();
       foreach ($steps as $key => $step) {
-        $steps[$key]['node'] = _walkhub_create_step_node($step, $key, $node);
-        $walkthrough_steps[$key]['target_id'] = $steps[$key]['node']->nid;
+        $steps[$key]['fci'] = _walkhub_create_step($step, $key, $node);
+        $walkthrough_steps[$key]['value'] = $steps[$key]['fci']->identifier();
+        $walkthrough_steps[$key]['revision_id'] = $steps[$key]['fci']->revision_id;
       }
-      $node->field_steps[LANGUAGE_NONE] = $walkthrough_steps;
+      $node->field_fc_steps[LANGUAGE_NONE] = $walkthrough_steps;
     }
   }
 }
@@ -540,37 +531,26 @@ function _walkhub_parse_url($source) {
 /**
  * Create a step node.
  *
- * @param $step
- * @param $key
- * @return stdClass
+ * @param array $step
+ * @param int $key
+ * @param stdClass $walkthrough_node
+ * @return FieldCollectionItemEntity
  */
-function _walkhub_create_step_node($step, $key, $walkthrough_node) {
-  $node = new stdClass();
-  $node->title = "$walkthrough_node->title $key. step";
-  $node->type = 'step';
-  $node->language = $walkthrough_node->language;
-  node_object_prepare($node);
+function _walkhub_create_step(array $step, $key, $walkthrough_node) {
+  $lang = $walkthrough_node->language;
+  $fci = entity_create('field_collection_item', array('field_name' => 'field_fc_steps'));
+  $fci->setHostEntity('node', $walkthrough_node, $lang, FALSE);
+  $fci->field_fc_step_name[$lang][0]['value'] = "$walkthrough_node->title $key. step";
+  $fci->field_fc_step_command_1[$lang][0]['value'] = $step['action'];
+  $fci->field_fc_step_command_2[$lang][0]['value'] = $step['xpath'];
+  $fci->field_fc_step_command_3[$lang][0]['value'] = $step['description'];
+  $fci->field_fc_step_highlight[$lang][0]['value'] = $step['highlight'];
 
-  $node->field_command_1[$node->language][0] = array(
-    'value' => $step['action'],
-  );
+  drupal_alter('walkhub_import_step', $fci);
 
-  $node->field_command_2[$node->language][0] = array(
-    'value' => $step['xpath'],
-  );
+  $fci->save(TRUE);
 
-  $node->field_command_3[$node->language][0] = array(
-    'value' => $step['description'],
-  );
-
-  $node->field_step_highlight[$node->language][0] = array(
-    'value' => $step['highlight'],
-  );
-
-  drupal_alter('walkhub_import_step', $node, $walkthrough_node);
-
-  node_save($node);
-  return $node;
+  return $fci;
 }
 
 /**
