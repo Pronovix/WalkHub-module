@@ -5,6 +5,32 @@
  */
 
 /**
+ * Implements hook_schema().
+ */
+function walkhub_schema() {
+  $schema['walhub_patterns'] = array(
+    'description' => 'The base table for default templates.',
+    'fields' => array(
+      'command' => array(
+        'description' => 'The command name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'pattern' => array(
+        'description' => "The command's pattern.",
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('command'),
+  );
+
+  return $schema;
+}
+
+/**
  * Convert step content type nodes to field collection items.
  */
 function walkhub_update_7001(&$sandbox) {
