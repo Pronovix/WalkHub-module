@@ -48,6 +48,14 @@ function walkhub_menu() {
     'file' => 'walkhub.pages.inc',
   );
 
+  $items['admin/structure/walkhub-patterns'] = array(
+    'title' => 'Walkhub patterns',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('walkhub_command_patterns_form'),
+    'access arguments' => array('administer walkhub patterns'),
+    'file' => 'walkhub.admin.inc',
+  );
+
   return $items;
 }
 
