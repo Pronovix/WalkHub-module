@@ -36,3 +36,20 @@ function walkhub_command_patterns_form($form, &$form_state) {
 
   return $form;
 }
+
+/**
+ * Save the added patterns into databse.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function walkhub_command_patterns_form_submit($form, &$form_state) {
+  foreach ($form_state['values']['commands'] as $command => $pattern) {
+    db_merge('walhub_patterns')
+      ->key(array('command' => $command))
+      ->fields(array(
+          'pattern' => $pattern,
+      ))
+      ->execute();
+  }
+}
