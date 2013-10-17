@@ -467,6 +467,57 @@ function _walkhub_break_up_to_steps($source) {
   return array($steps, $base);
 }
 
+/**
+ * Returns with the supported selenium commands list.
+ *
+ * @return array
+ */
+function _walkhub_get_supported_selenium_commands() {
+  return array(
+    'addSelection' => 0,
+    'assignId' => 0,
+    'check' => 0,
+    'click' => 0,
+    'clickAt' => 0,
+    'contextMenu' => 0,
+    'contextMenuAt' => 0,
+    'doubleClick' => 0,
+    'doubleClickAt' => 0,
+    'dragAndDrop' => 0,
+    'dragAndDropToObject' => 0,
+    'dragdrop' => 0,
+    'fireEvent' => 0,
+    'focus' => 0,
+    'highlight' => 0,
+    'keyDown' => 0,
+    'keyPress' => 0,
+    'keyUp' => 0,
+    'mouseDown' => 0,
+    'mouseDownAt' => 0,
+    'mouseDownRight' => 0,
+    'mouseDownRightAt' => 0,
+    'mouseMove' => 0,
+    'mouseMoveAt' => 0,
+    'mouseOut' => 0,
+    'mouseOutAt' => 0,
+    'mouseOver' => 0,
+    'mouseUp' => 0,
+    'mouseUpAt' => 0,
+    'mouseUpRight' => 0,
+    'mouseUpRightAt' => 0,
+    'removeAllSelections' => 0,
+    'removeSelection' => 0,
+    'sendKeys' => 0,
+    'select' => 0,
+    'selectFrame' => 0,
+    'setCursorPosition' => 0,
+    'submit' => 0,
+    'type' => 0,
+    'typeKeys' => 0,
+    'uncheck' => 0,
+  );
+}
+
 function endsWith($haystack, $needle) {
   return substr($haystack, -strlen($needle)) == $needle;
 }
