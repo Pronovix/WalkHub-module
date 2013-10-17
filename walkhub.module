@@ -60,6 +60,18 @@ function walkhub_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function walkhub_permission() {
+  return array(
+    'administer walkhub patterns' =>  array(
+      'title' => t('Administer Walkhub patterns'),
+    ),
+  );
+
+}
+
+/**
  * Loads a node if it's content type is 'walkthrough'.
  *
  * @param int $nid
