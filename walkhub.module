@@ -10,15 +10,6 @@ include_once 'walkhub.features.inc';
  * Implements hook_init().
  */
 function walkhub_init() {
-  // Adds CORS support.
-  // TODO: check if this is secure. Probably a domain should be added to
-  // walkthroughs or steps.
-  drupal_add_http_header('Access-Control-Allow-Origin', '*');
-  drupal_add_http_header('Access-Control-Allow-Credentials', 'true');
-  drupal_add_http_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    drupal_exit();
-  }
   drupal_add_js('misc/ajax.js');
   drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js');
   drupal_add_library('system', 'ui.dialog');
