@@ -9,8 +9,10 @@ interface WalkhubObject {
    * Applies the contents of this container object to an existing entity.
    *
    * @param stdClass $entity
+   *
+   * @return
    */
-  public function applyOnEntity(stdClass $entity);
+  public function applyOnEntity($entity);
 }
 
 /**

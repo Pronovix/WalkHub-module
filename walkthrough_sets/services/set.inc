@@ -64,7 +64,7 @@ class WalkhubWalkthroughSet implements WalkhubObject {
    *
    * @param stdClass $entity
    */
-  public function applyOnEntity(stdClass $entity) {
+  public function applyOnEntity($entity) {
     // TODO: Implement applyOnEntity() method.
   }
 }

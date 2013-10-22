@@ -239,6 +239,13 @@ function walkhub_default_services_endpoint() {
         ),
       ),
     ),
+    'walkhub-user' => array(
+      'actions' => array(
+        'registration' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'walkthrough-set' => array(
       'operations' => array(
         'retrieve' => array(

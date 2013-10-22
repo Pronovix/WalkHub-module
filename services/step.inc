@@ -102,7 +102,7 @@ class WalkhubStep implements WalkhubObject {
    *
    * @param stdClass $entity
    */
-  public function applyOnEntity(stdClass $entity) {
+  public function applyOnEntity($entity) {
     $entity->field_fc_step_name[$entity->langcode()][0]['value'] = $this->titleRaw;
     $entity->field_fc_step_description[$entity->langcode()][0]['value'] = $this->descriptionRaw;
     $entity->field_fc_step_show_title[$entity->langcode()][0]['value'] = (int)(bool)$this->showTitle;
