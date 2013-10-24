@@ -200,7 +200,8 @@
       step: null,
       completed: false,
       stepIndex: 0,
-      parameters: {}
+      parameters: {},
+      HTTPProxyURL: ''
     };
 
     var finished = false;
@@ -320,6 +321,7 @@
     this.clickEventHandler = function (event) {
       event.preventDefault();
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
+      state.HTTPProxyURL = $(this).attr('data-walkthrough-proxy-url');
       state.step = null;
       state.stepIndex = 0;
       state.parameters = {};

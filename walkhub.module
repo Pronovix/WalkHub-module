@@ -47,6 +47,15 @@ function walkhub_menu() {
     'file' => 'walkhub.admin.inc',
   );
 
+  $items['admin/config/services/walkhub'] = array(
+    'title' => 'Walkhub configuration',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer walkthrough'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('walkhub_configuration_form'),
+    'file' => 'walkhub.admin.inc'
+  );
+
   return $items;
 }
 
@@ -57,6 +66,9 @@ function walkhub_permission() {
   return array(
     'administer walkhub patterns' =>  array(
       'title' => t('Administer Walkhub patterns'),
+    ),
+    'administer walkthrough' => array(
+      'title' => t('Administer walkthrough'),
     ),
   );
 
@@ -97,6 +109,9 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
             $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
+            if (variable_get('walkhub_use_proxy') && ($proxy_url = variable_get('walkhub_proxy_url'))) {
+              $action['#link']['localized_options']['attributes']['data-walkthrough-proxy-url'] = $proxy_url;
+            }
             foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
               $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
             }

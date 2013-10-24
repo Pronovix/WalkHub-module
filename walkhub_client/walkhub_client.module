@@ -1,9 +1,31 @@
 <?php
 
 /**
+ * Checks if the HTTP headers contain the Walkhub Proxy's own header.
+ *
+ * @return bool
+ */
+function walkhub_client_check_headers() {
+  $headers = array();
+
+  if (function_exists('getallheaders')) {
+    $headers = getallheaders();
+  }
+  elseif (function_exists('apache_request_headers')) {
+    $headers = apache_request_headers();
+  }
+
+  return $headers && !empty($headers['X-Walkhub-Client']);
+}
+
+/**
  * Implements hook_init().
  */
 function walkhub_client_init() {
+  if (walkhub_client_check_headers()) {
+    return;
+  }
+
   if (($base = variable_get('walkhub_client_base_url')) && ($hub = variable_get('walkhub_hub_origin'))) {
     drupal_add_js("$base/compiled.js", array(
       'type' => 'external',
