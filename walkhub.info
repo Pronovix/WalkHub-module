@@ -15,7 +15,6 @@ dependencies[] = strongarm
 dependencies[] = taxonomy
 dependencies[] = text
 dependencies[] = uuid
-dependencies[] = walkhub_client
 features[ctools][] = field_group:field_group:1
 features[ctools][] = services:services:3
 features[ctools][] = strongarm:strongarm:1
