@@ -68,17 +68,33 @@
 
   function getDefaultParameters(walkthroughlink) {
     var parameters = {};
-    data = walkthroughlink.data();
+    var data = walkthroughlink.data();
+    var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
     for (var k in data) {
-      if (k.indexOf('walkthrough-parameter') == 0) {
-        var parameter = k.substr('walkthrough-parameter-'.length).toLowerCase();
+      if (k.indexOf(wtParamPrefix) == 0) {
+        var parameter = k.substr(wtParamPrefix.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
       }
     }
 
     return parameters;
+  }
+
+  function jqCompat(version) {
+    var jqversionparts = $.fn.jquery.split('.');
+    var versionparts = version.split('.');
+    for (var p in versionparts) {
+      if (versionparts[p] > (jqversionparts[p] || 0)) {
+        return false;
+      }
+      if (versionparts[p] < (jqversionparts[p] || 0)) {
+        return true;
+      }
+    }
+
+    return true;
   }
 
   function createDialogForm(walkthroughlink, server) {
