@@ -44,9 +44,6 @@ function walkhub_create_walkthrough_form($form, &$form_state) {
     case 2:
       $form += walkhub_create_walkthrough_form_step_2($form, $form_state);
       break;
-    case 3:
-      $form += walkhub_create_walkthrough_form_step_3($form, $form_state);
-      break;
   }
 
   return $form;
@@ -83,12 +80,14 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
+    '#required' => TRUE,
     '#default_value' => !empty($form_state['walkthrough']->title) ? $form_state['walkthrough']->title : NULL,
   );
 
   $form['body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
+    '#required' => TRUE,
     '#default_value' => !empty($form_state['walkthrough']->body[LANGUAGE_NONE][0]['value']) ?
             $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] : NULL,
   );
@@ -100,20 +99,12 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
     '#submit' => array('walkhub_create_walkthrough_form_previous'),
   );
 
-  $form['next'] = array(
+  $form['save'] = array(
     '#type' => 'submit',
-    '#value' => t('Next'),
-    '#submit' => array('walkhub_create_walkthrough_form_next'),
+    '#value' => t('Save'),
+    '#submit' => array('walkhub_create_walkthrough_form_save'),
   );
 
-  return $form;
-}
-
-/**
- * @return array
- */
-function walkhub_create_walkthrough_form_step_3($form, $form_state) {
-  $form = array();
   return $form;
 }
 
@@ -140,6 +131,14 @@ function walkhub_create_walkthrough_form_previous($form, &$form_state) {
 /**
  *
  */
+function walkhub_create_walkthrough_form_save($form, &$form_state) {
+  $walkthrough = node_save($form_state['walkthrough']);
+  $form_state['#redirect'] = "node/{$walkthrough->nid}";
+}
+
+/**
+ *
+ */
 function walkhub_create_walkthrough_save_values(&$form_state, $step) {
   switch ($step) {
     case 1:
@@ -148,8 +147,6 @@ function walkhub_create_walkthrough_save_values(&$form_state, $step) {
     case 2:
       $form_state['walkthrough']->title = $form_state['values']['title'];
       $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
-      break;
-    case 3:
       break;
   }
 }

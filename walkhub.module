@@ -21,8 +21,8 @@ function walkhub_init() {
 function walkhub_menu() {
   $items = array();
 
-  $items['walkthrough/create'] = array(
-    'title' => 'Create walkthrough',
+  $items['walkthrough/import'] = array(
+    'title' => 'Import walkthrough',
     'description' => 'Multi step form to create walkthroughs.',
     'type' => MENU_CALLBACK,
     'access arguments' => array('create', 'walkthrough'),
