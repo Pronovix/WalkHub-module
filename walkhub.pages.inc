@@ -27,21 +27,25 @@ function walkhub_start_walkthrough($node) {
 /**
  *
  */
-function walkhub_create_walkthrough_form($form, $form_state) {
+function walkhub_create_walkthrough_form($form, &$form_state) {
   if (!isset($form_state['step'])) {
+    $walkthrough = new stdClass();
+    $walkthrough->type = 'walkthrough';
+    node_object_prepare($walkthrough);
+    $form_state['walkthrough'] = $walkthrough;
+
     $form_state['step'] = 1;
   }
 
-
   switch ($form_state['step']) {
     case 1:
-      $form += walkhub_create_walkthrough_form_step_1();
+      $form += walkhub_create_walkthrough_form_step_1($form, $form_state);
       break;
     case 2:
-      $form += walkhub_create_walkthrough_form_step_2();
+      $form += walkhub_create_walkthrough_form_step_2($form, $form_state);
       break;
     case 3:
-      $form += walkhub_create_walkthrough_form_step_3();
+      $form += walkhub_create_walkthrough_form_step_3($form, $form_state);
       break;
   }
 
@@ -51,10 +55,55 @@ function walkhub_create_walkthrough_form($form, $form_state) {
 /**
  * @return mixed
  */
-function walkhub_create_walkthrough_form_step_1() {
+function walkhub_create_walkthrough_form_step_1($form, $form_state) {
   $form['selenium_code'] = array(
     '#type' => 'textarea',
     '#title' => t('Raw selenium'),
+    '#default_value' => !empty($form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value']) ?
+            $form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value'] : NULL,
+  );
+
+  $form['next'] = array(
+    '#type' => 'submit',
+    '#value' => t('Next'),
+    '#submit' => array('walkhub_create_walkthrough_form_next'),
+  );
+
+  return $form;
+}
+
+/**
+ *
+ *
+ * @return array
+ */
+function walkhub_create_walkthrough_form_step_2($form, $form_state) {
+  $form = array();
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#default_value' => !empty($form_state['walkthrough']->title) ? $form_state['walkthrough']->title : NULL,
+  );
+
+  $form['body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body'),
+    '#default_value' => !empty($form_state['walkthrough']->body[LANGUAGE_NONE][0]['value']) ?
+            $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] : NULL,
+  );
+
+  $form['previous'] = array(
+    '#type' => 'submit',
+    '#value' => t('Previous'),
+    '#limit_validation_errors' => array(),
+    '#submit' => array('walkhub_create_walkthrough_form_previous'),
+  );
+
+  $form['next'] = array(
+    '#type' => 'submit',
+    '#value' => t('Next'),
+    '#submit' => array('walkhub_create_walkthrough_form_next'),
   );
 
   return $form;
@@ -63,15 +112,44 @@ function walkhub_create_walkthrough_form_step_1() {
 /**
  * @return array
  */
-function walkhub_create_walkthrough_form_step_2() {
+function walkhub_create_walkthrough_form_step_3($form, $form_state) {
   $form = array();
   return $form;
 }
 
 /**
- * @return array
+ * @param $form
+ * @param $form_state
  */
-function walkhub_create_walkthrough_form_step_3() {
-  $form = array();
-  return $form;
+function walkhub_create_walkthrough_form_next($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  walkhub_create_walkthrough_save_values($form_state, $form_state['step']);
+  $form_state['step']++;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function walkhub_create_walkthrough_form_previous($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  walkhub_create_walkthrough_save_values($form_state, $form_state['step']);
+  $form_state['step']--;
+}
+
+/**
+ *
+ */
+function walkhub_create_walkthrough_save_values(&$form_state, $step) {
+  switch ($step) {
+    case 1:
+      $form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value'] = $form_state['values']['selenium_code'];
+      break;
+    case 2:
+      $form_state['walkthrough']->title = $form_state['values']['title'];
+      $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
+      break;
+    case 3:
+      break;
+  }
 }
