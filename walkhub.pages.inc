@@ -23,3 +23,55 @@ function walkhub_start_walkthrough($node) {
     ) + $getparams,
   ));
 }
+
+/**
+ *
+ */
+function walkhub_create_walkthrough_form($form, $form_state) {
+  if (!isset($form_state['step'])) {
+    $form_state['step'] = 1;
+  }
+
+
+  switch ($form_state['step']) {
+    case 1:
+      $form += walkhub_create_walkthrough_form_step_1();
+      break;
+    case 2:
+      $form += walkhub_create_walkthrough_form_step_2();
+      break;
+    case 3:
+      $form += walkhub_create_walkthrough_form_step_3();
+      break;
+  }
+
+  return $form;
+}
+
+/**
+ * @return mixed
+ */
+function walkhub_create_walkthrough_form_step_1() {
+  $form['selenium_code'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Raw selenium'),
+  );
+
+  return $form;
+}
+
+/**
+ * @return array
+ */
+function walkhub_create_walkthrough_form_step_2() {
+  $form = array();
+  return $form;
+}
+
+/**
+ * @return array
+ */
+function walkhub_create_walkthrough_form_step_3() {
+  $form = array();
+  return $form;
+}

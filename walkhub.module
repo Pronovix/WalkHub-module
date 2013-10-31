@@ -21,6 +21,17 @@ function walkhub_init() {
 function walkhub_menu() {
   $items = array();
 
+  $items['walkthrough/create'] = array(
+    'title' => 'Create walkthrough',
+    'description' => 'Multi step form to create walkthroughs.',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('create', 'walkthrough'),
+    'access callback' => 'node_access',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('walkhub_create_walkthrough_form'),
+    'file' => 'walkhub.pages.inc',
+  );
+
   $items['node/%walkhub_walkthrough_node/start'] = array(
     'title' => 'Start walkthrough',
     'page callback' => 'walkhub_start_walkthrough',
