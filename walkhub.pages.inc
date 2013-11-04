@@ -25,18 +25,22 @@ function walkhub_start_walkthrough($node) {
 }
 
 /**
- *
+ * Multi step form to create walkthroughs.
  */
 function walkhub_create_walkthrough_form($form, &$form_state) {
+  // Set up some default values at start.
   if (!isset($form_state['step'])) {
+    // Initialize the walkthrough object.
     $walkthrough = new stdClass();
     $walkthrough->type = 'walkthrough';
     node_object_prepare($walkthrough);
     $form_state['walkthrough'] = $walkthrough;
 
+    // Initialize a step counter
     $form_state['step'] = 1;
   }
 
+  // According to the current step load the proper form.
   switch ($form_state['step']) {
     case 1:
       $form += walkhub_create_walkthrough_form_step_1($form, $form_state);
@@ -50,12 +54,15 @@ function walkhub_create_walkthrough_form($form, &$form_state) {
 }
 
 /**
- * @return mixed
+ * First step: Add the raw html selenium code.
  */
 function walkhub_create_walkthrough_form_step_1($form, $form_state) {
   $form['selenium_code'] = array(
     '#type' => 'textarea',
-    '#title' => t('Raw selenium'),
+    '#title' => t('Paste your selenium code'),
+    '#rows' => 50,
+    '#description' => t('Learn how to create selenium tests: !link', array('!link' => l(t('link'),
+            'http://www.seleniumhq.org/docs/02_selenium_ide.jsp', array('attributes' => array('target'=>'_blank'))))),
     '#default_value' => !empty($form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value']) ?
             $form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value'] : NULL,
   );
@@ -70,12 +77,10 @@ function walkhub_create_walkthrough_form_step_1($form, $form_state) {
 }
 
 /**
- *
- *
- * @return array
+ * Second step: Information about the walkthrough.
  */
 function walkhub_create_walkthrough_form_step_2($form, $form_state) {
-  $form = array();
+  global $user;
 
   $form['title'] = array(
     '#type' => 'textfield',
@@ -86,11 +91,29 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
 
   $form['body'] = array(
     '#type' => 'textarea',
-    '#title' => t('Body'),
+    '#title' => t('Description'),
     '#required' => TRUE,
     '#default_value' => !empty($form_state['walkthrough']->body[LANGUAGE_NONE][0]['value']) ?
             $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] : NULL,
   );
+
+  $user_groups = og_get_entity_groups('user', $user);
+  $options = array();
+  if (!empty($user_groups['node'])) {
+    $group_nodes = node_load_multiple($user_groups['node']);
+    foreach ($group_nodes as $nid => $node) {
+      $options[$nid] = $node->title;
+    }
+
+    $form['user_groups'] = array(
+      '#type' => 'select',
+      '#title' => t('Save in'),
+      '#options' => $options,
+      '#empty_option' => 'Do not post into collection',
+      '#empty_value' => FALSE,
+      '#multiple' => TRUE,
+    );
+  }
 
   $form['previous'] = array(
     '#type' => 'submit',
@@ -109,44 +132,38 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
 }
 
 /**
- * @param $form
- * @param $form_state
+ * Next button submit callback.
  */
 function walkhub_create_walkthrough_form_next($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
-  walkhub_create_walkthrough_save_values($form_state, $form_state['step']);
+  $form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value'] = $form_state['values']['selenium_code'];
   $form_state['step']++;
 }
 
 /**
- * @param $form
- * @param $form_state
+ * Previous button submit callback.
  */
 function walkhub_create_walkthrough_form_previous($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
-  walkhub_create_walkthrough_save_values($form_state, $form_state['step']);
   $form_state['step']--;
 }
 
 /**
- *
+ * Submit function to save the defined walkthrough.
  */
 function walkhub_create_walkthrough_form_save($form, &$form_state) {
-  $walkthrough = node_save($form_state['walkthrough']);
-  $form_state['#redirect'] = "node/{$walkthrough->nid}";
-}
-
-/**
- *
- */
-function walkhub_create_walkthrough_save_values(&$form_state, $step) {
-  switch ($step) {
-    case 1:
-      $form_state['walkthrough']->field_raw_input[LANGUAGE_NONE][0]['value'] = $form_state['values']['selenium_code'];
-      break;
-    case 2:
-      $form_state['walkthrough']->title = $form_state['values']['title'];
-      $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
-      break;
+  // Set the body and title fields.
+  $form_state['walkthrough']->title = $form_state['values']['title'];
+  $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
+  // Set the group audience field value.
+  foreach ($form_state['values']['user_groups'] as $group) {
+    $form_state['walkthrough']->og_group_ref[LANGUAGE_NONE][] = array(
+      'target_id' => $group,
+    );
   }
+
+  // Save the walkthrough.
+  node_save($form_state['walkthrough']);
+  // Redirect the user to the newly created walkthrough page.
+  $form_state['redirect'] = "node/{$form_state['walkthrough']->nid}";
 }
