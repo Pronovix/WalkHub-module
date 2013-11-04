@@ -16,7 +16,12 @@
     return window.location.protocol + '//' + window.location.hostname + Drupal.settings.basePath;
   }
 
-  var iOS = navigator.platform === 'iPad' || navigator.platform === 'iPhone' || navigator.platform === 'iPod';
+  var iOS =
+    navigator.platform === 'iPad' ||
+    navigator.platform === 'iPad Simulator' ||
+    navigator.platform === 'iPhone' ||
+    navigator.platform === 'iPhone Simulator' ||
+    navigator.platform === 'iPod';
 
   var methods = {
     iframe: {
