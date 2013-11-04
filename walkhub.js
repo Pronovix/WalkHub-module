@@ -117,7 +117,7 @@
     return true;
   }
 
-  function createDialogForm(walkthroughlink, server) {
+  function createDialogForm(walkthroughlink, server, state) {
     var parameters = getDefaultParameters(walkthroughlink);
     var dialog = $('<div />')
       .attr('id', 'walkthrough-dialog-' + Math.random().toString())
@@ -146,23 +146,7 @@
         .appendTo(fieldset);
     }
 
-    function updateParameters() {
-      for (var k in parameters) {
-        parameters[k] = $('input[name=' + k + ']', dialog).val();
-      }
-    }
-
-    var buttons = {};
-    buttons[Drupal.t('Start walkthrough')] = function () {
-      updateParameters();
-      var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
-      server.startWalkthrough(parameters, methods[method_name]);
-      buttons[Drupal.t('Cancel')]();
-    };
-    buttons[Drupal.t('Cancel')] = function () {
-      dialog.dialog('close');
-      dialog.remove();
-    };
+    var httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
 
     $('<label />')
       .attr('for', 'sharelink')
@@ -175,6 +159,44 @@
       .addClass('share')
       .appendTo(dialog.find('form'));
 
+    var useproxy = null;
+    if (httpproxy) {
+      $('<label />')
+        .attr('for', 'useproxy')
+        .html(Drupal.t('Use proxy'))
+        .appendTo(dialog.find('form'));
+      useproxy = $('<input />')
+        .attr('type', 'checkbox')
+        .attr('name', 'useproxy')
+        .attr('id', 'useproxy')
+        .appendTo(dialog.find('form'));
+
+      if (getdata['useproxy'] !== '0') {
+        useproxy.attr('checked', 'checked');
+      }
+    }
+
+    function updateParameters() {
+      for (var k in parameters) {
+        parameters[k] = $('input[name=' + k + ']', dialog).val();
+      }
+    }
+
+    var buttons = {};
+    buttons[Drupal.t('Start walkthrough')] = function () {
+      updateParameters();
+      if (!useproxy.is(':checked')) {
+        state.HTTPProxyURL = null;
+      }
+      var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
+      server.startWalkthrough(parameters, methods[method_name]);
+      buttons[Drupal.t('Cancel')]();
+    };
+    buttons[Drupal.t('Cancel')] = function () {
+      dialog.dialog('close');
+      dialog.remove();
+    };
+
     function regenLinks() {
       updateParameters();
       var link = window.location.origin + window.location.pathname + '?';
@@ -182,6 +204,9 @@
         link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
+      if (httpproxy) {
+        link += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
+      }
       share.val(link + '&autostart=1');
     }
 
@@ -189,7 +214,10 @@
 
     $('input', dialog)
       .blur(regenLinks)
-      .keyup(regenLinks);
+      .keyup(regenLinks)
+      .click(regenLinks)
+      .change(regenLinks)
+      .blur();
 
     dialog.appendTo($('body'));
     dialog.dialog({
@@ -367,7 +395,7 @@
       state.completed = false;
       finished = false;
       currentURL = null;
-      createDialogForm($(this), self);
+      createDialogForm($(this), self, state);
     };
 
     this.startWalkthrough = function (parameters, wtmethod) {
