@@ -23,6 +23,7 @@
     navigator.platform === 'iPhone Simulator' ||
     navigator.platform === 'iPod';
 
+  // @TODO convert these into proper objects. Remove the singleton state of methods.*.object.
   var methods = {
     iframe: {
       name: 'iFrame',
@@ -33,6 +34,8 @@
           .attr('frameborder', 0)
           .attr('scrolling', 'auto')
           .attr('allowtransparency', 'true');
+
+        methods.iframe.object = iframe;
 
         iframe
           .appendTo($('body'))
@@ -59,13 +62,25 @@
 
         return iframe.get(0).contentWindow;
       },
+      teardown: function () {
+        if (methods.iframe.object) {
+          methods.iframe.object.dialog('close');
+          methods.iframe.object.remove();
+        }
+      },
       valid: true
     },
     popup: {
       name: 'Popup',
       linkcheck: true,
       execute: function (url) {
-        return window.open(url);
+        methods.popup.object = window.open(url);
+        return methods.popup.object;
+      },
+      teardown: function () {
+        if (methods.popup.object) {
+          methods.popup.object.close();
+        }
       },
       valid: !iOS
     }
@@ -225,6 +240,8 @@
       HTTPProxyURL: ''
     };
 
+    var method;
+
     var finished = false;
 
     function maybeProxy(newdata, olddata) {
@@ -311,6 +328,7 @@
       },
       finished: function (data, source) {
         finished = true;
+        method.teardown();
       },
       ping: function (data, source) {
         post({type: 'pong', tag: 'server'}, source, data.origin);
@@ -352,7 +370,8 @@
       createDialogForm($(this), self);
     };
 
-    this.startWalkthrough = function (parameters, method) {
+    this.startWalkthrough = function (parameters, wtmethod) {
+      method = wtmethod;
       if (window.proxy) {
         window.proxy.pause();
         // TODO call window.proxy.resume() when the walkthrough finishes.
@@ -377,7 +396,7 @@
               var cancel = function () {};
               Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
                 'Reopen': function () {
-                  self.startWalkthrough(parameters, method);
+                  self.startWalkthrough(parameters, method, wtdialog);
                 },
                 'Cancel': cancel
               }, cancel);
