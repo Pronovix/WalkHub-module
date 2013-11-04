@@ -33,6 +33,7 @@ function walkhub_create_walkthrough_form($form, &$form_state) {
     // Initialize the walkthrough object.
     $walkthrough = new stdClass();
     $walkthrough->type = 'walkthrough';
+    $walkthrough->language = LANGUAGE_NONE;
     node_object_prepare($walkthrough);
     $form_state['walkthrough'] = $walkthrough;
 
