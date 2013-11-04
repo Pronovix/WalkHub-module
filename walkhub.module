@@ -31,6 +31,15 @@ function walkhub_menu() {
     'file' => 'walkhub.pages.inc',
   );
 
+  $items['node/%walkhub_walkthrough_node/selenium_export'] = array(
+    'title' => 'Export to selenium',
+    'page callback' => 'walkhub_selenium_export',
+    'page arguments' => array(1),
+    'access arguments' => array('export walkthrough to selenium'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'walkhub.export.inc',
+  );
+
   $items['walkhub'] = array(
     'title' => 'Walkthrough is starting...',
     'page callback' => 'walkhub_walkhub_page',
@@ -69,6 +78,9 @@ function walkhub_permission() {
     ),
     'administer walkthrough' => array(
       'title' => t('Administer walkthrough'),
+    ),
+    'export walkthrough to selenium' => array(
+      'title' => t('Export walkthrough to selenium'),
     ),
   );
 
