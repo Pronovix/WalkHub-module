@@ -32,21 +32,6 @@ function _walkhub_get_selenium_export_output($node) {
   _walkhub_export_selenium_steps($dom, $node);
 
   $output = $dom->saveXML();
-
-  if (class_exists('tidy')) {
-    $tidy = new tidy();
-    $tidy_config = array(
-      'indent' => TRUE,
-      'input-xhtml' => TRUE,
-      'output-xhtml' => TRUE,
-      'wrap' => 1024,
-    );
-    $tidy->ParseString($output, $tidy_config);
-
-    $tidy->cleanRepair();
-    $output = (string)$tidy;
-  }
-
   return $output;
 }
 
