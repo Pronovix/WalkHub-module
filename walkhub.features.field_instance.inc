@@ -439,7 +439,50 @@ function walkhub_field_default_field_instances() {
       'module' => 'field_collection',
       'settings' => array(),
       'type' => 'field_collection_embed',
-      'weight' => 6,
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-walkthrough-field_prerequisites'
+  $field_instances['node-walkthrough-field_prerequisites'] = array(
+    'bundle' => 'walkthrough',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 7,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_prerequisites',
+    'label' => 'Prerequisites',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 3,
     ),
   );
 
@@ -517,7 +560,7 @@ function walkhub_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -533,6 +576,7 @@ function walkhub_field_default_field_instances() {
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
+  t('Prerequisites');
   t('Show title');
   t('Step highlight');
   t('Steps');

@@ -55,6 +55,7 @@ function walkhub_field_group_info() {
       0 => 'field_parameters',
       1 => 'field_tags',
       2 => 'field_fc_steps',
+      3 => 'field_prerequisites',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
