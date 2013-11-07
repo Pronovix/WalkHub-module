@@ -185,7 +185,7 @@
     var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
       updateParameters();
-      if (!useproxy.is(':checked')) {
+      if (httpproxy && !useproxy.is(':checked')) {
         state.HTTPProxyURL = null;
       }
       var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
