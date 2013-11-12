@@ -39,36 +39,5 @@ function walkhub_field_group_info() {
   );
   $export['group_fc_step_selenium|field_collection_item|field_fc_steps|form'] = $field_group;
 
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_walkthrough_advanced|node|walkthrough|form';
-  $field_group->group_name = 'group_walkthrough_advanced';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'walkthrough';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Advanced settings',
-    'weight' => '4',
-    'children' => array(
-      0 => 'field_parameters',
-      1 => 'field_tags',
-      2 => 'field_fc_steps',
-      3 => 'field_prerequisites',
-    ),
-    'format_type' => 'fieldset',
-    'format_settings' => array(
-      'label' => 'Advanced settings',
-      'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => ' group-walkthrough-advanced field-group-fieldset',
-        'description' => '',
-      ),
-      'formatter' => 'collapsed',
-    ),
-  );
-  $export['group_walkthrough_advanced|node|walkthrough|form'] = $field_group;
-
   return $export;
 }
