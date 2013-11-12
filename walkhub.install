@@ -154,3 +154,11 @@ function walkhub_update_7003() {
 
   return t('Walkhub patterns table has been created.');
 }
+
+/**
+ * Remove the advanced settings field group.
+ */
+function walkhub_update_7004() {
+  $group = field_group_load_field_group('group_walkthrough_advanced', 'node', 'walkthrough', 'form');
+  field_group_group_export_delete($group, FALSE);
+}
