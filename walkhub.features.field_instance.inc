@@ -197,7 +197,7 @@ function walkhub_field_default_field_instances() {
     ),
     'entity_type' => 'field_collection_item',
     'field_name' => 'field_fc_step_name',
-    'label' => 'Name',
+    'label' => 'Title',
     'required' => 0,
     'settings' => array(
       'text_processing' => 0,
@@ -571,7 +571,6 @@ function walkhub_field_default_field_instances() {
   t('Command 3');
   t('Create from Selenium test');
   t('Description');
-  t('Name');
   t('Parameter default value');
   t('Parameter name');
   t('Parameters');
@@ -582,6 +581,7 @@ function walkhub_field_default_field_instances() {
   t('Steps');
   t('Tags');
   t('The Selenium locator that will be used to position the step description call-out.');
+  t('Title');
   t('When you create a new walkthrough, you can automatically generate steps from a Selenium test. <a href="https://github.com/kvantomme/Walkthrough/wiki/How-to-create-a-walkthrough-with-automated-steps">Learn more</a>');
 
   return $field_instances;
