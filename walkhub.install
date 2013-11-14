@@ -5,6 +5,32 @@
  */
 
 /**
+ * Revert specified features.
+ *
+ * Code mostly taken from drush.
+ */
+function walkhub_features_revert($modules) {
+  module_load_include('inc', 'features', 'features.export');
+  features_include();
+
+  foreach (
+    $modules as $module) {
+    if (($feature = feature_load($module, TRUE)) && module_exists($module)) {
+      $components = array();
+      // Forcefully revert all components of a feature.
+      foreach (array_keys($feature->info['features']) as $component) {
+        if (features_hook($component, 'features_revert')) {
+          $components[] = $component;
+        }
+      }
+    }
+    foreach ($components as $component) {
+      features_revert(array($module => array($component)));
+    }
+  }
+}
+
+/**
  * Implements hook_schema().
  */
 function walkhub_schema() {
@@ -161,4 +187,67 @@ function walkhub_update_7003() {
 function walkhub_update_7004() {
   $group = field_group_load_field_group('group_walkthrough_advanced', 'node', 'walkthrough', 'form');
   field_group_group_export_delete($group, FALSE);
+}
+
+/**
+ * Add prerequisites and proxy warning message fields.
+ */
+function walkhub_update_7005() {
+  walkhub_features_revert(array('walkhub'));
+
+  return t('Walkhub feature reverted.');
+}
+
+/**
+ * Add default proxy warning message to existing walkthroughs.
+ */
+function walkhub_update_7006(&$sandbox) {
+  $content_type = 'walkthrough';
+  $field_name = 'field_proxy_warning_message';
+
+  if (empty($sandbox['total'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['last_nid'] = 0;
+
+    // Count the total number of the walkthrough nodes.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', $content_type)
+      ->count();
+    $sandbox['total'] = $query->execute();
+  }
+
+  // Get the next 10 walhtrough node.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', $content_type)
+    ->propertyCondition('nid', $sandbox['last_nid'], '>')
+    ->propertyOrderBy('nid')
+    ->range(0, 20);
+  $result = $query->execute();
+
+  if (!empty($result['node'])) {
+    $nodes = entity_load('node', array_keys($result['node']));
+
+    foreach($nodes as $node) {
+      static $default_proxy_message = NULL;
+      if ($default_proxy_message === NULL) {
+        $field = field_info_field($field_name);
+        $instance = field_info_instance('node', $field_name, $content_type);
+        $default_proxy_message = field_get_default_value('node', $node, $field, $instance, $node->language);
+      }
+
+      $node->field_proxy_warning_message[LANGUAGE_NONE][0]['value'] = $default_proxy_message[0]['value'];
+      node_save($node);
+
+      // Store the last node id and update progress.
+      $sandbox['last_nid'] = $node->nid;
+      $sandbox['progress']++;
+    }
+  }
+
+  // Set the finished variable based on the current progress status.
+  $sandbox['#finished'] = $sandbox['progress'] / $sandbox['total'];
+
+  return t('Step nodes have been converted to field collection items.');
 }
