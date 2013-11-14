@@ -486,6 +486,50 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-walkthrough-field_proxy_warning_message'
+  $field_instances['node-walkthrough-field_proxy_warning_message'] = array(
+    'bundle' => 'walkthrough',
+    'default_value' => array(
+      0 => array(
+        'value' => 'To add step-by-step walkthroughs to this site, we are running your browsing session over our proxy. To improve our product we monitor what URLs we serve and if they succeed or fail to load. We don\'t store any other information about the browsing session on our site. Read our documentation to learn how you can run Walkthroughs without the proxy.',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 8,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_proxy_warning_message',
+    'label' => 'Proxy warning message',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 9,
+    ),
+  );
+
   // Exported field_instance: 'node-walkthrough-field_raw_input'
   $field_instances['node-walkthrough-field_raw_input'] = array(
     'bundle' => 'walkthrough',
@@ -576,6 +620,7 @@ function walkhub_field_default_field_instances() {
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
   t('Prerequisites');
+  t('Proxy warning message');
   t('Show title');
   t('Step highlight');
   t('Steps');
