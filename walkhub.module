@@ -354,6 +354,49 @@ function walkhub_services_resources() {
     ),
   );
 
+  $walkhub_resource['walkhub-step-suggestion'] = array(
+    'retrieve' => array(
+      'file' => $listinc,
+      'callback' => '_step_suggestion_retrieve',
+      'args' => array(
+        array(
+          'name' => 'domain',
+          'optional' => FALSE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'command',
+          'optional' => FALSE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'arg1',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'arg2',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'uid',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+      ),
+      'access callback' => '_list_resource_access',
+      'access callback file' => $listinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+    ),
+  );
+
   return $walkhub_resource;
 }
 
