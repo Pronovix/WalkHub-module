@@ -491,7 +491,8 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'walkthrough',
     'default_value' => array(
       0 => array(
-        'value' => 'To add step-by-step walkthroughs to this site, we are running your browsing session over our proxy. To improve our product we monitor what URLs we serve and if they succeed or fail to load. We don\'t store any other information about the browsing session on our site. Read our documentation to learn how you can run Walkthroughs without the proxy.',
+        'value' => 'To add step-by-step walkthroughs to this site, we are running your browsing session over our proxy. To improve our product we monitor what URLs we serve and if they succeed or fail to load. We don\'t store any other information about the browsing session on our site. Read our <a href="/docs/client">documentation</a> to learn how you can run Walkthroughs without the proxy.',
+        'format' => 'full_html',
       ),
     ),
     'deleted' => 0,
