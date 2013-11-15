@@ -354,6 +354,49 @@ function walkhub_services_resources() {
     ),
   );
 
+  $walkhub_resource['walkhub-step-suggestion'] = array(
+    'retrieve' => array(
+      'file' => $listinc,
+      'callback' => '_step_suggestion_retrieve',
+      'args' => array(
+        array(
+          'name' => 'domain',
+          'optional' => FALSE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'command',
+          'optional' => FALSE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'arg1',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'arg2',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+        array(
+          'name' => 'uid',
+          'optional' => TRUE,
+          'source' => array('data'),
+          'type' => 'string',
+        ),
+      ),
+      'access callback' => '_list_resource_access',
+      'access callback file' => $listinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+    ),
+  );
+
   return $walkhub_resource;
 }
 
@@ -569,7 +612,7 @@ function _walkhub_create_step(array $step, $key, $walkthrough_node) {
   $lang = $walkthrough_node->language;
   $fci = entity_create('field_collection_item', array('field_name' => 'field_fc_steps'));
   $fci->setHostEntity('node', $walkthrough_node, $lang, FALSE);
-  $fci->field_fc_step_name[$lang][0]['value'] = "$walkthrough_node->title $key. step";
+  $fci->field_fc_step_name[$lang][0]['value'] = " ";
   $fci->field_fc_step_command_1[$lang][0]['value'] = $step['action'];
   $fci->field_fc_step_command_2[$lang][0]['value'] = $step['xpath'];
   $fci->field_fc_step_command_3[$lang][0]['value'] = $step['description'];
