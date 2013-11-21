@@ -355,45 +355,60 @@ function walkhub_services_resources() {
   );
 
   $walkhub_resource['walkhub-step-suggestion'] = array(
-    'retrieve' => array(
+    'index' => array(
       'file' => $listinc,
       'callback' => '_step_suggestion_retrieve',
-      'args' => array(
-        array(
-          'name' => 'domain',
-          'optional' => FALSE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'command',
-          'optional' => FALSE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'arg1',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'arg2',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'uid',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-      ),
       'access callback' => '_list_resource_access',
       'access callback file' => $listinc,
       'access arguments' => array('view'),
       'access arguments append' => TRUE,
+      'args' => array(
+        array(
+          'name' => 'domain',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'domain',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'command',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'command',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'arg1',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'arg1',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'arg2',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'arg2',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'uid',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'uid',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+      ),
     ),
   );
 
