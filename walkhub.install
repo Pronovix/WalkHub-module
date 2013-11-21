@@ -238,6 +238,7 @@ function walkhub_update_7006(&$sandbox) {
       }
 
       $node->field_proxy_warning_message[LANGUAGE_NONE][0]['value'] = $default_proxy_message[0]['value'];
+      $node->field_proxy_warning_message[LANGUAGE_NONE][0]['format'] = 'full_html';
       node_save($node);
 
       // Store the last node id and update progress.

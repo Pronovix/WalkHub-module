@@ -382,7 +382,7 @@ function walkhub_field_default_field_instances() {
           'view_mode' => 'full',
         ),
         'type' => 'field_collection_view',
-        'weight' => 6,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -418,7 +418,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -452,12 +452,9 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 7,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 8,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -491,7 +488,8 @@ function walkhub_field_default_field_instances() {
     'bundle' => 'walkthrough',
     'default_value' => array(
       0 => array(
-        'value' => 'To add step-by-step walkthroughs to this site, we are running your browsing session over our proxy. To improve our product we monitor what URLs we serve and if they succeed or fail to load. We don\'t store any other information about the browsing session on our site. Read our documentation to learn how you can run Walkthroughs without the proxy.',
+        'value' => 'To add step-by-step walkthroughs to this site, we are running your browsing session over our proxy. To improve our product we monitor what URLs we serve and if they succeed or fail to load. We don\'t store any other information about the browsing session on our site. Read our <a href="/docs/client">documentation</a> to learn how you can run Walkthroughs without the proxy.',
+        'format' => 'full_html',
       ),
     ),
     'deleted' => 0,
@@ -499,10 +497,9 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 8,
+        'type' => 'hidden',
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -541,7 +538,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -580,7 +577,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
