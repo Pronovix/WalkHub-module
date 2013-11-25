@@ -1,8 +1,6 @@
 name = Walkthrough sets
 core = 7.x
 package = Walkthrough
-php = 5.3
-files[] = services/set.inc
 dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = field_collection
@@ -41,3 +39,4 @@ features[variable][] = menu_parent_walkthrough_set
 features[variable][] = node_options_walkthrough_set
 features[variable][] = node_preview_walkthrough_set
 features[variable][] = node_submitted_walkthrough_set
+files[] = services/set.inc

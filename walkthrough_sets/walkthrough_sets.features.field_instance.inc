@@ -98,6 +98,12 @@ function walkthrough_sets_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 0,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'full' => array(
         'label' => 'hidden',
         'module' => 'text',
@@ -151,6 +157,12 @@ function walkthrough_sets_field_default_field_instances() {
         ),
         'type' => 'image',
         'weight' => 7,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'above',
@@ -208,6 +220,12 @@ function walkthrough_sets_field_default_field_instances() {
         'type' => 'image',
         'weight' => 6,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
@@ -259,6 +277,12 @@ function walkthrough_sets_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 1,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'above',
@@ -324,6 +348,12 @@ function walkthrough_sets_field_default_field_instances() {
         'type' => 'field_collection_view',
         'weight' => 4,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
@@ -372,6 +402,12 @@ function walkthrough_sets_field_default_field_instances() {
         ),
         'type' => 'field_collection_view',
         'weight' => 5,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'above',
