@@ -189,6 +189,15 @@ function _walkhub_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
   return $output;
 }
 
+/**
+ * Export PHPunit steps from a Walkthrough node.
+ *
+ * @param $node
+ *   Walkthrough node.
+ *
+ * @return string
+ *   PHPunit steps.
+ */
 function _walkhub_phpunit_export_steps($node) {
   $parameters = _walkhub_get_parameters($node);
 
@@ -214,6 +223,17 @@ function _walkhub_phpunit_export_steps($node) {
   return $output;
 }
 
+/**
+ * Export PHPunit steps via a walkhub.
+ *
+ * Steps will play a walkthrough on a walkhub.
+ *
+ * @param $node
+ *   Walkthrough node.
+ *
+ * @return string
+ *   PHPUnit steps.
+ */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output = '$this->open("' . url('node/' . $node->nid, array('absolute' => TRUE)) .'");' . "\n";
   $output .= '$this->click("link=Start walkthrough");' . "\n";
@@ -342,7 +362,6 @@ function _walkhub_phpunit_export_step($command1, $command2, $command3) {
   }
 
   return $output;
-
 }
 
 /**
