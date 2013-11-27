@@ -167,8 +167,7 @@ function walkhub_phpunit_export($node) {
  * @return string
  *   Exported phpunit class.
  */
-function _walkhub_get_phpunit_export_output($node) {
-  $parameters = _walkhub_get_parameters($node);
+function _walkhub_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
 
   $output = "<?php\n";
 
@@ -177,6 +176,23 @@ function _walkhub_get_phpunit_export_output($node) {
   $output .= _walkhub_get_phpunit_export_setup();
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
+  if ($via_walkthrough) {
+    $output .= _walkhub_phpunit_export_steps_via_walkhub($node);
+  } else {
+    $output .= _walkhub_phpunit_export_steps($node);
+  }
+
+
+  $output .= "  }\n";
+
+  $output .= "}\n";
+  return $output;
+}
+
+function _walkhub_phpunit_export_steps($node) {
+  $parameters = _walkhub_get_parameters($node);
+
+  $output = '';
   foreach ($node->field_fc_steps[LANGUAGE_NONE] as $step) {
     $step_item = field_collection_item_load($step['value']);
 
@@ -195,9 +211,32 @@ function _walkhub_get_phpunit_export_output($node) {
     $output .= call_user_func_array('_walkhub_phpunit_export_step', $arguments) . "\n\n";
   }
 
-  $output .= "  }\n";
+  return $output;
+}
 
-  $output .= "}\n";
+function _walkhub_phpunit_export_steps_via_walkhub($node) {
+  $output = '$this->open("' . url('node/' . $node->nid, array('absolute' => TRUE)) .'");' . "\n";
+  $output .= '$this->click("link=Start walkthrough");' . "\n";
+
+  $output .= '$this->waitForElementPresent("//button[@type=\'button\']", "30000");' . "\n";
+  $output .= '$this->click("//button[@type=\'button\']");' . "\n";
+
+  for ($i=0; $i<count($node->field_fc_steps[LANGUAGE_NONE])-1; $i++) {
+    // Wait for popup.
+    $output .= '$this->waitForElementPresent("link=Next", "30000");' . "\n";
+
+    // Wait for the scroll.
+    $output .= "sleep(1);\n";
+
+    // Take screenshot.
+    $screenshot_filename = $node->nid . '-' . $i . '.png';
+    $output .= '$this->captureEntirePageScreenshot("/tmp/' . $screenshot_filename . "\");\n";
+
+    // Click Next.
+    $output .= '$this->click("link=Next");' . "\n";
+    $output .= "sleep(1);\n";
+  }
+
   return $output;
 }
 
@@ -266,6 +305,7 @@ function _walkhub_get_phpunit_export_setup() {
   return '
   protected function setUp() {
     $this->setBrowser("*chrome");
+    $this->setBrowserUrl("' . $GLOBALS['base_url'] .'");
   }' . "\n\n";
 }
 
