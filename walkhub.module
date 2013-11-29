@@ -412,6 +412,27 @@ function walkhub_services_resources() {
     ),
   );
 
+  $walkhub_resource['walkthrough-prerequisites'] = array(
+    'index' => array(
+      'file' => $walkthroughinc,
+      'callback' => '_walkthrough_prerequisites_retrieve',
+      'access callback' => '_walkthrough_resource_access',
+      'access callback file' => $walkthroughinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+      'args' => array(
+        array(
+          'name' => 'uuid',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'uuid',
+          ),
+          'type' => 'string',
+        ),
+      ),
+    ),
+  );
+
   return $walkhub_resource;
 }
 
