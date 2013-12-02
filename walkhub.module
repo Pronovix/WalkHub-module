@@ -151,7 +151,24 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function walkhub_node_view_alter(&$build) {
   if ($build['#node']->type == 'walkthrough') {
+    global $language;
+
     $build['#attached']['css'][] = drupal_get_path('module', 'walkhub') . '/walkhub.css';
+
+    $items = field_get_items('node', $build['#node'], 'field_prerequisites', $language);
+    if (!empty($items)) {
+      $prerequisites = array();
+      foreach($items as $item) {
+        if ($node = node_load($item['target_id'])) {
+          $prerequisites[] = array(
+            'title' => $node->title,
+            'nid' => $node->nid,
+          );
+        }
+      }
+
+      drupal_add_js(array('walkhub' => array('prerequisites' => $prerequisites)), 'setting');
+    }
   }
 }
 

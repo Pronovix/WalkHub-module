@@ -128,35 +128,21 @@
 
     var fieldset = dialog.find('fieldset');
 
-    $('<div />')
-        .attr('id', 'walkthrough-dialog-prerequisites')
-        .appendTo(fieldset);
-    // Load the walkthrough prerequisites.
-    var basepath = baseurl();
-    $.ajax({
-      type: 'GET',
-      url: basepath + '/api/v2/walkthrough-prerequisites',
-      data: {
-        uuid: state.walkthrough
-      },
-      success: function(result, textStatus, jqXHR) {
-        var data = JSON.parse(result);
-        if (typeof data !== 'undefined' && data.length > 0) {
-          var $prerequisites = $('#walkthrough-dialog-prerequisites');
+    // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
+    if (typeof Drupal.settings.walkhub != 'undefined' && typeof Drupal.settings.walkhub.prerequisites != 'undefined') {
+      var basepath = baseurl();
 
-          $('<p />')
-            .html(Drupal.t('Before this Walkthrough can run you need to:'))
-            .appendTo($prerequisites);
+      $('<p />')
+          .html(Drupal.t('Before this Walkthrough can run you need to:'))
+          .appendTo(fieldset);
 
-          for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-              var href = basepath + "node/" + data[key]['nid'];
-              $('<a href="' + href + '" class="button">' + data[key]['title'] + '</a>').appendTo($prerequisites);
-            }
-          }
+      for (var key in Drupal.settings.walkhub.prerequisites) {
+        if (Drupal.settings.walkhub.prerequisites.hasOwnProperty(key)) {
+          var href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key]['nid'];
+          $('<a href="' + href + '" class="button">' + Drupal.settings.walkhub.prerequisites[key]['title'] + '</a>').appendTo(fieldset);
         }
       }
-    });
+    }
 
     $('<p />')
       .html(Drupal.t('The following parameters are available in this walkthrough:'))
@@ -231,6 +217,7 @@
 
     function regenLinks() {
       updateParameters();
+
       var link = window.location.origin + window.location.pathname + '?';
       for (var parameter in parameters) {
         link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
