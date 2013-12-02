@@ -60,6 +60,35 @@ function _walkthrough_resource_retrieve($uuid) {
   return $node ? walkhub_serialize_safely(new WalkhubWalkthrough($node)) : $node;
 }
 
+/**
+ * Get walkthrough prerequisites.
+ *
+ * @param string $uuid
+ *  The walkthrough node uuid.
+ *
+ * @return array
+ *  An array of prerequisites
+ */
+function _walkthrough_prerequisites_retrieve($uuid) {
+  $return = array();
+
+  $walkthrough = _walkhub_node_retrieve($uuid, 'walkthrough');
+  $prerequisites = field_get_items('node', $walkthrough, 'field_prerequisites', LANGUAGE_NONE);
+
+  if (!empty($prerequisites)) {
+    foreach($prerequisites as $prerequisite) {
+      if ($node = node_load($prerequisite['target_id'])) {
+        $return[] = array(
+          'title' => $node->title,
+          'nid' => $node->nid,
+        );
+      }
+    }
+  }
+
+  return $return;
+}
+
 function _walkthrough_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'walkhub');
   return _walkhub_node_resource_access('walkthrough', $op, $args);

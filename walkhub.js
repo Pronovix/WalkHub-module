@@ -125,7 +125,39 @@
       .addClass('walkthrough-dialog')
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
+
     var fieldset = dialog.find('fieldset');
+
+    $('<div />')
+        .attr('id', 'walkthrough-dialog-prerequisites')
+        .appendTo(fieldset);
+    // Load the walkthrough prerequisites.
+    var basepath = baseurl();
+    $.ajax({
+      type: 'GET',
+      url: basepath + '/api/v2/walkthrough-prerequisites',
+      data: {
+        uuid: state.walkthrough
+      },
+      success: function(result, textStatus, jqXHR) {
+        var data = JSON.parse(result);
+        if (typeof data !== 'undefined' && data.length > 0) {
+          var $prerequisites = $('#walkthrough-dialog-prerequisites');
+
+          $('<p />')
+            .html(Drupal.t('Before this Walkthrough can run you need to:'))
+            .appendTo($prerequisites);
+
+          for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+              var href = basepath + "node/" + data[key]['nid'];
+              $('<a href="' + href + '" class="button">' + data[key]['title'] + '</a>').appendTo($prerequisites);
+            }
+          }
+        }
+      }
+    });
+
     $('<p />')
       .html(Drupal.t('The following parameters are available in this walkthrough:'))
       .appendTo(fieldset);
