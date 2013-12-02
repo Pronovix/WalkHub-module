@@ -66,7 +66,8 @@ function _walkthrough_resource_retrieve($uuid) {
  * @param string $uuid
  *  The walkthrough node uuid.
  *
- *
+ * @return array
+ *  An array of prerequisites
  */
 function _walkthrough_prerequisites_retrieve($uuid) {
   $return = array();

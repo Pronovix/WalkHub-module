@@ -128,6 +128,9 @@
 
     var fieldset = dialog.find('fieldset');
 
+    $('<div />')
+        .attr('id', 'walkthrough-dialog-prerequisites')
+        .appendTo(fieldset);
     // Load the walkthrough prerequisites.
     var basepath = baseurl();
     $.ajax({
@@ -139,16 +142,16 @@
       success: function(result, textStatus, jqXHR) {
         var data = JSON.parse(result);
         if (typeof data !== 'undefined' && data.length > 0) {
-          var fieldset = dialog.find('fieldset');
+          var $prerequisites = $('#walkthrough-dialog-prerequisites');
 
           $('<p />')
             .html(Drupal.t('Before this Walkthrough can run you need to:'))
-            .appendTo(fieldset);
+            .appendTo($prerequisites);
 
           for (var key in data) {
             if (data.hasOwnProperty(key)) {
               var href = basepath + "node/" + data[key]['nid'];
-              $('<a href="' + href + '" class="button">' + data[key]['title'] + '</a>').appendTo(fieldset);
+              $('<a href="' + href + '" class="button">' + data[key]['title'] + '</a>').appendTo($prerequisites);
             }
           }
         }
