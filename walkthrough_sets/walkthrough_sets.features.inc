@@ -7,8 +7,7 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function walkthrough_sets_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function walkthrough_sets_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
   }
@@ -20,7 +19,7 @@ function walkthrough_sets_ctools_plugin_api() {
 function walkthrough_sets_node_info() {
   $items = array(
     'walkthrough_set' => array(
-      'name' => t('Walkthrough Set'),
+      'name' => t('Walkthrough suite'),
       'base' => 'node_content',
       'description' => '',
       'has_title' => '1',

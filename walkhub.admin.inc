@@ -9,6 +9,25 @@
  */
 function walkhub_configuration_form($form) {
 
+  $form['configuration'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Walkhub settings'),
+  );
+
+  // @Todo provide default values.
+  $form['configuration']['walkhub_hub_origin'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Walkhub origin'),
+    '#default_value' => variable_get('walkhub_hub_origin'),
+  );
+
+  // @Todo provide default values.
+  $form['configuration']['walkhub_client_base_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Walkhub client base url'),
+    '#default_value' => variable_get('walkhub_client_base_url'),
+  );
+
   $form['proxy'] = array(
     '#type' => 'fieldset',
     '#title' => t('Proxy'),
