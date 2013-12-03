@@ -459,7 +459,7 @@ function walkhub_services_resources() {
  * @param $node
  */
 function walkhub_node_presave($node) {
-  if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid)) {
+  if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid) && !isset($node->clone_from_original_nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
     list($steps, $base) = _walkhub_break_up_to_steps($source[0]['value']);
     if ($base) {
@@ -785,4 +785,3 @@ function theme_walkhub_list_steps(array $steps) {
 
   return theme('item_list', array('items' => $rendered_steps));
 }
-
