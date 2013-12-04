@@ -139,7 +139,7 @@
       for (var key in Drupal.settings.walkhub.prerequisites) {
         if (Drupal.settings.walkhub.prerequisites.hasOwnProperty(key)) {
           var href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key]['nid'];
-          $('<a href="' + href + '" class="button" target="_blank">' + Drupal.settings.walkhub.prerequisites[key]['title'] + '</a>').appendTo(fieldset);
+          $('<a href="' + href + '" class="button">' + Drupal.settings.walkhub.prerequisites[key]['title'] + '</a>').appendTo(fieldset);
         }
       }
     }
