@@ -89,6 +89,27 @@ function _walkthrough_prerequisites_retrieve($uuid) {
   return $return;
 }
 
+/**
+ * Export a walkthrough to PHPUnit case.
+ *
+ * @param string $uuid
+ *  The walkthrough node uuid.
+ *
+ * @return string
+ *  PHPUnit test case.
+ */
+function _walkthrough_phpunit_retrieve($uuid) {
+  $return = array();
+
+  $walkthrough = _walkhub_node_retrieve($uuid, 'walkthrough');
+  if (!empty($walkthrough)) {
+    module_load_include('inc', 'walkhub', 'walkhub.export');
+    $return = _walkhub_get_phpunit_export_output($walkthrough);
+  }
+
+  return $return;
+}
+
 function _walkthrough_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'walkhub');
   return _walkhub_node_resource_access('walkthrough', $op, $args);
