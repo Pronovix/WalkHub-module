@@ -333,6 +333,12 @@ function walkhub_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 0,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'hidden',
         'module' => 'text',
@@ -384,6 +390,12 @@ function walkhub_field_default_field_instances() {
         'type' => 'field_collection_view',
         'weight' => 2,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
@@ -419,6 +431,12 @@ function walkhub_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 5,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -456,6 +474,12 @@ function walkhub_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 8,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
@@ -465,7 +489,7 @@ function walkhub_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_prerequisites',
-    'label' => 'Prerequisites',
+    'label' => 'Prerequisites (Walkthroughs you need to run before this one)',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -500,6 +524,12 @@ function walkhub_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 7,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -540,6 +570,12 @@ function walkhub_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 6,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
@@ -579,6 +615,12 @@ function walkhub_field_default_field_instances() {
         'type' => 'hidden',
         'weight' => 4,
       ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
@@ -616,7 +658,7 @@ function walkhub_field_default_field_instances() {
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
-  t('Prerequisites');
+  t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
   t('Show title');
   t('Step highlight');
