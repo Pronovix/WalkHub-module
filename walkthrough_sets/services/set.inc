@@ -75,6 +75,28 @@ function _walkthrough_set_resource_retrieve($uuid) {
   return $node ? walkhub_serialize_safely(new WalkhubWalkthroughSet($node)) : $node;
 }
 
+/**
+ * Export PHPUnit test from a walkthrough_set.
+ *
+ * @param string $uuid
+ *  Walkthrough set uuid.
+ *
+ * @return string
+ *  PHPUnit test case.
+ */
+function _walkthrough_set_phpunit_resource_retrieve($uuid) {
+  $output = NULL;
+
+  module_load_include('inc', 'walkhub', 'walkhub.export');
+  $walkthrough_set = _walkhub_node_retrieve($uuid, 'walkthrough_set');
+  if (!empty($walkthrough_set)) {
+    module_load_include('inc', 'walkthrough_sets', 'walkthrough_sets.export');
+    $output = _walkthrough_set_get_phpunit_export_output($walkthrough_set);
+  }
+
+  return $output;
+}
+
 function _walkthrough_set_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'walkhub');
   return _walkhub_node_resource_access('walkthrough_set', $op, $args);
