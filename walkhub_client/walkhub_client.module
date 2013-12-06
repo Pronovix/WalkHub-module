@@ -32,6 +32,8 @@ function walkhub_client_init() {
       'every_page' => TRUE,
       'cache' => FALSE,
       'preprocess' => FALSE,
+      'group' => JS_LIBRARY,
+      'weight' => -30,
     ));
     drupal_add_js(drupal_get_path('module', 'walkhub_client') . '/walkhub.js');
     drupal_add_js(array(
