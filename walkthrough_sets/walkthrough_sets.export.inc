@@ -26,7 +26,7 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TR
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
   // Check that the $node has a field with field_walkthroughs machine name.
-  if (isset($node['field_walkthroughs'])) {
+  if (isset($node->field_walkthroughs)) {
     // Load the field_walkthroughs field value
     $walkthrough_set_walkthroughs = field_get_items('node', $node, 'field_walkthroughs', LANGUAGE_NONE);
 
@@ -38,7 +38,7 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TR
         $walkthrough_list = entity_load('field_collection_item', array($item['value']));
         $walkthrough_list = reset($walkthrough_list);
 
-        if (isset($walkthrough_list['field_walkthrough'])) {
+        if (isset($walkthrough_list->field_walkthrough)) {
           // Load the field_walkthrough field items.
           $walkthrough_list_items = field_get_items('field_collection_item', $walkthrough_list, 'field_walkthrough');
 
