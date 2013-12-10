@@ -143,3 +143,235 @@ function _walkhub_replace_parameters($value, $parameters) {
 
   return str_replace($search, array_values($parameters), $value);
 }
+
+/**
+ * Page callback for phpUnit export functionality.
+ *
+ * @param $node stdClass
+ *   Drupal node.
+ */
+function walkhub_phpunit_export($node) {
+  $output = _walkhub_get_phpunit_export_output($node);
+  echo $output;
+
+  module_invoke_all('exit');
+  exit();
+}
+
+/**
+ * Export callback for phpUnit.
+ *
+ * @param $node stdclass.
+ *   Drupal node.
+ *
+ * @return string
+ *   Exported phpunit class.
+ */
+function _walkhub_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
+
+  $output = "<?php\n";
+
+  $output .=  _walkhub_get_phpunit_comment($node);
+  $output .= "class Example extends PHPUnit_Extensions_SeleniumTestCase {\n";
+  $output .= _walkhub_get_phpunit_export_setup();
+  $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
+
+  if ($via_walkthrough) {
+    $output .= _walkhub_phpunit_export_steps_via_walkhub($node);
+  } else {
+    $output .= _walkhub_phpunit_export_steps($node);
+  }
+
+
+  $output .= "  }\n";
+
+  $output .= "}\n";
+  return $output;
+}
+
+/**
+ * Export PHPunit steps from a Walkthrough node.
+ *
+ * @param $node
+ *   Walkthrough node.
+ *
+ * @return string
+ *   PHPunit steps.
+ */
+function _walkhub_phpunit_export_steps($node) {
+  $parameters = _walkhub_get_parameters($node);
+
+  $output = '';
+  foreach ($node->field_fc_steps[LANGUAGE_NONE] as $step) {
+    $step_item = field_collection_item_load($step['value']);
+
+    // Add comment.
+    if (!empty($step_item->field_fc_step_description[LANGUAGE_NONE][0]['value'])) {
+      $output .= _walkhub_php_multiline_comment($step_item->field_fc_step_description[LANGUAGE_NONE][0]['value']);
+    }
+
+    // Call _walkhub_phpuit_export_step with the parameters.
+    $arguments = array();
+    for ($i=1; $i<=3; $i++) {
+      $field_name = "field_fc_step_command_$i";
+      $value = _walkhub_replace_parameters($step_item->{$field_name}[LANGUAGE_NONE][0]['value'], $parameters);
+      $arguments[] = $value;
+    }
+    $output .= call_user_func_array('_walkhub_phpunit_export_step', $arguments) . "\n\n";
+  }
+
+  return $output;
+}
+
+/**
+ * Export PHPunit steps via a walkhub.
+ *
+ * Steps will play a walkthrough on a walkhub.
+ *
+ * @param $node
+ *   Walkthrough node.
+ *
+ * @return string
+ *   PHPUnit steps.
+ */
+function _walkhub_phpunit_export_steps_via_walkhub($node) {
+  $output = '$this->open("' . url('node/' . $node->nid, array('absolute' => TRUE)) .'");' . "\n";
+  $output .= '$this->click("link=Start walkthrough");' . "\n";
+
+  $output .= '$this->waitForElementPresent("//button[@type=\'button\']", "30000");' . "\n";
+  $output .= '$this->click("//button[@type=\'button\']");' . "\n";
+
+  for ($i=0; $i<count($node->field_fc_steps[LANGUAGE_NONE])-1; $i++) {
+    // Wait for popup.
+    $output .= '$this->waitForElementPresent("link=Next", "30000");' . "\n";
+
+    // Wait for the scroll.
+    $output .= "sleep(1);\n";
+
+    // Take screenshot.
+    $screenshot_filename = $node->nid . '-' . $i . '.png';
+    $output .= '$this->captureEntirePageScreenshot("/tmp/' . $screenshot_filename . "\");\n";
+
+    // Click Next.
+    $output .= '$this->click("link=Next");' . "\n";
+    $output .= "sleep(1);\n";
+  }
+
+  return $output;
+}
+
+/**
+ * Gets a function name from a node title.
+ *
+ * @param $node
+ *   Drupal node.
+ *
+ * @return string
+ *   PHP compatible function name.
+ */
+function _walkhub_get_phpunit_function_name($node) {
+  return 'test' . preg_replace('/[^a-zA-Z0-9+]/', '', ucwords($node->title));
+}
+
+/**
+ * Get comment header for the node.
+ *
+ * @param $node
+ *   Drupal node.
+ *
+ * @return string
+ *   Comment header for the test.
+ */
+function _walkhub_get_phpunit_comment($node) {
+  return _walkhub_php_multiline_comment($node->body[LANGUAGE_NONE][0]['value']);
+}
+
+/**
+ * Helper function to wrap a string into a php comment block.
+ *
+ * @param $string
+ *   Any string (even html.
+ *
+ * @return string
+ *   Valid php comment string.
+ */
+function _walkhub_php_multiline_comment($string) {
+  $output = "/**\n";
+
+  // Strip html tags.
+  $comment = strip_tags($string);
+  // Remove stars, so the comment tag cannot be broken.
+  $comment = str_replace('*', '', $comment);
+  // Wrap to 80 lines.
+  $comment = wordwrap($comment, 80);
+  // Add * in the beginning of every line.
+  $comment = preg_replace('/^/m', ' * ', $comment);
+
+  $output .= $comment;
+  $output .= "\n */\n";
+  return $output;
+}
+
+/**
+ * Export setUp() selenium function.
+ *
+ * we do not set the baseUrl here, because step sommands are called using the
+ * full url.
+ *
+ * @return string
+ *   Selenium setup function.
+ */
+function _walkhub_get_phpunit_export_setup() {
+  return '
+  protected function setUp() {
+    $this->setBrowser("*chrome");
+    $this->setBrowserUrl("' . $GLOBALS['base_url'] .'");
+  }' . "\n\n";
+}
+
+/**
+ * Exports a phpunit step.
+ *
+ * @param $command1
+ *   Selenium command 1: Action.
+ * @param $command2
+ *   Selenium command 2: Parameter (selector).
+ * @param $command3
+ *   (optional) Selenium command 3: Parameter.
+ *
+ * @return string
+ *   Phpunit exported step.
+ */
+function _walkhub_phpunit_export_step($command1, $command2, $command3) {
+  $output = '';
+
+  // Check if the selenium and the phpunit commands doesn't match and we have a
+  // special export function for it.
+  $function_candidate = '_walkhub_phpunit_export_step_' . strtolower($command1);
+  if (function_exists($function_candidate)) {
+    $output .= call_user_func_array($function_candidate, func_get_args());
+  }
+  else {
+    // Otherwise export $this->command1(command2, command3); .
+    $output .= '$this->';
+    $output .= $command1 . '("' . $command2 . '"';
+    if ($command3) {
+      $output .= ', "'. $command3 .'"';
+    }
+    $output .= ');';
+  }
+
+  return $output;
+}
+
+/**
+ * Phpunit step export callback for the clickAndWait() function.
+ *
+ * @see _walkhub_phpunit_export_step()
+ */
+function _walkhub_phpunit_export_step_clickandwait($command1, $command2, $command3) {
+  $output =  '$this->click("' . $command2 . '");' . "\n";
+  $output .= '$this->waitForPageToLoad("30000");';
+
+  return $output;
+}

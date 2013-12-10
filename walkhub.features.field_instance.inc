@@ -489,7 +489,7 @@ function walkhub_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_prerequisites',
-    'label' => 'Prerequisites',
+    'label' => 'Prerequisites (Walkthroughs you need to run before this one)',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -658,7 +658,7 @@ function walkhub_field_default_field_instances() {
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
-  t('Prerequisites');
+  t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
   t('Show title');
   t('Step highlight');

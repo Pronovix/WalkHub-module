@@ -222,6 +222,13 @@ function walkhub_default_services_endpoint() {
         ),
       ),
     ),
+    'walkthrough-phpunit' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'walkhub-branding' => array(
       'operations' => array(
         'retrieve' => array(
@@ -247,6 +254,13 @@ function walkhub_default_services_endpoint() {
       ),
     ),
     'walkthrough-set' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'walkthrough-set-phpunit' => array(
       'operations' => array(
         'retrieve' => array(
           'enabled' => '1',

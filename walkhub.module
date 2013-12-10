@@ -10,9 +10,9 @@ include_once 'walkhub.features.inc';
  * Implements hook_init().
  */
 function walkhub_init() {
-  drupal_add_js('misc/ajax.js');
-  drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js');
-  drupal_add_library('system', 'ui.dialog');
+  drupal_add_js('misc/ajax.js', array('every_page' => TRUE));
+  drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js', array('weight' => -10, 'group' => JS_DEFAULT, 'every_page' => TRUE));
+  drupal_add_library('system', 'ui.dialog', TRUE);
 }
 
 /**
@@ -46,7 +46,16 @@ function walkhub_menu() {
     'title' => 'Export to selenium',
     'page callback' => 'walkhub_selenium_export',
     'page arguments' => array(1),
-    'access arguments' => array('export walkthrough to selenium'),
+    'access arguments' => array('export walkthrough'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'walkhub.export.inc',
+  );
+
+  $items['node/%walkhub_walkthrough_node/phpunit_export'] = array(
+    'title' => 'Export to phpunit',
+    'page callback' => 'walkhub_phpunit_export',
+    'page arguments' => array(1),
+    'access arguments' => array('export walkthrough'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'walkhub.export.inc',
   );
@@ -90,8 +99,8 @@ function walkhub_permission() {
     'administer walkthrough' => array(
       'title' => t('Administer walkthrough'),
     ),
-    'export walkthrough to selenium' => array(
-      'title' => t('Export walkthrough to selenium'),
+    'export walkthrough' => array(
+      'title' => t('Export walkthrough'),
     ),
   );
 
@@ -147,11 +156,36 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function walkhub_menu_alter(&$items) {
+  // Change clone module's link to local task.
+  $items['node/%node/clone']['type'] = MENU_LOCAL_TASK;
+}
+
+/**
  * Implements hook_node_view_alter().
  */
 function walkhub_node_view_alter(&$build) {
   if ($build['#node']->type == 'walkthrough') {
+    global $language;
+
     $build['#attached']['css'][] = drupal_get_path('module', 'walkhub') . '/walkhub.css';
+
+    $items = field_get_items('node', $build['#node'], 'field_prerequisites', $language);
+    if (!empty($items)) {
+      $prerequisites = array();
+      foreach($items as $item) {
+        if ($node = node_load($item['target_id'])) {
+          $prerequisites[] = array(
+            'title' => $node->title,
+            'nid' => $node->nid,
+          );
+        }
+      }
+
+      drupal_add_js(array('walkhub' => array('prerequisites' => $prerequisites)), 'setting');
+    }
   }
 }
 
@@ -355,45 +389,102 @@ function walkhub_services_resources() {
   );
 
   $walkhub_resource['walkhub-step-suggestion'] = array(
-    'retrieve' => array(
+    'index' => array(
       'file' => $listinc,
       'callback' => '_step_suggestion_retrieve',
-      'args' => array(
-        array(
-          'name' => 'domain',
-          'optional' => FALSE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'command',
-          'optional' => FALSE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'arg1',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'arg2',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-        array(
-          'name' => 'uid',
-          'optional' => TRUE,
-          'source' => array('data'),
-          'type' => 'string',
-        ),
-      ),
       'access callback' => '_list_resource_access',
       'access callback file' => $listinc,
       'access arguments' => array('view'),
       'access arguments append' => TRUE,
+      'args' => array(
+        array(
+          'name' => 'domain',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'domain',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'command',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'command',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'arg1',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'arg1',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'arg2',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'arg2',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+        array(
+          'name' => 'uid',
+          'optional' => TRUE,
+          'source' => array(
+            'param' => 'uid',
+          ),
+          'type' => 'string',
+          'default value' => '',
+        ),
+      ),
+    ),
+  );
+
+  $walkhub_resource['walkthrough-prerequisites'] = array(
+    'index' => array(
+      'file' => $walkthroughinc,
+      'callback' => '_walkthrough_prerequisites_retrieve',
+      'access callback' => '_walkthrough_resource_access',
+      'access callback file' => $walkthroughinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+      'args' => array(
+        array(
+          'name' => 'uuid',
+          'optional' => FALSE,
+          'source' => array(
+            'param' => 'uuid',
+          ),
+          'type' => 'string',
+        ),
+      ),
+    ),
+  );
+
+  $walkhub_resource['walkthrough-phpunit'] = array(
+    'retrieve' => array(
+      'file' => $walkthroughinc,
+      'callback' => '_walkthrough_phpunit_retrieve',
+      'access callback' => '_walkthrough_resource_access',
+      'access callback file' => $walkthroughinc,
+      'access arguments' => array('view'),
+      'access arguments append' => TRUE,
+      'args' => array(
+        array(
+          'name' => 'uuid',
+          'optional' => FALSE,
+          'source' => array(
+            'path' => 0,
+          ),
+          'type' => 'string',
+        ),
+      ),
     ),
   );
 
@@ -406,7 +497,7 @@ function walkhub_services_resources() {
  * @param $node
  */
 function walkhub_node_presave($node) {
-  if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid)) {
+  if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid) && !isset($node->clone_from_original_nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
     list($steps, $base) = _walkhub_break_up_to_steps($source[0]['value']);
     if ($base) {
@@ -732,4 +823,3 @@ function theme_walkhub_list_steps(array $steps) {
 
   return theme('item_list', array('items' => $rendered_steps));
 }
-
