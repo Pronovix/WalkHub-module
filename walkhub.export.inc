@@ -168,8 +168,9 @@ function walkhub_phpunit_export($node) {
  *   Exported phpunit class.
  */
 function _walkhub_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
-
   $output = "<?php\n";
+
+  $output .= "require_once 'PHPUnit/Extensions/SeleniumTestCase.php';\n";
 
   $output .=  _walkhub_get_phpunit_comment($node);
   $output .= "class Example extends PHPUnit_Extensions_SeleniumTestCase {\n";
@@ -181,7 +182,6 @@ function _walkhub_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
   } else {
     $output .= _walkhub_phpunit_export_steps($node);
   }
-
 
   $output .= "  }\n";
 
