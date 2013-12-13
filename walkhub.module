@@ -392,14 +392,14 @@ function walkhub_services_resources() {
     'index' => array(
       'file' => $listinc,
       'callback' => '_step_suggestion_retrieve',
-      'access callback' => '_list_resource_access',
+      'access callback' => '_step_suggestion_resource_access',
       'access callback file' => $listinc,
       'access arguments' => array('view'),
       'access arguments append' => TRUE,
       'args' => array(
         array(
           'name' => 'domain',
-          'optional' => FALSE,
+          'optional' => TRUE,
           'source' => array(
             'param' => 'domain',
           ),

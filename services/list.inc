@@ -62,7 +62,7 @@ function _step_suggestion_retrieve($domain, $command, $arg1 = NULL, $arg2 = NULL
   $query->join('field_data_field_parameter_name', 'parameter_name',
     'parameters.field_parameters_value = parameter_name.entity_id');
   // Join only those steps that domain parameter is correspond with $domain.
-  $query->join('field_data_field_parameter_default_value', 'parameter_default_value',
+  $query->leftJoin('field_data_field_parameter_default_value', 'parameter_default_value',
     'parameter_name.entity_id = parameter_default_value.entity_id AND
      parameter_name.field_parameter_name_value = :label AND
      parameter_default_value.field_parameter_default_value_value = :domain',
@@ -104,7 +104,11 @@ function _step_suggestion_retrieve($domain, $command, $arg1 = NULL, $arg2 = NULL
   // Sort suggestions by weight.
   array_multisort($weight, $suggestions);
 
-  return $suggestions;
+  return array_slice(array_values(array_filter(array_unique($suggestions))), 0, 5);
+}
+
+function _step_suggestion_resource_access() {
+  return user_access('administer walkthrough');
 }
 
 function _list_resource_index($name = '', $description = '', $tag = '', $base_table = '', $human_name = '') {
