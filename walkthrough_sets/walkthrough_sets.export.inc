@@ -20,6 +20,8 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TR
 
   $output = "<?php\n";
 
+  $output .= "require_once 'PHPUnit/Extensions/SeleniumTestCase.php';\n";
+
   $output .=  _walkhub_get_phpunit_comment($node);
   $output .= "class Example extends PHPUnit_Extensions_SeleniumTestCase {\n";
   $output .= _walkhub_get_phpunit_export_setup();
