@@ -277,5 +277,128 @@ function walkhub_default_services_endpoint() {
   $endpoint->debug = 0;
   $export['apiv2'] = $endpoint;
 
+  $endpoint = new stdClass();
+  $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
+  $endpoint->api_version = 3;
+  $endpoint->name = 'apiv2_oauth';
+  $endpoint->server = 'rest_server';
+  $endpoint->path = 'api/v2/oauth';
+  $endpoint->authentication = array(
+    'services_oauth' => array(
+      'oauth_context' => 'walkthrough_selenium_executor',
+      'credentials' => 'unsigned_consumer',
+    ),
+  );
+  $endpoint->server_settings = array(
+    'formatters' => array(
+      'json' => TRUE,
+      'jsonp' => TRUE,
+      'bencode' => FALSE,
+      'php' => FALSE,
+      'xml' => FALSE,
+    ),
+    'parsers' => array(
+      'application/json' => TRUE,
+      'application/x-www-form-urlencoded' => TRUE,
+      'multipart/form-data' => TRUE,
+      'application/vnd.php.serialized' => FALSE,
+      'application/xml' => FALSE,
+      'text/xml' => FALSE,
+    ),
+  );
+  $endpoint->resources = array(
+    'system' => array(
+      'actions' => array(
+        'connect' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'user' => array(
+      'actions' => array(
+        'login' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services' => array(
+              'resource_api_version' => '1.0',
+            ),
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+        'logout' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services' => array(
+              'resource_api_version' => '1.0',
+            ),
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+        'token' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'walkthrough-phpunit' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'walkhub-walkthrough-screening-queue' => array(
+      'operations' => array(
+        'index' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'walkthrough-set-phpunit' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  $endpoint->debug = 0;
+  $export['apiv2_oauth'] = $endpoint;
+
   return $export;
 }
