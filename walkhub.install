@@ -252,3 +252,38 @@ function walkhub_update_7006(&$sandbox) {
 
   return t('Step nodes have been converted to field collection items.');
 }
+
+/**
+ * Makes sure that all selenium-related fields are longtext.
+ */
+function walkhub_update_7007() {
+  $fields = array(
+    'field_fc_step_command_2',
+    'field_fc_step_command_3',
+    'field_fc_step_highlight',
+  );
+  $field_data = db_query('SELECT field_name, data FROM {field_config} WHERE field_name IN (:fields)', array(
+      ':fields' => $fields,
+    ))
+    ->fetchAllKeyed();
+  foreach ($field_data as $field_name => $data) {
+    $data_unserialized = unserialize($data);
+    unset($data_unserialized['settings']['max_length']);
+    $data_updated = serialize($data_unserialized);
+    db_update('field_config')
+      ->fields(array(
+        'type' => 'text_long',
+        'data' => $data_updated,
+      ))
+      ->condition('field_name', $field_name)
+      ->execute();
+
+    $table_name = "field_data_{$field_name}";
+    $revision_table_name = "field_revision_{$field_name}";
+    $column_name = "{$field_name}_value";
+
+    foreach (array($table_name, $revision_table_name) as $table) {
+      db_query("ALTER TABLE {{$table}} CHANGE $column_name $column_name LONGTEXT");
+    }
+  }
+}
