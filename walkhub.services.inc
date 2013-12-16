@@ -284,9 +284,10 @@ function walkhub_default_services_endpoint() {
   $endpoint->server = 'rest_server';
   $endpoint->path = 'api/v2/oauth';
   $endpoint->authentication = array(
+    'services' => 'services',
     'services_oauth' => array(
       'oauth_context' => 'walkthrough_selenium_executor',
-      'credentials' => 'unsigned_consumer',
+      'credentials' => 'consumer',
     ),
   );
   $endpoint->server_settings = array(
