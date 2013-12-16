@@ -61,9 +61,7 @@ function walkhub_field_default_field_bases() {
     ),
     'locked' => 0,
     'module' => 'text',
-    'settings' => array(
-      'max_length' => 2047,
-    ),
+    'settings' => array(),
     'translatable' => 0,
     'type' => 'text_long',
   );
@@ -144,11 +142,9 @@ function walkhub_field_default_field_bases() {
     ),
     'locked' => 0,
     'module' => 'text',
-    'settings' => array(
-      'max_length' => 2047,
-    ),
+    'settings' => array(),
     'translatable' => 0,
-    'type' => 'text',
+    'type' => 'text_long',
   );
 
   // Exported field_base: 'field_fc_step_name'
