@@ -488,6 +488,33 @@ function walkhub_services_resources() {
     ),
   );
 
+  $walkhub_resource['walkthrough-screening-flag'] = array(
+    'operations' => array(
+      'update' => array(
+        'file' => $walkthroughinc,
+        'callback' => '_walkthrough_update_screening_flag',
+        'args' => array(
+          array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+          ),
+          array(
+            'name' => 'flag',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'boolean',
+          )
+        ),
+        'access callback' => '_walkthrough_or_walkthrough_set_resource_access',
+        'access arguments' => array('update'),
+        'access callback file' => $walkthroughinc,
+        'access arguments append' => TRUE,
+      ),
+    ),
+  );
+
   return $walkhub_resource;
 }
 

@@ -110,7 +110,40 @@ function _walkthrough_phpunit_retrieve($uuid) {
   return $return;
 }
 
+/**
+ * Sets a walkthrough screening flag.
+ *
+ * @param string $uuid
+ * @param array $flag_value
+ */
+function _walkthrough_update_screening_flag($uuid, $flag_value) {
+  $entities = walkhub_load_entity('node', $uuid);
+  $node = reset($entities);
+
+  if ($node) {
+    $mark_for_screening = flag_get_flag('mark_for_screening');
+    $action = $flag_value['flag'] ? 'flag' : 'unflag';
+    $mark_for_screening->flag($action, $node->nid);
+  }
+}
+
 function _walkthrough_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'walkhub');
   return _walkhub_node_resource_access('walkthrough', $op, $args);
+}
+
+function _walkthrough_or_walkthrough_set_resource_access($op = 'view', $args = array()) {
+  module_load_include('inc', 'services', 'resources/node_resource');
+
+  $uuid = $args[0];
+  $allowed_types = array('walkthrough', 'walkthrough_set');
+
+  foreach ($allowed_types as $type) {
+    $node = _walkhub_node_retrieve($uuid, $type, TRUE);
+    if ($node) {
+      return _node_resource_access($op, array($node));
+    }
+  }
+
+  throw new ServicesException(t('Failed to load !uuid as Walkthrough or Walkthrough suite', array('!uuid' => $uuid)), 404);
 }
