@@ -185,6 +185,9 @@ function walkhub_default_services_endpoint() {
             ),
           ),
         ),
+        'token' => array(
+          'enabled' => '1',
+        ),
       ),
     ),
     'walkhub-walkthrough' => array(
@@ -224,6 +227,13 @@ function walkhub_default_services_endpoint() {
     'walkthrough-phpunit' => array(
       'operations' => array(
         'retrieve' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
+    'walkthrough-screening-flag' => array(
+      'operations' => array(
+        'update' => array(
           'enabled' => '1',
         ),
       ),
@@ -288,6 +298,7 @@ function walkhub_default_services_endpoint() {
     'services_oauth' => array(
       'oauth_context' => 'walkthrough_selenium_executor',
       'credentials' => 'consumer',
+      'authorization' => '',
     ),
   );
   $endpoint->server_settings = array(
@@ -365,6 +376,19 @@ function walkhub_default_services_endpoint() {
           'settings' => array(
             'services_oauth' => array(
               'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'walkthrough-screening-flag' => array(
+      'operations' => array(
+        'update' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => 'consumer',
               'authorization' => '',
             ),
           ),
