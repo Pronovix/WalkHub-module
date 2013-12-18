@@ -171,25 +171,27 @@ function walkhub_phpunit_export($node) {
  *   Exported phpunit class.
  */
 function _walkhub_get_phpunit_export_output($node, $via_walkhub = TRUE) {
+  $output = _walkhub_phpunit_header($node);
+  $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
+  $output .= _walkhub_phpunit_footer($node);
+  return $output;
+}
+
+function _walkhub_phpunit_header($node) {
   $class_name = _walkhub_get_phpunit_class_name($node);
 
-  $output = _walkhub_get_phpunit_header($node);
+  $output = "<?php\n";
   $output .=  _walkhub_get_phpunit_comment($node);
   $output .= "class $class_name extends PHPUnit_Extensions_SeleniumTestCase {\n";
   $output .= _walkhub_get_phpunit_export_setup();
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
-  $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
-
-  $output .= "  }\n";
-  $output .= "}\n";
   return $output;
 }
 
-function _walkhub_get_phpunit_header($node) {
-  $output = "<?php\n";
-  $output .= "require_once 'PHPUnit/Extensions/SeleniumTestCase.php';\n";
-
+function _walkhub_phpunit_footer($node) {
+  $output = "  }\n";
+  $output .= "}\n";
   return $output;
 }
 

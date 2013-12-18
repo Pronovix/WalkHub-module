@@ -18,14 +18,7 @@
 function _walkthrough_set_get_phpunit_export_output($node, $via_walkub = TRUE) {
   module_load_include('inc', 'walkhub', 'walkhub.export');
 
-  $class_name = _walkhub_get_phpunit_class_name($node);
-
-  $output = _walkhub_get_phpunit_header($node);
-
-  $output .=  _walkhub_get_phpunit_comment($node);
-  $output .= "class $class_name extends PHPUnit_Extensions_SeleniumTestCase {\n";
-  $output .= _walkhub_get_phpunit_export_setup();
-  $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
+  $output = _walkhub_phpunit_header($node);
 
   $walkthroughs = _walkthrough_set_get_walkthroughs($node);
   if (!empty($walkthroughs)) {
@@ -34,9 +27,7 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkub = TRUE) {
     }
   }
 
-  $output .= "  }\n";
-  $output .= "}\n";
-
+  $output .= _walkhub_phpunit_footer($node);
   return $output;
 }
 
