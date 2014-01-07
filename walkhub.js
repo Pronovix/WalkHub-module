@@ -77,7 +77,7 @@
     var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
     for (var k in data) {
-      if (k.indexOf(wtParamPrefix) == 0) {
+      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) == 0) {
         var parameter = k.substr(wtParamPrefix.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
@@ -91,6 +91,9 @@
     var jqversionparts = $.fn.jquery.split('.');
     var versionparts = version.split('.');
     for (var p in versionparts) {
+      if (!versionparts.hasOwnProperty(p)) {
+        continue;
+      }
       if (versionparts[p] > (jqversionparts[p] || 0)) {
         return false;
       }
@@ -134,6 +137,9 @@
       .appendTo(fieldset);
 
     for (var parameter in parameters) {
+      if (!parameters.hasOwnProperty(parameter)) {
+        continue;
+      }
       $('<label/>')
         .attr('for', parameter)
         .html(parameter)
@@ -181,6 +187,9 @@
 
     function updateParameters() {
       for (var k in parameters) {
+        if (!parameters.hasOwnProperty(k)) {
+          continue;
+        }
         parameters[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
@@ -205,6 +214,9 @@
 
       var link = window.location.origin + window.location.pathname + '?';
       for (var parameter in parameters) {
+        if (!parameters.hasOwnProperty(parameter)) {
+          continue;
+        }
         link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
