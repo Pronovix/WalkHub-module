@@ -2,7 +2,6 @@
   var walkthroughOrigin;
 
   var MAXIMUM_ZINDEX = 2147483647;
-  var LINK_CHECK_TIMEOUT = 500;
 
   var csrf_token = null;
 
@@ -69,20 +68,6 @@
         }
       },
       valid: true
-    },
-    popup: {
-      name: 'Popup',
-      linkcheck: true,
-      execute: function (url) {
-        methods.popup.object = window.open(url);
-        return methods.popup.object;
-      },
-      teardown: function () {
-        if (methods.popup.object) {
-          methods.popup.object.close();
-        }
-      },
-      valid: !iOS
     }
   };
 
@@ -424,39 +409,7 @@
         // TODO call window.proxy.resume() when the walkthrough finishes.
       }
       state.parameters = parameters;
-      var wtwindow = method.execute(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
-      if (!wtwindow) {
-        return;
-      }
-
-      if (method.linkcheck) {
-        var dialog = createInProgressDialog(wtwindow, function () {
-          finished = true;
-        });
-
-        function checkLink() {
-          if (finished || wtwindow.closed) {
-            dialog.dialog('close');
-          }
-          if (wtwindow.closed) {
-            if (!finished) {
-              var cancel = function () {};
-              Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
-                'Reopen': function () {
-                  self.startWalkthrough(parameters, method, wtdialog);
-                },
-                'Cancel': cancel
-              }, cancel);
-            } else {
-              // Tear down the server
-            }
-          } else {
-            setTimeout(checkLink, LINK_CHECK_TIMEOUT);
-          }
-        }
-
-        checkLink();
-      }
+      method.execute(currentURL || (baseurl() + 'walkhub'));
     };
   }
 
