@@ -850,3 +850,13 @@ function theme_walkhub_list_steps(array $steps) {
 
   return theme('item_list', array('items' => $rendered_steps));
 }
+
+
+/**
+ * Implements hook_walkhub_client_paths().
+ */
+function walkhub_walkhub_client_paths() {
+  return array(
+    'walkhub',
+  );
+}
