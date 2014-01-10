@@ -10,22 +10,38 @@
  * @param $node
  *  Walkthrough set node.
  *
- * @param bool $via_walkthrough
+ * @param bool $via_walkub
  *
  * @return string
  *  PHPUnit test case.
  */
-function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TRUE) {
+function _walkthrough_set_get_phpunit_export_output($node, $via_walkub = TRUE) {
   module_load_include('inc', 'walkhub', 'walkhub.export');
 
-  $output = "<?php\n";
+  $output = _walkhub_phpunit_header($node);
 
-  $output .= "require_once 'PHPUnit/Extensions/SeleniumTestCase.php';\n";
+  $walkthroughs = _walkthrough_set_get_walkthroughs($node);
+  if (!empty($walkthroughs)) {
+    foreach ($walkthroughs as $walkthrough) {
+      $output .= _walkhub_get_phpunit_steps($walkthrough, $via_walkub);
+    }
+  }
 
-  $output .=  _walkhub_get_phpunit_comment($node);
-  $output .= "class Example extends PHPUnit_Extensions_SeleniumTestCase {\n";
-  $output .= _walkhub_get_phpunit_export_setup();
-  $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
+  $output .= _walkhub_phpunit_footer($node);
+  return $output;
+}
+
+/**
+ * Gets the walkthroughs from a walkthrough set.
+ *
+ * @param $node
+ *   Walkthrough set node.
+ *
+ * @return array
+ *   Array of Walkthrough nodes.
+ */
+function _walkthrough_set_get_walkthroughs($node) {
+  $walkthroughs = array();
 
   // Check that the $node has a field with field_walkthroughs machine name.
   if (isset($node->field_walkthroughs)) {
@@ -47,12 +63,7 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TR
           foreach ($walkthrough_list_items as $list_item) {
             // Load the walkthrough node and export it to PHPUnit.
             if ($walkthrough = node_load($list_item['target_id'])) {
-              if ($via_walkthrough) {
-                $output .= _walkhub_phpunit_export_steps_via_walkhub($walkthrough);
-              }
-              else {
-                $output .= _walkhub_phpunit_export_steps($walkthrough);
-              }
+              $walkthroughs[] = $walkthrough;
             }
           }
         }
@@ -60,9 +71,5 @@ function _walkthrough_set_get_phpunit_export_output($node, $via_walkthrough = TR
     }
   }
 
-  $output .= "  }\n";
-
-  $output .= "}\n";
-
-  return $output;
+  return $walkthroughs;
 }
