@@ -182,7 +182,7 @@ function _walkhub_phpunit_header($node) {
 
   $output = "<?php\n";
   $output .=  _walkhub_get_phpunit_comment($node);
-  $output .= "class $class_name extends PHPUnit_Extensions_SeleniumTestCase {\n";
+  $output .= "class $class_name extends PHPUnit_Extensions_Selenium2TestCase {\n";
   $output .= _walkhub_get_phpunit_export_setup();
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
@@ -208,12 +208,12 @@ function _walkhub_get_phpunit_steps($node, $via_walkhub = TRUE) {
   $output = '';
 
   // Resize window.
-  // @TODO Fix window resizing when converting to webdriver.
-  $output .='$this->getEval("window.resizeTo(" . $this->windowWidth . ", " . $this->windowHeight . "); window.moveTo(0,0);");' . "\n";
+  $output .= '$this->currentWindow()->size(array("width" => $this->windowWidth, "height" => $this->windowHeight));' . "\n";
 
   if ($via_walkhub) {
     $output .= _walkhub_phpunit_export_steps_via_walkhub($node);
-  } else {
+  }
+  else {
     $output .= _walkhub_phpunit_export_steps_raw($node);
   }
 
@@ -243,7 +243,7 @@ function _walkhub_phpunit_export_steps_raw($node) {
 
     // Call _walkhub_phpuit_export_step with the parameters.
     $arguments = array();
-    for ($i=1; $i<=3; $i++) {
+    for ($i = 1; $i <= 3; $i++) {
       $field_name = "field_fc_step_command_$i";
       $value = _walkhub_replace_parameters($step_item->{$field_name}[LANGUAGE_NONE][0]['value'], $parameters);
       $arguments[] = $value;
@@ -259,36 +259,39 @@ function _walkhub_phpunit_export_steps_raw($node) {
  *
  * Steps will play a walkthrough on a walkhub.
  *
- * @param $node
+ * @param object $node
  *   Walkthrough node.
  *
  * @return string
  *   PHPUnit steps.
  */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
-  $output = '$this->open("' . url('node/' . $node->nid, array('absolute' => TRUE)) .'");' . "\n";
-  $output .= '$this->click("link=Start walkthrough");' . "\n";
+  $output = '$this->timeouts()->implicitWait(30);' . "\n";
+  $output .= '$this->url("' . url('node/' . $node->nid, array('absolute' => TRUE)) . '");' . "\n";
+  $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
 
-  $output .= '$this->waitForElementPresent("//button[@type=\'button\']", "30000");' . "\n";
-  $output .= '$this->click("//button[@type=\'button\']");' . "\n";
+  $output .= '$this->byXPath("//button[@type=\'button\']")->click();' . "\n";
 
-  for ($i=0; $i<count($node->field_fc_steps[LANGUAGE_NONE])-1; $i++) {
+  $output .= '$this->frame($this->byCssSelector("#ui-id-2"));' . "\n";
+
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  foreach ($node_wrapper->field_fc_steps as $step) {
+    $step_id = $step->item_id->value();
+
     // Wait for popup.
     $output .= "\n\n";
-    $output .= '$this->waitForElementPresent("link=Next", "30000");' . "\n";
 
     // Wait for the scroll.
     $output .= "sleep(1);\n";
 
     // Take screenshot.
-    $screenshot_filename = $node->nid . '-' . $i . '.png';
-    $output .= 'if ($this->screenshotPath) {' . "\n";
-    $output .= '  $this->captureEntirePageScreenshot($this->screenshotPath . "/' . $screenshot_filename . "\");\n";
-    $output .= '}';
+    $screenshot_filename = $node->nid . '-' . $step_id . '.png';
+    $output .= 'if ($this->screenshotPath) {';
+    $output .= 'file_put_contents($this->screenshotPath . "' . $screenshot_filename . '", $this->currentScreenshot());';
+    $output .= "}\n";
 
     // Click Next.
-    $output .= '$this->click("link=Next");' . "\n";
-    $output .= "sleep(1);\n";
+    $output .= '$this->byCssSelector(".joyride-next-tip")->click();' . "\n";
   }
 
   return $output;
@@ -367,12 +370,12 @@ function _walkhub_get_phpunit_export_setup() {
   protected $windowHeight;
 
   protected function setUp() {
-    $this->setBrowser("*chrome");
+    $this->setBrowser("firefox");
     $this->setBrowserUrl("' . $GLOBALS['base_url'] .'");
-    $this->screenshotPath = getenv("WH_SCREENSHOT_PATH") ?: "" ;
+    $this->screenshotPath = getenv("WT_SCREENSHOT_PATH") ?: "" ;
 
-    $this->windowWidth = getenv("WH_WINDOW_WIDTH") ?: 1024;
-    $this->windowHeight = getenv("WH_WINDOW_HEIGHT") ?: 768;
+    $this->windowWidth = getenv("WT_WINDOW_WIDTH") ?: 1024;
+    $this->windowHeight = getenv("WT_WINDOW_HEIGHT") ?: 768;
   }' . "\n\n";
 }
 
@@ -403,7 +406,7 @@ function _walkhub_phpunit_export_step($command1, $command2, $command3) {
     $output .= '$this->';
     $output .= $command1 . '("' . $command2 . '"';
     if ($command3) {
-      $output .= ', "'. $command3 .'"';
+      $output .= ', "' . $command3 . '"';
     }
     $output .= ');';
   }
