@@ -2,7 +2,6 @@
   var walkthroughOrigin;
 
   var MAXIMUM_ZINDEX = 2147483647;
-  var LINK_CHECK_TIMEOUT = 500;
 
   var csrf_token = null;
 
@@ -69,20 +68,6 @@
         }
       },
       valid: true
-    },
-    popup: {
-      name: 'Popup',
-      linkcheck: true,
-      execute: function (url) {
-        methods.popup.object = window.open(url);
-        return methods.popup.object;
-      },
-      teardown: function () {
-        if (methods.popup.object) {
-          methods.popup.object.close();
-        }
-      },
-      valid: !iOS
     }
   };
 
@@ -92,7 +77,7 @@
     var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
     for (var k in data) {
-      if (k.indexOf(wtParamPrefix) == 0) {
+      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) == 0) {
         var parameter = k.substr(wtParamPrefix.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
@@ -106,6 +91,9 @@
     var jqversionparts = $.fn.jquery.split('.');
     var versionparts = version.split('.');
     for (var p in versionparts) {
+      if (!versionparts.hasOwnProperty(p)) {
+        continue;
+      }
       if (versionparts[p] > (jqversionparts[p] || 0)) {
         return false;
       }
@@ -149,6 +137,9 @@
       .appendTo(fieldset);
 
     for (var parameter in parameters) {
+      if (!parameters.hasOwnProperty(parameter)) {
+        continue;
+      }
       $('<label/>')
         .attr('for', parameter)
         .html(parameter)
@@ -196,6 +187,9 @@
 
     function updateParameters() {
       for (var k in parameters) {
+        if (!parameters.hasOwnProperty(k)) {
+          continue;
+        }
         parameters[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
@@ -220,6 +214,9 @@
 
       var link = window.location.origin + window.location.pathname + '?';
       for (var parameter in parameters) {
+        if (!parameters.hasOwnProperty(parameter)) {
+          continue;
+        }
         link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
@@ -424,39 +421,7 @@
         // TODO call window.proxy.resume() when the walkthrough finishes.
       }
       state.parameters = parameters;
-      var wtwindow = method.execute(currentURL || (baseurl() + 'walkhub#' + window.location.origin));
-      if (!wtwindow) {
-        return;
-      }
-
-      if (method.linkcheck) {
-        var dialog = createInProgressDialog(wtwindow, function () {
-          finished = true;
-        });
-
-        function checkLink() {
-          if (finished || wtwindow.closed) {
-            dialog.dialog('close');
-          }
-          if (wtwindow.closed) {
-            if (!finished) {
-              var cancel = function () {};
-              Walkhub.showExitDialog(Drupal.t('Walkthrough is closed while it was in progress.'), {
-                'Reopen': function () {
-                  self.startWalkthrough(parameters, method, wtdialog);
-                },
-                'Cancel': cancel
-              }, cancel);
-            } else {
-              // Tear down the server
-            }
-          } else {
-            setTimeout(checkLink, LINK_CHECK_TIMEOUT);
-          }
-        }
-
-        checkLink();
-      }
+      method.execute(currentURL || (baseurl() + 'walkhub'));
     };
   }
 
