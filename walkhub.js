@@ -244,28 +244,44 @@
     });
   }
 
-  function createInProgressDialog(frame, cancel) {
-    var dialog = $('<div />')
-      .attr('id', 'walkthrough-in-progress-dialog-' + Math.random().toString())
-      .attr('title', Drupal.t('Walkthrough is in progress'))
-      .hide();
+  function flagWalkthroughAsBroken() {
+    $('span.flag-walkthrough-broken a.flag-action').click();
+  }
 
-    dialog.append($('<p />').html(Drupal.t('Please do not close this window. This message will disappear when you finish your walkthrough.')));
+  var errormessages_alter = {
+    'command-not-supported': flagWalkthroughAsBroken,
+    'locator-fail': function (msg) {
+      var link = $('<a/>')
+        .html(Drupal.t('Mark as broken'))
+        .addClass('button')
+        .addClass('markbroken')
+        .click(function (event) {
+          event.preventDefault();
+          flagWalkthroughAsBroken();
+        })
+        .appendTo(msg);
 
-    return dialog.dialog({
-      autoOpen: true,
-      modal: true,
-      closeOnEscape: false,
-      dialogClass: 'walkthrough-in-progress',
-      buttons: {
-        'Cancel walkthrough': function () {
-          if (cancel) {
-            cancel();
-          }
-          frame.close();
-        }
+      if (getdata['markbroken']) {
+        link.click();
       }
-    });
+    }
+  };
+
+  function showErrorMessage(id, error) {
+    suppressErrorMessage(id);
+    var msg = $('<div />')
+      .attr('id', 'walkhub-error-message-' + id)
+      .addClass('walkhub-error-message')
+      .html(error)
+      .appendTo($('span.ui-dialog-title', methods.iframe.object.parent()));
+
+    if (errormessages_alter.hasOwnProperty(id)) {
+      errormessages_alter[id](msg);
+    }
+  }
+
+  function suppressErrorMessage(id) {
+    $('#walkhub-error-message-' + id, methods.iframe.object.parent()).remove();
   }
 
   function WalkhubServer() {
@@ -370,6 +386,12 @@
         // TODO set a variable to enable/disable logging
         window.console && console.log && console.log('REMOTE LOG', data.log);
       },
+      showError: function (data, source) {
+        showErrorMessage(data.id, data.error);
+      },
+      suppressError: function (data, source) {
+        suppressErrorMessage(data.id);
+      },
       finished: function (data, source) {
         finished = true;
         method.teardown();
@@ -382,8 +404,16 @@
     handlers.connect.keyBypass = true;
     handlers.ping.keyBypass = true;
 
+    function logMessage(msg, prefix) {
+      if (msg.type && msg.type == 'log') {
+        return;
+      }
+      console.log(prefix + "\t" + JSON.stringify(msg));
+    }
+
     function post(message, source, origin) {
       if (source.postMessage) {
+        logMessage(message, ">>");
         source.postMessage(JSON.stringify(message), origin || walkthroughOrigin);
       } else {
         window.console && console.log && console.log('Sending message failed.');
@@ -394,7 +424,7 @@
       var data = JSON.parse(event.data);
       var handler = data && data.type && handlers[data.type];
       if (handler && (handler.keyBypass || (data.key && data.key == key))) {
-        console.log(event);
+        logMessage(data, "<<");
         handler(data, event.source);
       } else {
         console.log('Message discarded', event);

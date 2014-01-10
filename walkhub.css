@@ -24,3 +24,11 @@
 .walkthrough-start-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button:last-child {
   font-size: smaller;
 }
+
+.walkhub-error-message {
+    color: white;
+    background-color: red;
+    font-size: 12px;
+    cursor: default;
+    font-weight: bold;
+}
