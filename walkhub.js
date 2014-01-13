@@ -41,7 +41,8 @@
           .dialog({
             modal: true,
             autoOpen: true
-          });
+          })
+          .parent().css('position', 'fixed');
 
         function resize() {
           iframe.dialog('option', 'width', $(window).width() - 20);
