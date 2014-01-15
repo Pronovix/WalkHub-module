@@ -484,6 +484,15 @@ function walkhub_services_resources() {
           ),
           'type' => 'string',
         ),
+        array(
+          'name' => 'class_to_extend',
+          'optional' => TRUE,
+          'source' => array(
+            'path' => 1,
+          ),
+          'type' => 'string',
+          'default value' => 'PHPUnit_Extensions_Selenium2TestCase',
+        ),
       ),
     ),
   );

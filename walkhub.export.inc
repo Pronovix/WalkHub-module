@@ -1,5 +1,8 @@
 <?php
 
+define('WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB', TRUE);
+define('WALKHUB_SELENIUM_EXPORT_WITHOUT_WALKHUB', FALSE);
+
 /**
  * Menu callback to export walkthrough node to selenium.
  *
@@ -170,19 +173,19 @@ function walkhub_phpunit_export($node) {
  * @return string
  *   Exported phpunit class.
  */
-function _walkhub_get_phpunit_export_output($node, $via_walkhub = TRUE) {
-  $output = _walkhub_phpunit_header($node);
+function _walkhub_get_phpunit_export_output($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
+  $output = _walkhub_phpunit_header($node, $class_to_extend);
   $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
   $output .= _walkhub_phpunit_footer($node);
   return $output;
 }
 
-function _walkhub_phpunit_header($node) {
+function _walkhub_phpunit_header($node, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
   $class_name = _walkhub_get_phpunit_class_name($node);
 
   $output = "<?php\n";
   $output .=  _walkhub_get_phpunit_comment($node);
-  $output .= "class $class_name extends PHPUnit_Extensions_Selenium2TestCase {\n";
+  $output .= "class $class_name extends $class_to_extend {\n";
   $output .= _walkhub_get_phpunit_export_setup();
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
@@ -285,7 +288,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     $output .= "sleep(1);\n";
 
     // Take screenshot.
-    $screenshot_filename = $node->nid . '-' . $step_id . '.png';
+    $screenshot_filename = $node->uuid . ':' . $step_id . '.png';
     $output .= 'if ($this->screenshotPath) {';
     $output .= 'file_put_contents($this->screenshotPath . "' . $screenshot_filename . '", $this->currentScreenshot());';
     $output .= "}\n";

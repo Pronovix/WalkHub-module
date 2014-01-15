@@ -98,13 +98,14 @@ function _walkthrough_prerequisites_retrieve($uuid) {
  * @return string
  *  PHPUnit test case.
  */
-function _walkthrough_phpunit_retrieve($uuid) {
+function _walkthrough_phpunit_retrieve($uuid, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
+  dd(func_get_args());
   $return = array();
 
   $walkthrough = _walkhub_node_retrieve($uuid, 'walkthrough');
   if (!empty($walkthrough)) {
     module_load_include('inc', 'walkhub', 'walkhub.export');
-    $return = _walkhub_get_phpunit_export_output($walkthrough);
+    $return = _walkhub_get_phpunit_export_output($walkthrough, WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend);
   }
 
   return $return;
