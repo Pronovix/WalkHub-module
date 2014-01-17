@@ -558,7 +558,7 @@ function walkhub_flag_flag($flag, $entity_id, $account, $flagging) {
   global $language;
 
   // Check that the notifications are enabled.
-  if (variable_get('walkhub_notifications', TRUE) == FALSE) {
+  if (variable_get('walkhub_notifications', FALSE) == FALSE) {
     return;
   }
 
