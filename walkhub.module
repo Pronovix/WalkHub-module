@@ -740,6 +740,7 @@ function _walkhub_create_step(array $step, $key, $walkthrough_node) {
   $fci = entity_create('field_collection_item', array('field_name' => 'field_fc_steps'));
   $fci->setHostEntity('node', $walkthrough_node, $lang, FALSE);
   $fci->field_fc_step_name[$lang][0]['value'] = " ";
+  $fci->field_fc_step_description[$lang][0]['value'] = walkhub_get_default_step_description($step['action']);
   $fci->field_fc_step_command_1[$lang][0]['value'] = $step['action'];
   $fci->field_fc_step_command_2[$lang][0]['value'] = $step['xpath'];
   $fci->field_fc_step_command_3[$lang][0]['value'] = $step['description'];
@@ -868,4 +869,19 @@ function walkhub_walkhub_client_paths() {
   return array(
     'walkhub',
   );
+}
+
+/**
+ * Return the default pattern for a command.
+ *
+ * @param $command
+ *  Name of the selenium command.
+ * @return mixed
+ *  Default pattern for the given command.
+ */
+function walkhub_get_default_step_description($command) {
+  return db_select('walhub_patterns')
+    ->fields('walhub_patterns', array('pattern'))
+    ->condition('command', $command)
+    ->execute()->fetchField();
 }
