@@ -591,7 +591,7 @@ function walkhub_mail($key, &$message, $params) {
       $message['subject'] .= t('Walkthrough flagged as broken');
 
       $message['body'][] = t('Hi @name', array('@name' => $params['name']));
-      $message['body'][] = t('Someone flagged one of your Walkthroughs as broken. You can check it out and fix the error at @link.',
+      $message['body'][] = t('Your walkthrough has been flagged as broken. You can check it out and fix the error at @link.',
         array('@link' => $params['link']));
       $message['body'][] = t('Thank you,');
       $message['body'][] = t('The WalkHub Team');
