@@ -133,6 +133,20 @@ function _walkthrough_resource_access($op = 'view', $args = array()) {
   return _walkhub_node_resource_access('walkthrough', $op, $args);
 }
 
+/**
+ * Access callback to check that the current user has the right permissions to use php unit export
+ *
+ * @param $uuid
+ * @return bool
+ */
+function _walkthrough_resource_php_unit_export_access($uuid) {
+  if (_walkthrough_resource_access('view', array($uuid)) && user_access('export walkthrough')) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 function _walkthrough_or_walkthrough_set_resource_access($op = 'view', $args = array()) {
   module_load_include('inc', 'services', 'resources/node_resource');
 
