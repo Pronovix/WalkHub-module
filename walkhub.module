@@ -552,6 +552,54 @@ function walkhub_node_presave($node) {
 }
 
 /**
+ * Implements hook_flag_flag().
+ */
+function walkhub_flag_flag($flag, $entity_id, $account, $flagging) {
+  global $language;
+
+  // Check that the notifications are enabled.
+  if (variable_get('walkhub_notifications', TRUE) == FALSE) {
+    return;
+  }
+
+  $walkthrough_broken = flag_get_flag('walkthrough_broken');
+  if (!empty($walkthrough_broken) && $flag->fid == $walkthrough_broken->fid) {
+    $result = entity_load($flag->entity_type, array($entity_id));
+
+    // Try to load the entity.
+    if (!empty($result[$entity_id])) {
+      // Collect variables for the mail.
+      $author = user_load($result[$entity_id]->uid);
+      $from = variable_get('site_mail', 'walkthrough.it@pronovix.com');
+      $entity_uri = entity_uri($flag->entity_type, reset($result));
+      $params = array(
+        'name' => $author->name,
+        'link' => url($entity_uri['path'], array('absolute' => TRUE)),
+      );
+      // Send a notification to the user.
+      drupal_mail('walkhub', 'walkthrough_flagged_as_broken', $author->mail, $language, $params, $from);
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function walkhub_mail($key, &$message, $params) {
+  switch($key) {
+    case 'walkthrough_flagged_as_broken':
+      $message['subject'] .= t('Walkthrough flagged as broken');
+
+      $message['body'][] = t('Hi @name', array('@name' => $params['name']));
+      $message['body'][] = t('Someone flagged one of your Walkthroughs as broken. You can check it out and fix the error at @link.',
+        array('@link' => $params['link']));
+      $message['body'][] = t('Thank you,');
+      $message['body'][] = t('The WalkHub Team');
+      break;
+  }
+}
+
+/**
  * Adds the 'domain' as a default parameter to the node object.
  *
  * @param string $base

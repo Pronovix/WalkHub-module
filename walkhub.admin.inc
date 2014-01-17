@@ -9,6 +9,13 @@
  */
 function walkhub_configuration_form($form) {
 
+  $form['walkhub_notifications'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Notifications'),
+    '#description' => t('Set this checkbox to FALSE to block walkhub email notifications.'),
+    '#default_value' => variable_get('walkhub_notifications', TRUE),
+  );
+
   $form['configuration'] = array(
     '#type' => 'fieldset',
     '#title' => t('Walkhub settings'),
