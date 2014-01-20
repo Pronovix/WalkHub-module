@@ -12,7 +12,7 @@
   }, {});
 
   function baseurl() {
-    return window.location.protocol + '//' + window.location.hostname + Drupal.settings.basePath;
+    return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
   }
 
   var iOS =
