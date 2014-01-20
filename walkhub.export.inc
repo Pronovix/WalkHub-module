@@ -269,7 +269,7 @@ function _walkhub_phpunit_export_steps_raw($node) {
  *   PHPUnit steps.
  */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
-  $output = '$this->timeouts()->implicitWait(30);' . "\n";
+  $output = '$this->timeouts()->implicitWait(30000);' . "\n";
   $output .= '$this->url("' . url('node/' . $node->nid, array('absolute' => TRUE)) . '");' . "\n";
   $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
 
