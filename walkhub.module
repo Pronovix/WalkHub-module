@@ -6,6 +6,9 @@
 
 include_once 'walkhub.features.inc';
 
+// Field name.
+define('WALKTHROUGH_FIELD_STEPS', 'field_fc_steps');
+
 /**
  * Implements hook_init().
  */
@@ -786,82 +789,6 @@ function _walkhub_get_parameters($walkthrough) {
 }
 
 /**
- * Implements hook_extra_fields().
- */
-function walkhub_field_extra_fields() {
-  $extra_fields['node']['walkthrough'] = array(
-    'display' => array(
-      'walkhub_step_list' => array(
-        'label' => t('Rendered step list'),
-        'description' => t(''),
-        'weight' => 0,
-      ),
-    ),
-  );
-
-  return $extra_fields;
-}
-
-/**
- * Implements hook_node_view().
- */
-function walkhub_node_view($node, $view_mode) {
-  if ($node->type == 'walkthrough') {
-    $steps = array_map(
-      function($step) {
-        return node_load($step['target_id']);
-      },
-      isset($node->field_steps[$node->language]) ? $node->field_steps[$node->language] : array()
-    );
-
-    $node->content['walkhub_step_list'] = array(
-      '#theme' => 'walkhub_list_steps',
-      '#walkthrough_steps' => $steps,
-      '#weight' => 10,
-    );
-  }
-}
-
-/**
- * Implements hook_theme().
- */
-function walkhub_theme($existing, $type, $theme, $path) {
-  return array(
-    'walkhub_list_steps' => array(
-      'variables' => array(
-        'walkthrough_steps' => array(),
-      ),
-    ),
-    'walkthrough_step' => array(
-      'variables' => array(
-        'node' => new stdClass(),
-      ),
-      'path' => drupal_get_path('module', 'walkhub') . '/templates/',
-      'template' => 'walkthrough_step',
-    ),
-  );
-}
-
-/**
- * Theme callback for rendering the steps list.
- *
- * @param array $steps
- *   Array of node objects.
- */
-function theme_walkhub_list_steps(array $steps) {
-  $rendered_steps = array_map(
-    function($node) {
-      node_build_content($node);
-      return theme('walkthrough_step', array('node' => $node));
-    },
-    $steps['walkthrough_steps']
-  );
-
-  return theme('item_list', array('items' => $rendered_steps));
-}
-
-
-/**
  * Implements hook_walkhub_client_paths().
  */
 function walkhub_walkhub_client_paths() {
@@ -883,4 +810,52 @@ function walkhub_get_default_step_description($command) {
     ->fields('walhub_patterns', array('pattern'))
     ->condition('command', $command)
     ->execute()->fetchField();
+}
+
+/**
+ * Implements hook_field_collection_item_view().
+ */
+function walkhub_field_collection_item_view($field_collection_item, $view_mode, $langcode) {
+  if ($field_collection_item->field_name === WALKTHROUGH_FIELD_STEPS) {
+    $step = walkhub_get_position_from_step(arg(1), $field_collection_item->item_id);
+    // Display the position of the step in the begining of the field view.
+    $field_collection_item->content['position'] = array(
+      '#prefix' => '<span class="wt-step-position">',
+      '#markup' => $step,
+      '#suffix' => '</span>',
+      '#weight' => -30,
+    );
+  }
+}
+
+/**
+ * Return the position of the given step in the given walkthrough.
+ *
+ * @param $walkthrough_id
+ *   Id of the walkthrough node.
+ * @param $step_id
+ *   Id of the step field collection item.
+ * @return int
+ *   The position of the appropriate step in a walkthrough.
+ */
+function walkhub_get_position_from_step($walkthrough_id, $step_id) {
+  $positions = &drupal_static(__FUNCTION__, array());
+
+  if (!empty($positions[$walkthrough_id][$step_id])) {
+    return $positions[$walkthrough_id][$step_id];
+  }
+
+  $walkthrough =node_load($walkthrough_id);
+  $steps = field_get_items('node', $walkthrough, WALKTHROUGH_FIELD_STEPS);
+
+  // Get the position of the actual step in the walkthrough.
+  foreach ($steps as $key => $value) {
+    if ($value['value'] === $step_id) {
+      // We want to start the numbering from 1 instead of 0.
+      $position = $key+1;
+      $positions[$walkthrough_id][$step_id] = $position;
+    }
+  }
+
+  return $position;
 }
