@@ -262,6 +262,16 @@ function walkhub_default_services_endpoint() {
         ),
       ),
     ),
+    'walkhub-screening' => array(
+      'operations' => array(
+        'create' => array(
+          'enabled' => '1',
+        ),
+        'update' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'walkhub-user' => array(
       'actions' => array(
         'registration' => array(
@@ -402,6 +412,28 @@ function walkhub_default_services_endpoint() {
           'settings' => array(
             'services_oauth' => array(
               'credentials' => '',
+              'authorization' => '',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'walkhub-screening' => array(
+      'operations' => array(
+        'create' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => 'consumer',
+              'authorization' => '',
+            ),
+          ),
+        ),
+        'update' => array(
+          'enabled' => '1',
+          'settings' => array(
+            'services_oauth' => array(
+              'credentials' => 'consumer',
               'authorization' => '',
             ),
           ),
