@@ -817,7 +817,7 @@ function walkhub_get_default_step_description($command) {
  */
 function walkhub_field_collection_item_view($field_collection_item, $view_mode, $langcode) {
   if ($field_collection_item->field_name === WALKTHROUGH_FIELD_STEPS) {
-    $step = walkhub_get_position_from_step(arg(1), $field_collection_item->item_id);
+    $step = walkhub_get_position_from_step($field_collection_item->hostEntityId(), $field_collection_item->item_id);
     // Display the position of the step in the begining of the field view.
     $field_collection_item->content['position'] = array(
       '#prefix' => '<span class="wt-step-position">',
