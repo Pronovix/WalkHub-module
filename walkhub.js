@@ -45,11 +45,20 @@
           .parent().css('position', 'fixed');
 
         function resize() {
-          iframe.dialog('option', 'width', $(window).width() - 20);
-          iframe.dialog('option', 'height', $(window).height() - 20);
+          var width = $(window).width() - 20;
+          var height = $(window).height() - 20;
+
+          // If full window is required.
+          if ($('body').hasClass('walkthrough-full-window')) {
+            width = $(window).width();
+            // Needs to add 20px to fill out the whole window.
+            height = $(window).height() + 20;
+          }
+
+          iframe.dialog('option', 'width', width);
+          iframe.dialog('option', 'height', height);
           iframe.css('width', '100%');
           iframe.dialog('option', 'position', 'center');
-          iframe.parent().css('position', 'fixed');
         }
 
         resize();
