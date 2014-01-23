@@ -83,11 +83,20 @@ function walkhub_strongarm() {
       'diff_standard' => array(
         'custom_settings' => FALSE,
       ),
+      'entity_reference' => array(
+        'custom_settings' => TRUE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
         'title' => array(
           'weight' => '0',
+        ),
+        'metatags' => array(
+          'weight' => '40',
         ),
       ),
       'display' => array(
@@ -114,6 +123,12 @@ function walkhub_strongarm() {
         'walkhub_step_list' => array(
           'default' => array(
             'weight' => '1',
+            'visible' => TRUE,
+          ),
+        ),
+        'walkthrough_screening_widget' => array(
+          'default' => array(
+            'weight' => '0',
             'visible' => TRUE,
           ),
         ),
