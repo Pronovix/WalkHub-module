@@ -130,6 +130,8 @@ function walkhub_walkthrough_node_load($nid) {
 
 /**
  * Implements hook_menu_local_tasks_alter().
+ *
+ * Attach data attributes to the walkthrough play button.
  */
 function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
   if ($data['actions']['count']) {
@@ -143,13 +145,20 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         if (is_callable($loadfunc)) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
-            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-            if (variable_get('walkhub_use_proxy') && ($proxy_url = variable_get('walkhub_proxy_url'))) {
+            // Attach play via proxy flag.
+            $proxy_url = variable_get('walkhub_proxy_url');
+            if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
               $action['#link']['localized_options']['attributes']['data-walkthrough-proxy-url'] = $proxy_url;
             }
+
+            // Attach walkthrough uuid.
+            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
+
+            // Attach parameters.
             foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
               $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
             }
+
           }
         }
         break;
