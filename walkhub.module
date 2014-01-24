@@ -859,3 +859,11 @@ function walkhub_get_position_from_step($walkthrough_id, $step_id) {
 
   return $position;
 }
+
+/**
+ * Implements hook_preprocess_HOOK();
+ */
+function walkhub_preprocess_html(&$vars) {
+  // Add full window class, if the appropriate parameter has been added.
+  $vars['classes_array'][] = !empty($_GET['wt_full_window']) ? 'walkthrough-full-window' : '';
+}
