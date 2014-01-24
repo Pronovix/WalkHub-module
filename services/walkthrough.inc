@@ -99,7 +99,6 @@ function _walkthrough_prerequisites_retrieve($uuid) {
  *  PHPUnit test case.
  */
 function _walkthrough_phpunit_retrieve($uuid, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
-  dd(func_get_args());
   $return = array();
 
   $walkthrough = _walkhub_node_retrieve($uuid, 'walkthrough');
