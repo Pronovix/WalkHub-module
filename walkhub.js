@@ -40,9 +40,10 @@
           .appendTo($('body'))
           .dialog({
             modal: true,
-            autoOpen: true
-          })
-          .parent().css('position', 'fixed');
+            autoOpen: true,
+            draggable: false,
+            resizable: false
+          });
 
         function resize() {
           var width = $(window).width() - 20;
@@ -250,7 +251,9 @@
       autoOpen: true,
       modal: true,
       buttons: buttons,
-      dialogClass: 'walkthrough-start-dialog'
+      dialogClass: 'walkthrough-start-dialog',
+      draggable: false,
+      resizable: false
     });
   }
 
