@@ -33,21 +33,10 @@ function walkhub_configuration_form($form) {
     '#title' => t('Proxy'),
   );
 
-  $form['proxy']['walkhub_use_proxy'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use proxy'),
-    '#default_value' => variable_get('walkhub_use_proxy'),
-  );
-
   $form['proxy']['walkhub_proxy_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Proxy URL'),
     '#default_value' => variable_get('walkhub_proxy_url'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="walkhub_use_proxy"]' => array('checked' => TRUE),
-      ),
-    ),
   );
 
   return system_settings_form($form);
