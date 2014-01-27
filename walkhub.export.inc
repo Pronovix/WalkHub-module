@@ -270,7 +270,13 @@ function _walkhub_phpunit_export_steps_raw($node) {
  */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output = '$this->timeouts()->implicitWait(30000);' . "\n";
-  $output .= '$this->url("' . url('node/' . $node->nid, array('absolute' => TRUE)) . '");' . "\n";
+
+  $walkthrough_node_url = url('node/' . $node->nid, array(
+    'absolute' => TRUE,
+    'query' => array('wt_full_window' => 1),
+    )
+  );
+  $output .= '$this->url("' . $walkthrough_node_url . '");' . "\n";
   $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
 
   $output .= '$this->byXPath("//button[@type=\'button\']")->click();' . "\n";
