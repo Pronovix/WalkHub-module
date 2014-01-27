@@ -130,9 +130,10 @@ function _walkhub_export_selenium_steps(DOMDocument $dom, $node) {
  *
  * @see _walkhub_get_parameters().
 
- * @param $value string
+ * @param string $value
  *   Value to replace in.
- * @param $parameters
+ * @param array $parameters
+ *   Array of strings.
  *   Walkhub parameters.
  *
  * @return string
@@ -289,6 +290,8 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
     // Wait for popup.
     $output .= "\n\n";
+    $output .= '$tires = 0;' ."\n";
+    $output .= 'while (!$this->byCssSelector(".joyride-next-tip") && $tries < 30) {$tries++; sleep(1);}' . "\n";
 
     // Wait for the scroll.
     $output .= "sleep(1);\n";
