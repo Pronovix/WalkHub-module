@@ -45,6 +45,8 @@
             resizable: false
           });
 
+        var widget = iframe.dialog('widget');
+
         function resize() {
           var width = $(window).width() - 20;
           var height = $(window).height() - 20;
@@ -52,14 +54,27 @@
           // If full window is required.
           if ($('body').hasClass('walkthrough-full-window')) {
             width = $(window).width();
-            // Needs to add 20px to fill out the whole window.
-            height = $(window).height() + 20;
+            height = $(window).height();
+            // Hide dialog title.
+            $('.ui-dialog-titlebar', widget).hide();
+            // Make the dialog display in full window.
+            widget.css('top', '0px');
+            widget.css('bottom', '0px');
+            widget.css('left', '0px');
+            widget.css('right', '0px');
           }
 
           iframe.dialog('option', 'width', width);
           iframe.dialog('option', 'height', height);
-          iframe.css('width', '100%');
           iframe.dialog('option', 'position', 'center');
+
+          widget.css('padding', '0px');
+          widget.css('margin', '0px');
+          widget.css('border', 'none');
+
+          iframe.css('width', width);
+          iframe.css('height', height);
+          iframe.css('position', 'center');
         }
 
         resize();
