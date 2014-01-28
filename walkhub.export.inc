@@ -181,12 +181,54 @@ function _walkhub_get_phpunit_export_output($node, $via_walkhub = WALKHUB_SELENI
   return $output;
 }
 
-function _walkhub_phpunit_header($node, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
+/**
+ * Get the screenshot creating function of the selenium export.
+ *
+ * @return string
+ */
+function _walkhub_phpunit_export_screenshot_function() {
+  return '
+  /**
+   * Helper function to create screenshots.
+   *
+   * @param array $box
+   *   Bounding box of the element to take screenshot of.
+   *   array(
+   *     x => int,
+   *     y => int,
+   *     width => int,
+   *     height => int,
+   *   )
+   * @param string $filename
+   *   Filename to write the screenshot to (in png format).
+   */
+  protected function walkthroughCreateScreenshot($box, $filename) {
+  $screenshot = tempnam(sys_get_temp_dir(), "whshot");
+
+  file_put_contents($screenshot, $this->currentScreenshot());
+
+  $src = imagecreatefrompng($screenshot);
+  $dest = imagecreatetruecolor($box["width"], $box["height"]);
+
+  imagecopy($dest, $src, 0, 0, $box["x"], $box["y"], $box["width"], $box["height"]);
+  imagepng($dest, $filename);
+
+  unlink($screenshot);
+}
+';
+}
+
+function _walkhub_phpunit_header($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
   $class_name = _walkhub_get_phpunit_class_name($node);
 
   $output = "<?php\n";
-  $output .=  _walkhub_get_phpunit_comment($node);
+  $output .= _walkhub_get_phpunit_comment($node);
   $output .= "class $class_name extends $class_to_extend {\n";
+
+  if ($via_walkhub) {
+    $output .= _walkhub_phpunit_export_screenshot_function();
+  }
+
   $output .= _walkhub_get_phpunit_export_setup();
   $output .= '  public function ' . _walkhub_get_phpunit_function_name($node) . "() {\n";
 
@@ -282,7 +324,15 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
   $output .= '$this->byXPath("//button[@type=\'button\']")->click();' . "\n";
 
-  $output .= '$this->frame($this->byCssSelector("#ui-id-2"));' . "\n";
+  $output .= '$frame = $this->byCssSelector("#ui-id-2");' . "\n";
+
+  // Get iframe bounding box to take screenshot of.
+
+  $output .= '$box = array();' . "\n";
+  $output .= '$box += $frame->size();' . "\n";
+  $output .= '$box += $frame->location();' . "\n";
+
+  $output .= '$this->frame($frame);' . "\n";
 
   $node_wrapper = entity_metadata_wrapper('node', $node);
   foreach ($node_wrapper->field_fc_steps as $step) {
@@ -290,7 +340,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
     // Wait for popup.
     $output .= "\n\n";
-    $output .= '$tires = 0;' ."\n";
+    $output .= '$tires = 0;' . "\n";
     $output .= 'while (!$this->byCssSelector(".joyride-next-tip") && $tries < 30) {$tries++; sleep(1);}' . "\n";
 
     // Wait for the scroll.
@@ -298,8 +348,8 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
     // Take screenshot.
     $screenshot_filename = $node->uuid . ':' . $step_id . '.png';
-    $output .= 'if ($this->screenshotPath) {';
-    $output .= 'file_put_contents($this->screenshotPath . "' . $screenshot_filename . '", $this->currentScreenshot());';
+    $output .= 'if ($this->screenshotPath) {' . "\n";
+    $output .= '  $this->walkthroughCreateScreenshot($box, $this->screenshotPath . "' . $screenshot_filename . '");' . "\n";
     $output .= "}\n";
 
     // Click Next.
@@ -432,7 +482,7 @@ function _walkhub_phpunit_export_step($command1, $command2, $command3) {
  * @see _walkhub_phpunit_export_step()
  */
 function _walkhub_phpunit_export_step_clickandwait($command1, $command2, $command3) {
-  $output =  '$this->click("' . $command2 . '");' . "\n";
+  $output = '$this->click("' . $command2 . '");' . "\n";
   $output .= '$this->waitForPageToLoad("30000");';
 
   return $output;
