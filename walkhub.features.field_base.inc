@@ -144,7 +144,7 @@ function walkhub_field_default_field_bases() {
     'module' => 'text',
     'settings' => array(),
     'translatable' => 0,
-    'type' => 'text_long',
+    'type' => 'text',
   );
 
   // Exported field_base: 'field_fc_step_name'
