@@ -49,7 +49,8 @@ function walkhub_menu() {
     'title' => 'Export to selenium',
     'page callback' => 'walkhub_selenium_export',
     'page arguments' => array(1),
-    'access arguments' => array('export walkthrough'),
+    'access arguments' => array(1),
+    'access callback' => 'walkhub_export_access',
     'type' => MENU_LOCAL_TASK,
     'file' => 'walkhub.export.inc',
   );
@@ -58,7 +59,8 @@ function walkhub_menu() {
     'title' => 'Export to phpunit',
     'page callback' => 'walkhub_phpunit_export',
     'page arguments' => array(1),
-    'access arguments' => array('export walkthrough'),
+    'access arguments' => array(1),
+    'access callback' => 'walkhub_export_access',
     'type' => MENU_LOCAL_TASK,
     'file' => 'walkhub.export.inc',
   );
@@ -102,8 +104,11 @@ function walkhub_permission() {
     'administer walkthrough' => array(
       'title' => t('Administer walkthrough'),
     ),
-    'export walkthrough' => array(
+    'export any walkthrough' => array(
       'title' => t('Export walkthrough'),
+    ),
+    'export own walkthrough' => array(
+      'title' => t('Export own walkthrough'),
     ),
   );
 
@@ -561,6 +566,31 @@ function walkhub_node_presave($node) {
       $node->field_fc_steps[LANGUAGE_NONE] = $walkthrough_steps;
     }
   }
+}
+
+/**
+ * Check that the currently logged in user has the right permission to export
+ * walkthroughs.
+ *
+ * @param $node
+ * @return bool
+ */
+function walkhub_export_access($node) {
+  global $user;
+
+  if ($user->uid == 1 || user_access('bypass node access')) {
+    return TRUE;
+  }
+
+  if (user_access('export any walkthrough')) {
+    return TRUE;
+  }
+
+  if (user_access('export own walkthrough') && $node->uid == $user->uid) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
