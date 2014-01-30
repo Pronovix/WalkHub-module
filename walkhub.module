@@ -172,7 +172,7 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function walkhub_menu_alter(&$items) {
   // Change clone module's link to local task.
-  $items['node/%node/clone']['type'] = MENU_LOCAL_TASK;
+  $items['node/%node/clone/%clone_token']['type'] = MENU_LOCAL_TASK;
 }
 
 /**
