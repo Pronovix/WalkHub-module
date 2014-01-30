@@ -425,6 +425,12 @@ function _walkhub_php_multiline_comment($string) {
  *   Selenium setup function.
  */
 function _walkhub_get_phpunit_export_setup() {
+  if ((bool) preg_match('/^https?:\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i', $GLOBALS['base_url'])) {
+    $base_url = $GLOBALS['base_url'];
+  }
+  else {
+    throw new Exception(t('Invalid base url'));
+  }
   return '
   protected $screenshotPath;
 
@@ -433,7 +439,7 @@ function _walkhub_get_phpunit_export_setup() {
 
   protected function setUp() {
     $this->setBrowser("firefox");
-    $this->setBrowserUrl("' . $GLOBALS['base_url'] .'");
+    $this->setBrowserUrl("' . $base_url .'");
     $this->screenshotPath = getenv("WT_SCREENSHOT_PATH") ?: "" ;
 
     $this->windowWidth = getenv("WT_WINDOW_WIDTH") ?: 1024;
