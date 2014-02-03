@@ -327,7 +327,6 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output .= '$frame = $this->byCssSelector("#ui-id-2");' . "\n";
 
   // Get iframe bounding box to take screenshot of.
-
   $output .= '$box = array();' . "\n";
   $output .= '$box += $frame->size();' . "\n";
   $output .= '$box += $frame->location();' . "\n";
@@ -335,9 +334,17 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output .= '$this->frame($frame);' . "\n";
 
   $node_wrapper = entity_metadata_wrapper('node', $node);
-  foreach ($node_wrapper->field_fc_steps as $step) {
-    $step_id = $step->item_id->value();
 
+  // Get steps.
+  $steps = array();
+  foreach ($node_wrapper->field_fc_steps as $step) {
+    $steps[] = $step->item_id->value();
+  }
+
+  // Skip first step as it just loads the page.
+  array_shift($steps);
+
+  foreach ($steps as $step_id) {
     // Wait for popup.
     $output .= "\n\n";
     $output .= '$tires = 0;' . "\n";
