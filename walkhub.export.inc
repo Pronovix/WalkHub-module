@@ -175,7 +175,7 @@ function walkhub_phpunit_export($node) {
  *   Exported phpunit class.
  */
 function _walkhub_get_phpunit_export_output($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
-  $output = _walkhub_phpunit_header($node, $class_to_extend);
+  $output = _walkhub_phpunit_header($node, $via_walkhub, $class_to_extend);
   $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
   $output .= _walkhub_phpunit_footer($node);
   return $output;
