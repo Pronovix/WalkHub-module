@@ -222,6 +222,8 @@ function _walkhub_phpunit_header($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_V
   $class_name = _walkhub_get_phpunit_class_name($node);
 
   $output = "<?php\n";
+  $output .= "define('WT_BROWSER', getenv('WT_BROWSER') ?: 'firefox');\n";
+
   $output .= _walkhub_get_phpunit_comment($node);
   $output .= "class $class_name extends $class_to_extend {\n";
 
@@ -444,8 +446,13 @@ function _walkhub_get_phpunit_export_setup() {
   protected $windowWidth;
   protected $windowHeight;
 
-  protected function setUp() {
-    $this->setBrowser("firefox");
+  public static $browsers = array(
+    array(
+      "browserName" => WT_BROWSER,
+    ),
+  );
+
+  public function setUp() {
     $this->setBrowserUrl("' . $base_url .'");
     $this->screenshotPath = getenv("WT_SCREENSHOT_PATH") ?: "" ;
 
