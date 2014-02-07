@@ -168,3 +168,46 @@ function walkhub_create_walkthrough_form_save($form, &$form_state) {
   // Redirect the user to the newly created walkthrough page.
   $form_state['redirect'] = "node/{$form_state['walkthrough']->nid}";
 }
+
+/**
+ * Page callback for 'node/%/embed.js'.
+ */
+function walkhub_embedjs_page($node) {
+  return array(
+    'nid' => $node->nid,
+    'walkhub' => $_SERVER['HTTP_HOST'],
+    'origin' => walkhub_get_origin(),
+    'buttonuri' => url('node/' . $node->nid, array(
+      'query' => array(
+        'buttononly' => 1,
+      ),
+      'absolute' => TRUE,
+    )),
+    'parameters' => (array) (isset($_GET['parameters']) ? $_GET['parameters'] : array()),
+    'useproxy' => (bool) (isset($_GET['useproxy']) ? $_GET['useproxy'] : FALSE),
+  );
+}
+
+/**
+ * Delivery callback for the embed.js
+ *
+ * @TODO add closure compiler support.
+ */
+function walkthrough_deliver_embedjs($page_callback_result) {
+  drupal_add_http_header('Content-Type', 'application/javascript');
+
+  $json = NULL;
+  $key = NULL;
+  if (is_array($page_callback_result) || is_object($page_callback_result)) {
+    $json = drupal_json_encode($page_callback_result);
+    $key = walkhub_get_id_hash(node_load($page_callback_result['nid']));
+  }
+
+  if ($json !== NULL) {
+    print "window.WalkhubEmbedData = window.WalkhubEmbedData || {};\n";
+    print "window.WalkhubEmbedData['{$key}'] = {$json};\n";
+  }
+  // TODO handle other cases
+
+  readfile(drupal_get_path('module', 'walkhub') . '/embed.js');
+}

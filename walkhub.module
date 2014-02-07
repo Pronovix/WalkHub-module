@@ -45,6 +45,17 @@ function walkhub_menu() {
     'file' => 'walkhub.pages.inc',
   );
 
+  $items['node/%walkhub_walkthrough_node/embed.js'] = array(
+    'title' => 'Embed walkthrough',
+    'delivery callback' => 'walkthrough_deliver_embedjs',
+    'page callback' => 'walkhub_embedjs_page',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+    'type' => MENU_CALLBACK,
+    'file' => 'walkhub.pages.inc',
+  );
+
   $items['node/%walkhub_walkthrough_node/selenium_export'] = array(
     'title' => 'Export to selenium',
     'page callback' => 'walkhub_selenium_export',
@@ -164,6 +175,11 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
               $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
             }
 
+            $action['#link']['localized_options']['attributes']['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
+              'absolute' => TRUE,
+            ));
+
+            $action['#link']['localized_options']['attributes']['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
           }
         }
         break;
@@ -193,7 +209,7 @@ function walkhub_node_view_alter(&$build) {
     if (!empty($items)) {
       $prerequisites = array();
       foreach($items as $item) {
-        if ($node = node_load($item['target_id'])) {
+        if (($node = node_load($item['target_id']))) {
           $prerequisites[] = array(
             'title' => $node->title,
             'nid' => $node->nid,
@@ -905,4 +921,66 @@ function walkhub_get_position_from_step($walkthrough_id, $step_id) {
 function walkhub_preprocess_html(&$vars) {
   // Add full window class, if the appropriate parameter has been added.
   $vars['classes_array'][] = !empty($_GET['wt_full_window']) ? 'walkthrough-full-window' : '';
+}
+
+/**
+ * Helper function determine if the walkthrough node page should only display the start walkthrough button.
+ *
+ * @return bool
+ */
+function walkhub_is_button_page() {
+  return !empty($_GET['buttononly']) && ($node = menu_get_object('node')) && $node->type == 'walkthrough';
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function walkhub_page_alter(&$page) {
+  if (walkhub_is_button_page() && module_exists('admin_menu')) {
+    admin_menu_suppress();
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function walkhub_preprocess_page(&$variables) {
+  if (walkhub_is_button_page()) {
+    $variables['theme_hook_suggestions'][] = 'page__node__walkhub__button';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function walkhub_theme() {
+  return array(
+    'page__node__walkhub__button' => array(
+      'render element' => 'page',
+      'template' => 'page__node__walkhub__button',
+      'base hook' => 'page',
+      'path' => drupal_get_path('module', 'walkhub'),
+    ),
+  );
+}
+
+/**
+ * Returns a hash based on a node.
+ *
+ * @param stdClass $node
+ * @return string
+ *   sha1 hash
+ */
+function walkhub_get_id_hash($node) {
+  return sha1($node->uuid . $_SERVER['SERVER_NAME']);
+}
+
+/**
+ * Returns the origin (protocol + hostname + port) of this server.
+ *
+ * @return string
+ */
+function walkhub_get_origin() {
+  global $is_https;
+  return 'http' . ($is_https ? 's' : '') . "://{$_SERVER['SERVER_NAME']}" . (in_array($_SERVER['SERVER_PORT'], array(80, 443)) ? '' : ":{$_SERVER['SERVER_PORT']}");
 }

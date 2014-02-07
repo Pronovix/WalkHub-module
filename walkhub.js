@@ -21,6 +21,19 @@ if (!window.location.origin) {
     return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
   }
 
+  function embeddedPost(msg) {
+    var origin = (getdata['embedorigin'] && window.parent) ? getdata['embedorigin'] : null;
+    if (origin) {
+      if (!msg['origin']) {
+        msg['origin'] = decodeURIComponent(origin);
+      }
+      if (!msg['ticket'] && getdata['ticket']) {
+        msg['ticket'] = getdata['ticket'];
+      }
+      window.parent.postMessage(JSON.stringify(msg), decodeURIComponent(origin));
+    }
+  }
+
   var iOS =
     navigator.platform === 'iPad' ||
     navigator.platform === 'iPad Simulator' ||
@@ -91,6 +104,14 @@ if (!window.location.origin) {
           .parent()
             .css('z-index', MAXIMUM_ZINDEX);
 
+        if (getdata['embedorigin']) {
+          setTimeout(function () {
+            $('.ui-dialog-titlebar-close').click(function () {
+              embeddedPost({type: 'end'});
+            });
+          }, 500);
+        }
+
         return iframe.get(0).contentWindow;
       },
       teardown: function () {
@@ -109,7 +130,7 @@ if (!window.location.origin) {
     var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
     for (var k in data) {
-      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) == 0) {
+      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) === 0) {
         var parameter = k.substr(wtParamPrefix.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
@@ -200,6 +221,17 @@ if (!window.location.origin) {
       .addClass('share')
       .appendTo(dialog.find('form'));
 
+    $('<label />')
+      .attr('for', 'embedlink')
+      .html(Drupal.t('Embed with these parameters: '))
+      .appendTo(dialog.find('form'));
+
+    var embed = $('<textarea />')
+      .attr('name', 'embedlink')
+      .attr('readonly', 'readonly')
+      .addClass('embed')
+      .appendTo(dialog.find('form'));
+
     var useproxy = null;
     if (httpproxy) {
       $('<label />')
@@ -234,7 +266,9 @@ if (!window.location.origin) {
       }
       var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
       server.startWalkthrough(parameters, methods[method_name]);
-      buttons[Drupal.t('Cancel')]();
+      if (!getdata['embedorigin']) {
+        buttons[Drupal.t('Cancel')]();
+      }
     };
     buttons[Drupal.t('Cancel')] = function () {
       dialog.dialog('close');
@@ -243,9 +277,11 @@ if (!window.location.origin) {
 
     function regenLinks() {
       updateParameters();
+      var parameter;
 
+      // Generate sharing link
       var link = window.location.origin + window.location.pathname + '?';
-      for (var parameter in parameters) {
+      for (parameter in parameters) {
         if (!parameters.hasOwnProperty(parameter)) {
           continue;
         }
@@ -256,6 +292,26 @@ if (!window.location.origin) {
         link += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
       }
       share.val(link + '&autostart=1');
+
+      // Generate embed data
+      var embedurl = walkthroughlink.data('embedjs') + '?';
+      for (parameter in parameters) {
+        if (!parameters.hasOwnProperty(parameter)) {
+          continue;
+        }
+
+        embedurl += 'parameters[' + parameter + ']=' + encodeURIComponent(parameters[parameter]) + '&';
+      }
+      embedurl = embedurl.substr(0, embedurl.length - 1);
+      if (httpproxy) {
+        embedurl += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
+      }
+      var embedkey = walkthroughlink.data('embedjskey');
+      var embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
+        .replace('EMBEDURL', embedurl)
+        .replace('EMBEDKEY', embedkey);
+
+      embed.val(embeddata);
     }
 
     regenLinks();
@@ -266,6 +322,11 @@ if (!window.location.origin) {
       .click(regenLinks)
       .change(regenLinks)
       .blur();
+
+    if (getdata['embedorigin']) {
+      setTimeout(buttons[Drupal.t('Start walkthrough')], 100);
+      return;
+    }
 
     dialog.appendTo($('body'));
     dialog.dialog({
@@ -428,6 +489,7 @@ if (!window.location.origin) {
       },
       finished: function (data, source) {
         finished = true;
+        embeddedPost({type: 'end'});
         method.teardown();
       },
       ping: function (data, source) {
@@ -485,6 +547,7 @@ if (!window.location.origin) {
         // TODO call window.proxy.resume() when the walkthrough finishes.
       }
       state.parameters = parameters;
+      embeddedPost({type: 'start'});
       method.execute(currentURL || (baseurl() + 'walkhub'));
     };
   }
