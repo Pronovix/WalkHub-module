@@ -175,7 +175,7 @@ function walkhub_phpunit_export($node) {
  *   Exported phpunit class.
  */
 function _walkhub_get_phpunit_export_output($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
-  $output = _walkhub_phpunit_header($node, $class_to_extend);
+  $output = _walkhub_phpunit_header($node, $via_walkhub, $class_to_extend);
   $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
   $output .= _walkhub_phpunit_footer($node);
   return $output;
@@ -222,6 +222,8 @@ function _walkhub_phpunit_header($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_V
   $class_name = _walkhub_get_phpunit_class_name($node);
 
   $output = "<?php\n";
+  $output .= "define('WT_BROWSER', getenv('WT_BROWSER') ?: 'firefox');\n";
+
   $output .= _walkhub_get_phpunit_comment($node);
   $output .= "class $class_name extends $class_to_extend {\n";
 
@@ -327,7 +329,6 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output .= '$frame = $this->byCssSelector("#ui-id-2");' . "\n";
 
   // Get iframe bounding box to take screenshot of.
-
   $output .= '$box = array();' . "\n";
   $output .= '$box += $frame->size();' . "\n";
   $output .= '$box += $frame->location();' . "\n";
@@ -335,9 +336,17 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output .= '$this->frame($frame);' . "\n";
 
   $node_wrapper = entity_metadata_wrapper('node', $node);
-  foreach ($node_wrapper->field_fc_steps as $step) {
-    $step_id = $step->item_id->value();
 
+  // Get steps.
+  $steps = array();
+  foreach ($node_wrapper->field_fc_steps as $step) {
+    $steps[] = $step->item_id->value();
+  }
+
+  // Skip first step as it just loads the page.
+  array_shift($steps);
+
+  foreach ($steps as $step_id) {
     // Wait for popup.
     $output .= "\n\n";
     $output .= '$tires = 0;' . "\n";
@@ -437,8 +446,13 @@ function _walkhub_get_phpunit_export_setup() {
   protected $windowWidth;
   protected $windowHeight;
 
-  protected function setUp() {
-    $this->setBrowser("firefox");
+  public static $browsers = array(
+    array(
+      "browserName" => WT_BROWSER,
+    ),
+  );
+
+  public function setUp() {
     $this->setBrowserUrl("' . $base_url .'");
     $this->screenshotPath = getenv("WT_SCREENSHOT_PATH") ?: "" ;
 
