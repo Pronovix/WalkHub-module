@@ -159,8 +159,14 @@ if (!window.console || !window.console.log) {
         .append($('<form><fieldset></fieldset></form>')),
       fieldset = dialog.find('fieldset'),
       basepath = baseurl(),
+      buttons = {},
       key,
-      href;
+      href,
+      parameter,
+      httpproxy,
+      share,
+      useproxy,
+      k;
 
 
     // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
@@ -181,7 +187,7 @@ if (!window.console || !window.console.log) {
       .html(Drupal.t('The following parameters are available in this walkthrough:'))
       .appendTo(fieldset);
 
-    for (var parameter in parameters) {
+    for (parameter in parameters) {
       if (!parameters.hasOwnProperty(parameter)) {
         continue;
       }
@@ -200,14 +206,14 @@ if (!window.console || !window.console.log) {
         .appendTo(fieldset);
     }
 
-    var httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
+    httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
 
     $('<label />')
       .attr('for', 'sharelink')
       .html(Drupal.t('Share with these parameters: '))
       .appendTo(dialog.find('form'));
 
-    var share = $('<textarea />')
+    share = $('<textarea />')
       .attr('name', 'sharelink')
       .attr('readonly', 'readonly')
       .addClass('share')
@@ -224,7 +230,7 @@ if (!window.console || !window.console.log) {
       .addClass('embed')
       .appendTo(dialog.find('form'));
 
-    var useproxy = null;
+    useproxy = null;
     if (httpproxy) {
       $('<label />')
         .attr('for', 'useproxy')
@@ -242,7 +248,7 @@ if (!window.console || !window.console.log) {
     }
 
     function updateParameters() {
-      for (var k in parameters) {
+      for (k in parameters) {
         if (!parameters.hasOwnProperty(k)) {
           continue;
         }
@@ -250,7 +256,6 @@ if (!window.console || !window.console.log) {
       }
     }
 
-    var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
       updateParameters();
       if (httpproxy && !useproxy.is(':checked')) {
