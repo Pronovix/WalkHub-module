@@ -22,107 +22,90 @@ if (!window.console || !window.console.log) {
     }, {}),
     MAXIMUM_ZINDEX = 2147483647,
     walkthroughOrigin,
-    csrf_token = null;
-
-  function baseurl() {
-    return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
-  }
-
-  function embeddedPost(msg) {
-    var origin = (getdata.embedorigin && window.parent) ? getdata.embedorigin : null;
-    if (origin) {
-      if (!msg.origin) {
-        msg.origin = decodeURIComponent(origin);
-      }
-      if (!msg.ticket && getdata.ticket) {
-        msg.ticket = getdata.ticket;
-      }
-      window.parent.postMessage(JSON.stringify(msg), decodeURIComponent(origin));
-    }
-  }
+    csrf_token = null,
 
   // @TODO convert these into proper objects. Remove the singleton state of methods.*.object.
-  var methods = {
-    iframe: {
-      name: 'iFrame',
-      linkcheck: false,
-      execute: function (url) {
-        var iframe = $('<iframe />')
-          .attr('src', url)
-          .attr('frameborder', 0)
-          .attr('scrolling', 'auto')
-          .attr('allowtransparency', 'true');
+    methods = {
+      iframe: {
+        name: 'iFrame',
+        linkcheck: false,
+        execute: function (url) {
+          var iframe = $('<iframe />')
+            .attr('src', url)
+            .attr('frameborder', 0)
+            .attr('scrolling', 'auto')
+            .attr('allowtransparency', 'true');
 
-        methods.iframe.object = iframe;
+          methods.iframe.object = iframe;
 
-        iframe
-          .appendTo($('body'))
-          .dialog({
-            modal: true,
-            autoOpen: true,
-            draggable: false,
-            resizable: false
-          });
+          iframe
+            .appendTo($('body'))
+            .dialog({
+              modal: true,
+              autoOpen: true,
+              draggable: false,
+              resizable: false
+            });
 
-        var widget = iframe.dialog('widget');
+          var widget = iframe.dialog('widget');
 
-        function resize() {
-          var width = $(window).width() - 20;
-          var height = $(window).height() - 20;
+          function resize() {
+            var width = $(window).width() - 20;
+            var height = $(window).height() - 20;
 
-          // If full window is required.
-          if ($('body').hasClass('walkthrough-full-window')) {
-            width = $(window).width();
-            height = $(window).height();
-            // Hide dialog title.
-            $('.ui-dialog-titlebar', widget).hide();
-            // Make the dialog display in full window.
-            widget.css('top', '0px');
-            widget.css('bottom', '0px');
-            widget.css('left', '0px');
-            widget.css('right', '0px');
+            // If full window is required.
+            if ($('body').hasClass('walkthrough-full-window')) {
+              width = $(window).width();
+              height = $(window).height();
+              // Hide dialog title.
+              $('.ui-dialog-titlebar', widget).hide();
+              // Make the dialog display in full window.
+              widget.css('top', '0px');
+              widget.css('bottom', '0px');
+              widget.css('left', '0px');
+              widget.css('right', '0px');
+            }
+
+            iframe.dialog('option', 'width', width);
+            iframe.dialog('option', 'height', height);
+            iframe.dialog('option', 'position', 'center');
+
+            widget.css('padding', '0px');
+            widget.css('margin', '0px');
+            widget.css('border', 'none');
+
+            iframe.css('width', width);
+            iframe.css('height', height);
+            iframe.css('position', 'center');
           }
 
-          iframe.dialog('option', 'width', width);
-          iframe.dialog('option', 'height', height);
-          iframe.dialog('option', 'position', 'center');
+          resize();
 
-          widget.css('padding', '0px');
-          widget.css('margin', '0px');
-          widget.css('border', 'none');
+          window.addEventListener('resize', resize);
 
-          iframe.css('width', width);
-          iframe.css('height', height);
-          iframe.css('position', 'center');
-        }
-
-        resize();
-
-        window.addEventListener('resize', resize);
-
-        iframe
-          .parent()
+          iframe
+            .parent()
             .css('z-index', MAXIMUM_ZINDEX);
 
-        if (getdata['embedorigin']) {
-          setTimeout(function () {
-            $('.ui-dialog-titlebar-close').click(function () {
-              embeddedPost({type: 'end'});
-            });
-          }, 500);
-        }
+          if (getdata['embedorigin']) {
+            setTimeout(function () {
+              $('.ui-dialog-titlebar-close').click(function () {
+                embeddedPost({type: 'end'});
+              });
+            }, 500);
+          }
 
-        return iframe.get(0).contentWindow;
-      },
-      teardown: function () {
-        if (methods.iframe.object) {
-          methods.iframe.object.dialog('close');
-          methods.iframe.object.remove();
-        }
-      },
-      valid: true
-    }
-  };
+          return iframe.get(0).contentWindow;
+        },
+        teardown: function () {
+          if (methods.iframe.object) {
+            methods.iframe.object.dialog('close');
+            methods.iframe.object.remove();
+          }
+        },
+        valid: true
+      }
+    };
 
   function getDefaultParameters(walkthroughlink) {
     var parameters = {};
@@ -565,4 +548,22 @@ if (!window.console || !window.console.log) {
         });
     }
   };
+
+  function baseurl() {
+    return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
+  }
+
+  function embeddedPost(msg) {
+    var origin = (getdata.embedorigin && window.parent) ? getdata.embedorigin : null;
+    if (origin) {
+      if (!msg.origin) {
+        msg.origin = decodeURIComponent(origin);
+      }
+      if (!msg.ticket && getdata.ticket) {
+        msg.ticket = getdata.ticket;
+      }
+      window.parent.postMessage(JSON.stringify(msg), decodeURIComponent(origin));
+    }
+  }
+
 })(jQuery);
