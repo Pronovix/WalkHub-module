@@ -13,18 +13,16 @@ if (!window.console || !window.console.log) {
 }
 
 (function ($) {
-
-  var walkthroughOrigin;
-
-  var MAXIMUM_ZINDEX = 2147483647;
-
-  var csrf_token = null;
+  "use strict";
 
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
-    str = str.split('=');
-    obj[str.shift()] = str.join('=');
-    return obj;
-  }, {});
+      str = str.split('=');
+      obj[str.shift()] = str.join('=');
+      return obj;
+    }, {}),
+    MAXIMUM_ZINDEX = 2147483647,
+    walkthroughOrigin,
+    csrf_token = null;
 
   function baseurl() {
     return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
