@@ -364,6 +364,10 @@ if (!window.console || !window.console.log) {
     }
   };
 
+  function suppressErrorMessage(id) {
+    $('#walkhub-error-message-' + id, methods.iframe.object.parent()).remove();
+  }
+
   function showErrorMessage(id, error) {
     suppressErrorMessage(id);
     var msg = $('<div />')
@@ -375,10 +379,6 @@ if (!window.console || !window.console.log) {
     if (errormessages_alter.hasOwnProperty(id)) {
       errormessages_alter[id](msg);
     }
-  }
-
-  function suppressErrorMessage(id) {
-    $('#walkhub-error-message-' + id, methods.iframe.object.parent()).remove();
   }
 
   function WalkhubServer() {
