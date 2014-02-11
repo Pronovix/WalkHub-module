@@ -110,9 +110,11 @@ if (!window.console || !window.console.log) {
 
 
   function jqCompat(version) {
-    var jqversionparts = $.fn.jquery.split('.');
-    var versionparts = version.split('.');
-    for (var p in versionparts) {
+    var jqversionparts = $.fn.jquery.split('.'),
+      versionparts = version.split('.'),
+      p;
+
+    for (p in versionparts) {
       if (!versionparts.hasOwnProperty(p)) {
         continue;
       }
