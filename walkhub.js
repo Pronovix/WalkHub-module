@@ -108,21 +108,6 @@ if (!window.console || !window.console.log) {
       }
     };
 
-  function getDefaultParameters(walkthroughlink) {
-    var parameters = {};
-    var data = walkthroughlink.data();
-    var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
-
-    for (var k in data) {
-      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) === 0) {
-        var parameter = k.substr(wtParamPrefix.length).toLowerCase();
-        var default_value = data[k];
-        parameters[parameter] = getdata[parameter] || default_value;
-      }
-    }
-
-    return parameters;
-  }
 
   function jqCompat(version) {
     var jqversionparts = $.fn.jquery.split('.');
@@ -141,6 +126,26 @@ if (!window.console || !window.console.log) {
 
     return true;
   }
+
+  function getDefaultParameters(walkthroughlink) {
+    var parameters = {},
+      data = walkthroughlink.data(),
+      wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-',
+      k,
+      parameter,
+      default_value;
+
+    for (k in data) {
+      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) === 0) {
+        parameter = k.substr(wtParamPrefix.length).toLowerCase();
+        default_value = data[k];
+        parameters[parameter] = getdata[parameter] || default_value;
+      }
+    }
+
+    return parameters;
+  }
+
 
   function createDialogForm(walkthroughlink, server, state) {
     var parameters = getDefaultParameters(walkthroughlink);
