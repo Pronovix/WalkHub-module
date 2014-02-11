@@ -41,13 +41,6 @@ if (!window.console || !window.console.log) {
     }
   }
 
-  var iOS =
-    navigator.platform === 'iPad' ||
-    navigator.platform === 'iPad Simulator' ||
-    navigator.platform === 'iPhone' ||
-    navigator.platform === 'iPhone Simulator' ||
-    navigator.platform === 'iPod';
-
   // @TODO convert these into proper objects. Remove the singleton state of methods.*.object.
   var methods = {
     iframe: {
