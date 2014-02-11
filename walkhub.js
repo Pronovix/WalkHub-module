@@ -3,6 +3,15 @@ if (!window.location.origin) {
   window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
 }
 
+// Add console log function if not availible.
+if (!window.console || !window.console.log) {
+  window.console = {
+    log: function log() {
+      "use strict";
+    }
+  };
+}
+
 (function ($) {
 
   var walkthroughOrigin;
@@ -479,7 +488,7 @@ if (!window.location.origin) {
       },
       log: function (data, source) {
         // TODO set a variable to enable/disable logging
-        window.console && console.log && console.log('REMOTE LOG', data.log);
+        console.log('REMOTE LOG', data.log);
       },
       showError: function (data, source) {
         showErrorMessage(data.id, data.error);
@@ -512,7 +521,7 @@ if (!window.location.origin) {
         logMessage(message, ">>");
         source.postMessage(JSON.stringify(message), origin || walkthroughOrigin);
       } else {
-        window.console && console.log && console.log('Sending message failed.');
+        console.log('Sending message failed.');
       }
     }
 
