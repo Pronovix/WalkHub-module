@@ -166,7 +166,8 @@ if (!window.console || !window.console.log) {
       httpproxy,
       share,
       useproxy,
-      k;
+      k,
+      embed;
 
 
     // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
@@ -224,7 +225,7 @@ if (!window.console || !window.console.log) {
       .html(Drupal.t('Embed with these parameters: '))
       .appendTo(dialog.find('form'));
 
-    var embed = $('<textarea />')
+    embed = $('<textarea />')
       .attr('name', 'embedlink')
       .attr('readonly', 'readonly')
       .addClass('embed')
@@ -274,10 +275,14 @@ if (!window.console || !window.console.log) {
 
     function regenLinks() {
       updateParameters();
-      var parameter;
+      var parameter,
+        link,
+        embedurl,
+        embedkey,
+        embeddata;
 
       // Generate sharing link
-      var link = window.location.origin + window.location.pathname + '?';
+      link = window.location.origin + window.location.pathname + '?';
       for (parameter in parameters) {
         if (!parameters.hasOwnProperty(parameter)) {
           continue;
@@ -291,7 +296,7 @@ if (!window.console || !window.console.log) {
       share.val(link + '&autostart=1');
 
       // Generate embed data
-      var embedurl = walkthroughlink.data('embedjs') + '?';
+      embedurl = walkthroughlink.data('embedjs') + '?';
       for (parameter in parameters) {
         if (!parameters.hasOwnProperty(parameter)) {
           continue;
@@ -303,8 +308,8 @@ if (!window.console || !window.console.log) {
       if (httpproxy) {
         embedurl += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
       }
-      var embedkey = walkthroughlink.data('embedjskey');
-      var embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
+      embedkey = walkthroughlink.data('embedjskey');
+      embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
         .replace('EMBEDURL', embedurl)
         .replace('EMBEDKEY', embedkey);
 
