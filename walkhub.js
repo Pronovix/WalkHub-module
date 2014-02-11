@@ -150,28 +150,29 @@ if (!window.console || !window.console.log) {
 
 
   function createDialogForm(walkthroughlink, server, state) {
-    var parameters = getDefaultParameters(walkthroughlink);
-    var dialog = $('<div />')
-      .attr('id', 'walkthrough-dialog-' + Math.random().toString())
-      .attr('title', Drupal.t('Start Walkthrough'))
-      .addClass('walkthrough-dialog')
-      .hide()
-      .append($('<form><fieldset></fieldset></form>'));
+    var parameters = getDefaultParameters(walkthroughlink),
+      dialog = $('<div />')
+        .attr('id', 'walkthrough-dialog-' + Math.random().toString())
+        .attr('title', Drupal.t('Start Walkthrough'))
+        .addClass('walkthrough-dialog')
+        .hide()
+        .append($('<form><fieldset></fieldset></form>')),
+      fieldset = dialog.find('fieldset'),
+      basepath = baseurl(),
+      key,
+      href;
 
-    var fieldset = dialog.find('fieldset');
 
     // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
-    if (typeof Drupal.settings.walkhub != 'undefined' && typeof Drupal.settings.walkhub.prerequisites != 'undefined') {
-      var basepath = baseurl();
-
+    if (Drupal.settings.walkhub !== undefined && Drupal.settings.walkhub.prerequisites !== undefined) {
       $('<p />')
           .html(Drupal.t('Before this Walkthrough can run you need to:'))
           .appendTo(fieldset);
 
-      for (var key in Drupal.settings.walkhub.prerequisites) {
+      for (key in Drupal.settings.walkhub.prerequisites) {
         if (Drupal.settings.walkhub.prerequisites.hasOwnProperty(key)) {
-          var href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key]['nid'];
-          $('<a href="' + href + '" target="_blank" class="button">' + Drupal.settings.walkhub.prerequisites[key]['title'] + '</a>').appendTo(fieldset);
+          href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key].nid;
+          $('<a href="' + href + '" target="_blank" class="button">' + Drupal.settings.walkhub.prerequisites[key].title + '</a>').appendTo(fieldset);
         }
       }
     }
