@@ -30,11 +30,12 @@ if (!window.console || !window.console.log) {
         name: 'iFrame',
         linkcheck: false,
         execute: function (url) {
-          var iframe = $('<iframe />')
-            .attr('src', url)
-            .attr('frameborder', 0)
-            .attr('scrolling', 'auto')
-            .attr('allowtransparency', 'true');
+          var widget,
+            iframe = $('<iframe />')
+              .attr('src', url)
+              .attr('frameborder', 0)
+              .attr('scrolling', 'auto')
+              .attr('allowtransparency', 'true');
 
           methods.iframe.object = iframe;
 
@@ -47,11 +48,11 @@ if (!window.console || !window.console.log) {
               resizable: false
             });
 
-          var widget = iframe.dialog('widget');
+          widget = iframe.dialog('widget');
 
           function resize() {
-            var width = $(window).width() - 20;
-            var height = $(window).height() - 20;
+            var width = $(window).width() - 20,
+              height = $(window).height() - 20;
 
             // If full window is required.
             if ($('body').hasClass('walkthrough-full-window')) {
