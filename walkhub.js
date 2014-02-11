@@ -382,24 +382,19 @@ if (!window.console || !window.console.log) {
   }
 
   function WalkhubServer() {
-    var key = Math.random().toString();
-
-    var self = this;
-
-    var currentURL = null;
-
-    var state = {
-      walkthrough: null,
-      step: null,
-      completed: false,
-      stepIndex: 0,
-      parameters: {},
-      HTTPProxyURL: ''
-    };
-
-    var method;
-
-    var finished = false;
+    var key = Math.random().toString(),
+      self = this,
+      currentURL = null,
+      state = {
+        walkthrough: null,
+        step: null,
+        completed: false,
+        stepIndex: 0,
+        parameters: {},
+        HTTPProxyURL: ''
+      },
+      method,
+      finished = false;
 
     function maybeProxy(newdata, olddata) {
       if (olddata.proxy_key) {
@@ -503,7 +498,7 @@ if (!window.console || !window.console.log) {
     handlers.ping.keyBypass = true;
 
     function logMessage(msg, prefix) {
-      if (msg.type && msg.type == 'log') {
+      if (msg.type && msg.type === 'log') {
         return;
       }
       console.log(prefix + "\t" + JSON.stringify(msg));
@@ -519,9 +514,9 @@ if (!window.console || !window.console.log) {
     }
 
     window.addEventListener('message', function (event) {
-      var data = JSON.parse(event.data);
-      var handler = data && data.type && handlers[data.type];
-      if (handler && (handler.keyBypass || (data.key && data.key == key))) {
+      var data = JSON.parse(event.data),
+        handler = data && data.type && handlers[data.type];
+      if (handler && (handler.keyBypass || (data.key && data.key === key))) {
         logMessage(data, "<<");
         handler(data, event.source);
       } else {
