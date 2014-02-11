@@ -29,13 +29,13 @@ if (!window.console || !window.console.log) {
   }
 
   function embeddedPost(msg) {
-    var origin = (getdata['embedorigin'] && window.parent) ? getdata['embedorigin'] : null;
+    var origin = (getdata.embedorigin && window.parent) ? getdata.embedorigin : null;
     if (origin) {
-      if (!msg['origin']) {
-        msg['origin'] = decodeURIComponent(origin);
+      if (!msg.origin) {
+        msg.origin = decodeURIComponent(origin);
       }
-      if (!msg['ticket'] && getdata['ticket']) {
-        msg['ticket'] = getdata['ticket'];
+      if (!msg.ticket && getdata.ticket) {
+        msg.ticket = getdata.ticket;
       }
       window.parent.postMessage(JSON.stringify(msg), decodeURIComponent(origin));
     }
