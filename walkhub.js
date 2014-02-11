@@ -88,7 +88,7 @@ if (!window.console || !window.console.log) {
             .parent()
             .css('z-index', MAXIMUM_ZINDEX);
 
-          if (getdata['embedorigin']) {
+          if (getdata.embedorigin) {
             setTimeout(function () {
               $('.ui-dialog-titlebar-close').click(function () {
                 embeddedPost({type: 'end'});
