@@ -15,7 +15,7 @@ define('WALKTHROUGH_FIELD_STEPS', 'field_fc_steps');
 function walkhub_init() {
   $module_path = drupal_get_path('module', 'walkhub') ;
   drupal_add_js('misc/ajax.js', array('every_page' => TRUE));
-  drupal_add_js($module_path . '/walkhub-ie-fixes.js', array('group' => JS_DEFAULT, 'every_page' => TRUE));
+  drupal_add_js($module_path . '/walkhub-ie-fixes.js', array('weight' => -11, 'group' => JS_DEFAULT, 'every_page' => TRUE));
   drupal_add_js($module_path . '/walkhub.js', array('weight' => -10, 'group' => JS_DEFAULT, 'every_page' => TRUE));
   drupal_add_library('system', 'ui.dialog', TRUE);
 }
