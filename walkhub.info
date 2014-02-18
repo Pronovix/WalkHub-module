@@ -79,4 +79,3 @@ files[] = services/list.inc
 files[] = services/walkthrough.inc
 files[] = services/step.inc
 files[] = services/comment.inc
-project path = /tmp/
