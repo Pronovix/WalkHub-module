@@ -68,7 +68,12 @@
 
           resize();
 
-          window.addEventListener('resize', resize);
+          // <IE8 uses window.attachEvent() and not window.addEventListender().
+          if (window.addEventListener) {
+            window.addEventListener('resize', resize);
+          } else {
+            window.attachEvent('onresize', resize);
+          }
 
           iframe
             .parent()
@@ -499,7 +504,7 @@
       }
     }
 
-    window.addEventListener('message', function (event) {
+    function onMessageEventHandler(event) {
       var data = JSON.parse(event.data),
         handler = data && data.type && handlers[data.type];
       if (handler && (handler.keyBypass || (data.key && data.key === key))) {
@@ -508,7 +513,15 @@
       } else {
         console.log('Message discarded', event);
       }
-    });
+    }
+
+    // Add message event handlers.
+    // <IE8 uses window.attachEvent() and not window.addEventListender().
+    if (window.addEventListener) {
+      window.addEventListener('message', onMessageEventHandler);
+    } else {
+      window.attachEvent('onmessage', onMessageEventHandler);
+    }
 
     this.clickEventHandler = function (event) {
       event.preventDefault();
