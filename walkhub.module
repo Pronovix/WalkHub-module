@@ -243,10 +243,10 @@ function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
         'message' => t('This name is restricted. It cannot be used for parameters.'),
       );
     }
-    if ($field_value !== '' && !preg_match('/^[a-z]+$/', $field_value)) {
+    if ($field_value !== '' && !preg_match('/^[a-zA-Z0-9_]+$/', $field_value)) {
       $errors['field_parameter_name'][$lang][0][] = array(
         'error' => 'field_parameter_name_invalid',
-        'message' => t('The parameter name must contain only lowercase letters.'),
+        'message' => t('The parameter name can only contain lowercase- and uppercase letters and numbers.'),
       );
     }
   }
