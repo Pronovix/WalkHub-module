@@ -609,8 +609,19 @@ function walkhub_field_default_field_instances() {
     'label' => 'Proxy warning message',
     'required' => 0,
     'settings' => array(
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'full_html' => 'full_html',
+          'plain_text' => 'plain_text',
+        ),
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+          ),
+        ),
+      ),
     ),
     'widget' => array(
       'active' => 1,
