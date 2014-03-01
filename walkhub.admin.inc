@@ -8,12 +8,6 @@
  * Form callback 'admin/config/services/walkhub'.
  */
 function walkhub_configuration_form($form) {
-
-  $form['configuration'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Walkhub settings'),
-  );
-
   $form['proxy'] = array(
     '#type' => 'fieldset',
     '#title' => t('Proxy'),
