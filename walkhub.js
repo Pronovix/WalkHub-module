@@ -234,13 +234,13 @@
         .attr('id', 'useproxy')
         .appendTo(dialog.find('form'));
 
-      if (getdata['useproxy'] !== '0') {
+      if (getdata.useproxy !== '0') {
         useproxy.attr('checked', 'checked');
       }
     }
 
     function updateParameters() {
-      for (k in parameters) {
+      for (var k in parameters) {
         if (!parameters.hasOwnProperty(k)) {
           continue;
         }
@@ -255,7 +255,7 @@
       }
       var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
       server.startWalkthrough(parameters, methods[method_name]);
-      if (!getdata['embedorigin']) {
+      if (!getdata.embedorigin) {
         buttons[Drupal.t('Cancel')]();
       }
     };
@@ -317,7 +317,7 @@
       .change(regenLinks)
       .blur();
 
-    if (getdata['embedorigin']) {
+    if (getdata.embedorigin) {
       setTimeout(buttons[Drupal.t('Start walkthrough')], 100);
       return;
     }
@@ -350,7 +350,7 @@
         })
         .appendTo(msg);
 
-      if (getdata['markbroken']) {
+      if (getdata.markbroken) {
         link.click();
       }
     }
