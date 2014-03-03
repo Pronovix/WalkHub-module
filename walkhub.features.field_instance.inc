@@ -19,9 +19,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 3,
       ),
     ),
@@ -53,9 +52,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 4,
       ),
     ),
@@ -87,9 +85,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 5,
       ),
     ),
@@ -120,11 +117,11 @@ function walkhub_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'field_collection_item',
@@ -155,9 +152,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 2,
       ),
     ),
@@ -189,10 +185,9 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
+        'type' => 'hidden',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'field_collection_item',
@@ -227,9 +222,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
+        'type' => 'hidden',
         'weight' => 6,
       ),
     ),
@@ -622,6 +616,8 @@ function walkhub_field_default_field_instances() {
           ),
         ),
       ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
