@@ -573,6 +573,9 @@ function walkhub_node_presave($node) {
     if ($base) {
       _walkhub_add_default_parameters($base, $node);
     }
+
+    $steps = _walkhub_filter_steps($steps);
+
     if (!empty($steps)) {
       // Create new nodes based on the selenium source.
       $walkthrough_steps = array();
@@ -584,6 +587,22 @@ function walkhub_node_presave($node) {
       $node->field_fc_steps[LANGUAGE_NONE] = $walkthrough_steps;
     }
   }
+}
+
+/**
+ * Filters walkhub steps, so we can ignore/disable steps we don't want to store.
+ *
+ * @param array $steps
+ * @return array
+ */
+function _walkhub_filter_steps(array $steps) {
+  $ignored_steps = array('waitForPageToLoad');
+
+  $steps = array_filter($steps, function($step) use ($ignored_steps) {
+    return (!in_array($step['action'], $ignored_steps));
+  });
+
+  return $steps;
 }
 
 /**
