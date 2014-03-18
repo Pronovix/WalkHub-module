@@ -372,18 +372,22 @@
     }
   }
 
+  function defaultState() {
+    return {
+      walkthrough: null,
+      step: null,
+      completed: false,
+      stepIndex: 0,
+      parameters: {},
+      HTTPProxyURL: ''
+    };
+  }
+
   function WalkhubServer() {
     var key = Math.random().toString(),
       self = this,
       currentURL = null,
-      state = {
-        walkthrough: null,
-        step: null,
-        completed: false,
-        stepIndex: 0,
-        parameters: {},
-        HTTPProxyURL: ''
-      },
+      state = defaultState(),
       method,
       finished = false;
 
@@ -479,6 +483,7 @@
         finished = true;
         embeddedPost({type: 'end'});
         method.teardown();
+        state = defaultState();
       },
       ping: function (data, source) {
         post({type: 'pong', tag: 'server'}, source, data.origin);
@@ -525,6 +530,7 @@
 
     this.clickEventHandler = function (event) {
       event.preventDefault();
+      state = defaultState();
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
       state.HTTPProxyURL = $(this).attr('data-walkthrough-proxy-url');
       state.step = null;
