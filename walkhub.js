@@ -299,6 +299,7 @@
       if (httpproxy) {
         embedurl += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
       }
+
       embedkey = walkthroughlink.data('embedjskey');
       embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
         .replace('EMBEDURL', embedurl)
@@ -537,6 +538,7 @@
       state.stepIndex = 0;
       state.parameters = {};
       state.completed = false;
+      state.socialSharing = $(this).attr('data-social-sharing');
       finished = false;
       currentURL = null;
       createDialogForm($(this), self, state);

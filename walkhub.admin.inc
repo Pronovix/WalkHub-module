@@ -8,6 +8,18 @@
  * Form callback 'admin/config/services/walkhub'.
  */
 function walkhub_configuration_form($form) {
+  $form['playback'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Playback'),
+  );
+
+  $form['playback']['walkhub_social_sharing'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Social sharing'),
+    '#description' => t('Show social sharing dialog at the end of the walkthrough.'),
+    '#default_value' => variable_get('walkhub_social_sharing', TRUE),
+  );
+
   $form['proxy'] = array(
     '#type' => 'fieldset',
     '#title' => t('Proxy'),
