@@ -19,9 +19,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 3,
       ),
     ),
@@ -53,9 +52,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 4,
       ),
     ),
@@ -87,9 +85,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 5,
       ),
     ),
@@ -120,11 +117,11 @@ function walkhub_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'field_collection_item',
@@ -155,9 +152,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 2,
       ),
     ),
@@ -189,10 +185,9 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
+        'type' => 'hidden',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'field_collection_item',
@@ -227,9 +222,8 @@ function walkhub_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
+        'type' => 'hidden',
         'weight' => 6,
       ),
     ),
@@ -331,7 +325,7 @@ function walkhub_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -354,8 +348,26 @@ function walkhub_field_default_field_instances() {
     'label' => 'Description',
     'required' => 0,
     'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'full_html' => 'full_html',
+          'plain_text' => 'plain_text',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'full_html' => array(
+              'weight' => 0,
+            ),
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+          ),
+        ),
+      ),
       'display_summary' => 1,
-      'text_processing' => 1,
+      'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -430,7 +442,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -461,6 +473,54 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-walkthrough-field_play_via_proxy'
+  $field_instances['node-walkthrough-field_play_via_proxy'] = array(
+    'bundle' => 'walkthrough',
+    'default_value' => array(
+      0 => array(
+        'value' => 1,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_play_via_proxy',
+    'label' => 'Play via proxy',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 41,
+    ),
+  );
+
   // Exported field_instance: 'node-walkthrough-field_prerequisites'
   $field_instances['node-walkthrough-field_prerequisites'] = array(
     'bundle' => 'walkthrough',
@@ -472,7 +532,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 9,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -523,7 +583,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 8,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -543,7 +603,20 @@ function walkhub_field_default_field_instances() {
     'label' => 'Proxy warning message',
     'required' => 0,
     'settings' => array(
-      'text_processing' => 1,
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'full_html' => 'full_html',
+          'plain_text' => 'plain_text',
+        ),
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -568,7 +641,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -613,7 +686,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -658,6 +731,7 @@ function walkhub_field_default_field_instances() {
   t('Parameter name');
   t('Parameters');
   t('Parameters allow you to create a walkthrough that can be reused more easily. <a href="https://github.com/kvantomme/Walkthrough/wiki/Parameters">Learn more</a>');
+  t('Play via proxy');
   t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
   t('Show title');
