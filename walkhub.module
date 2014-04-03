@@ -532,12 +532,14 @@ function walkhub_services_resources() {
  * @param $node
  */
 function walkhub_node_presave($node) {
+
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid) && !isset($node->clone_from_original_nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
     list($steps, $base) = _walkhub_break_up_to_steps($source[0]['value']);
     if ($base) {
       _walkhub_add_default_parameters($base, $node);
     }
+
     if (!empty($steps)) {
       // Create new nodes based on the selenium source.
       $walkthrough_steps = array();
@@ -572,6 +574,37 @@ function _walkhub_add_default_parameters($base, $node) {
     'value' => $item->identifier(),
     'revision_id' => $item->revision_id,
   );
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * @param $node
+ */
+function walkhub_entity_presave($entity, $type) {
+  if ($type === 'field_collection_item' && $entity->field_name === 'field_parameters') {
+    $parameter_name = $entity->field_parameter_name['und'][0]['value'];
+    if ($parameter_name === 'domain') {
+      $domain = $entity->field_parameter_default_value['und'][0]['value'];
+      $trimmed_domain = _walkhub_trim_domain_walkthrough_parameter($domain);
+      if ($domain !== $trimmed_domain) {
+        $entity->field_parameter_default_value['und'][0]['value'] = $trimmed_domain;
+        $entity->save();
+      }
+    }
+  }
+}
+/**
+ * Trims the 'domain' if needed
+ *
+ * @param string $domain
+ *   The provided content for the domain parameter value
+ */
+function _walkhub_trim_domain_walkthrough_parameter($domain) {
+  $result = ltrim($domain, 'http[s]?://[www.]?');
+  $result = rtrim($result, '/');
+
+  return $result;
 }
 
 /**
