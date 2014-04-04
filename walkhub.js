@@ -2,118 +2,116 @@
   "use strict";
 
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
-      str = str.split('=');
-      obj[str.shift()] = str.join('=');
-      return obj;
-    }, {}),
-    MAXIMUM_ZINDEX = 2147483647,
-    walkthroughOrigin,
-    csrf_token = null,
+    var arrstr = str.split('=');
+    obj[arrstr.shift()] = arrstr.join('=');
+    return obj;
+  }, {});
+  var MAXIMUM_ZINDEX = 2147483647;
+  var walkthroughOrigin;
+  var csrf_token = null;
 
   // @TODO convert these into proper objects. Remove the singleton state of methods.*.object.
-    methods = {
-      iframe: {
-        name: 'iFrame',
-        linkcheck: false,
-        execute: function (url) {
-          var widget,
-            iframe = $('<iframe />')
-              .attr('src', url)
-              .attr('frameborder', 0)
-              .attr('scrolling', 'auto')
-              .attr('allowtransparency', 'true');
+  var methods = {
+    iframe: {
+      name: 'iFrame',
+      linkcheck: false,
+      execute: function (url) {
+        var widget,
+          iframe = $('<iframe />')
+            .attr('src', url)
+            .attr('frameborder', 0)
+            .attr('scrolling', 'auto')
+            .attr('allowtransparency', 'true');
 
-          methods.iframe.object = iframe;
+        methods.iframe.object = iframe;
 
-          iframe
-            .appendTo($('body'))
-            .dialog({
-              modal: true,
-              autoOpen: true,
-              draggable: false,
-              resizable: false
+        iframe
+          .appendTo($('body'))
+          .dialog({
+            modal: true,
+            autoOpen: true,
+            draggable: false,
+            resizable: false
+          });
+
+        widget = iframe.dialog('widget');
+
+        function resize() {
+          var width = $(window).width() - 20;
+          var height = $(window).height() - 20;
+
+          // If full window is required.
+          if ($('body').hasClass('walkthrough-full-window')) {
+            width = $(window).width();
+            height = $(window).height();
+            // Hide dialog title.
+            $('.ui-dialog-titlebar', widget).hide();
+            // Make the dialog display in full window.
+            widget.css('top', '0px');
+            widget.css('bottom', '0px');
+            widget.css('left', '0px');
+            widget.css('right', '0px');
+          }
+
+          iframe.dialog('option', 'width', width);
+          iframe.dialog('option', 'height', height);
+          iframe.dialog('option', 'position', 'center');
+
+          widget.css('padding', '0px');
+          widget.css('margin', '0px');
+          widget.css('border', 'none');
+
+          iframe.css('width', width);
+          iframe.css('height', height);
+          iframe.css('position', 'center');
+        }
+
+        resize();
+
+        // <IE8 uses window.attachEvent() and not window.addEventListender().
+        if (window.addEventListener) {
+          window.addEventListener('resize', resize);
+        } else {
+          window.attachEvent('onresize', resize);
+        }
+
+        iframe
+          .parent()
+          .css('z-index', MAXIMUM_ZINDEX);
+
+        if (getdata.embedorigin) {
+          setTimeout(function () {
+            $('.ui-dialog-titlebar-close').click(function () {
+              embeddedPost({type: 'end'});
             });
+          }, 500);
+        }
 
-          widget = iframe.dialog('widget');
-
-          function resize() {
-            var width = $(window).width() - 20,
-              height = $(window).height() - 20;
-
-            // If full window is required.
-            if ($('body').hasClass('walkthrough-full-window')) {
-              width = $(window).width();
-              height = $(window).height();
-              // Hide dialog title.
-              $('.ui-dialog-titlebar', widget).hide();
-              // Make the dialog display in full window.
-              widget.css('top', '0px');
-              widget.css('bottom', '0px');
-              widget.css('left', '0px');
-              widget.css('right', '0px');
-            }
-
-            iframe.dialog('option', 'width', width);
-            iframe.dialog('option', 'height', height);
-            iframe.dialog('option', 'position', 'center');
-
-            widget.css('padding', '0px');
-            widget.css('margin', '0px');
-            widget.css('border', 'none');
-
-            iframe.css('width', width);
-            iframe.css('height', height);
-            iframe.css('position', 'center');
-          }
-
-          resize();
-
-          // <IE8 uses window.attachEvent() and not window.addEventListender().
-          if (window.addEventListener) {
-            window.addEventListener('resize', resize);
-          } else {
-            window.attachEvent('onresize', resize);
-          }
-
-          iframe
-            .parent()
-            .css('z-index', MAXIMUM_ZINDEX);
-
-          if (getdata.embedorigin) {
-            setTimeout(function () {
-              $('.ui-dialog-titlebar-close').click(function () {
-                embeddedPost({type: 'end'});
-              });
-            }, 500);
-          }
-
-          return iframe.get(0).contentWindow;
-        },
-        teardown: function () {
-          if (methods.iframe.object) {
-            methods.iframe.object.dialog('close');
-            methods.iframe.object.remove();
-          }
-        },
-        valid: true
-      }
-    };
+        return iframe.get(0).contentWindow;
+      },
+      teardown: function () {
+        if (methods.iframe.object) {
+          methods.iframe.object.dialog('close');
+          methods.iframe.object.remove();
+        }
+      },
+      valid: true
+    }
+  };
 
 
   function jqCompat(version) {
-    var jqversionparts = $.fn.jquery.split('.'),
-      versionparts = version.split('.'),
-      p;
+    var jqversionparts = $.fn.jquery.split('.');
+    var versionparts = version.split('.');
 
-    for (p in versionparts) {
-      if (!versionparts.hasOwnProperty(p)) {
-        continue;
-      }
-      if (versionparts[p] > (jqversionparts[p] || 0)) {
-        return false;
-      }
-      if (versionparts[p] < (jqversionparts[p] || 0)) {
-        return true;
+    for (var p in versionparts) {
+      if (versionparts.hasOwnProperty(p)) {
+        if (versionparts[p] > (jqversionparts[p] || 0)) {
+          return false;
+        }
+        if (versionparts[p] < (jqversionparts[p] || 0)) {
+          return true;
+        }
       }
     }
 
@@ -121,17 +119,14 @@
   }
 
   function getDefaultParameters(walkthroughlink) {
-    var parameters = {},
-      data = walkthroughlink.data(),
-      wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-',
-      k,
-      parameter,
-      default_value;
+    var parameters = {};
+    var data = walkthroughlink.data();
+    var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
-    for (k in data) {
+    for (var k in data) {
       if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) === 0) {
-        parameter = k.substr(wtParamPrefix.length).toLowerCase();
-        default_value = data[k];
+        var parameter = k.substr(wtParamPrefix.length).toLowerCase();
+        var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
       }
     }
@@ -139,38 +134,53 @@
     return parameters;
   }
 
+  function getPrerequisites(walkthroughlink) {
+    var prereqs = {};
+    var attrs = walkthroughlink.get(0).attributes;
+    for (var i in attrs) {
+      if (attrs.hasOwnProperty(i)) {
+        var attr = attrs[i];
+        if (attr.name) {
+          var match = attr.name.match(/^data-walkthrough-prerequsite-[\d]+-([0-9a-f-]+)$/i);
+          if (match) {
+            prereqs[match[1]] = attr.value;
+          }
+        }
+      }
+    }
+
+    return prereqs;
+  }
+
 
   function createDialogForm(walkthroughlink, server, state) {
-    var parameters = getDefaultParameters(walkthroughlink),
-      dialog = $('<div />')
-        .attr('id', 'walkthrough-dialog-' + Math.random().toString())
-        .attr('title', Drupal.t('Start Walkthrough'))
-        .addClass('walkthrough-dialog')
-        .hide()
-        .append($('<form><fieldset></fieldset></form>')),
-      fieldset = dialog.find('fieldset'),
-      basepath = baseurl(),
-      buttons = {},
-      key,
-      href,
-      parameter,
-      httpproxy,
-      share,
-      useproxy,
-      k,
-      embed;
+    var parameters = getDefaultParameters(walkthroughlink);
+    var dialog = $('<div />')
+      .attr('id', 'walkthrough-dialog-' + Math.random().toString())
+      .attr('title', Drupal.t('Start Walkthrough'))
+      .addClass('walkthrough-dialog')
+      .hide()
+      .append($('<form><fieldset></fieldset></form>'));
+    var fieldset = dialog.find('fieldset');
+    var buttons = {};
 
-
-    // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
-    if (Drupal.settings.walkhub !== undefined && Drupal.settings.walkhub.prerequisites !== undefined) {
+    var prerequisites = getPrerequisites(walkthroughlink);
+    if (prerequisites) {
       $('<p />')
-          .html(Drupal.t('Before this Walkthrough can run you need to:'))
-          .appendTo(fieldset);
-
-      for (key in Drupal.settings.walkhub.prerequisites) {
-        if (Drupal.settings.walkhub.prerequisites.hasOwnProperty(key)) {
-          href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key].nid;
-          $('<a href="' + href + '" target="_blank" class="button">' + Drupal.settings.walkhub.prerequisites[key].title + '</a>').appendTo(fieldset);
+        .html(Drupal.t('Before this Walkthrough you may need to run:'))
+        .appendTo(fieldset);
+      for (var prerequsite in prerequisites) {
+        if (prerequisites.hasOwnProperty(prerequsite)) {
+          $('<label />')
+            .appendTo(fieldset)
+            .html(prerequisites[prerequsite])
+            .prepend($('<input />')
+              .attr('type', 'checkbox')
+              .attr('name', 'prereq-' + prerequsite)
+              .attr('id', 'prereq-' + prerequsite)
+              .attr('value', prerequsite)
+              .addClass('prerequisite')
+            );
         }
       }
     }
@@ -179,33 +189,32 @@
       .html(Drupal.t('The following parameters are available in this walkthrough:'))
       .appendTo(fieldset);
 
-    for (parameter in parameters) {
-      if (!parameters.hasOwnProperty(parameter)) {
-        continue;
+    for (var parameter in parameters) {
+      if (parameters.hasOwnProperty(parameter)) {
+        $('<label/>')
+          .attr('for', parameter)
+          .html(parameter)
+          .appendTo(fieldset);
+        $('<input />')
+          .attr('type', 'text')
+          .attr('name', parameter)
+          .attr('value', parameters[parameter])
+          .attr('id', parameter)
+          .addClass('text')
+          .addClass('ui-widget-content')
+          .addClass('ui-corner-all')
+          .appendTo(fieldset);
       }
-      $('<label/>')
-        .attr('for', parameter)
-        .html(parameter)
-        .appendTo(fieldset);
-      $('<input />')
-        .attr('type', 'text')
-        .attr('name', parameter)
-        .attr('value', parameters[parameter])
-        .attr('id', parameter)
-        .addClass('text')
-        .addClass('ui-widget-content')
-        .addClass('ui-corner-all')
-        .appendTo(fieldset);
     }
 
-    httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
+    var httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
 
     $('<label />')
       .attr('for', 'sharelink')
       .html(Drupal.t('Share with these parameters: '))
       .appendTo(dialog.find('form'));
 
-    share = $('<textarea />')
+    var share = $('<textarea />')
       .attr('name', 'sharelink')
       .attr('readonly', 'readonly')
       .addClass('share')
@@ -216,13 +225,13 @@
       .html(Drupal.t('Embed with these parameters: '))
       .appendTo(dialog.find('form'));
 
-    embed = $('<textarea />')
+    var embed = $('<textarea />')
       .attr('name', 'embedlink')
       .attr('readonly', 'readonly')
       .addClass('embed')
       .appendTo(dialog.find('form'));
 
-    useproxy = null;
+    var useproxy = null;
     if (httpproxy) {
       $('<label />')
         .attr('for', 'useproxy')
@@ -234,17 +243,16 @@
         .attr('id', 'useproxy')
         .appendTo(dialog.find('form'));
 
-      if (getdata['useproxy'] !== '0') {
+      if (getdata.useproxy !== '0') {
         useproxy.attr('checked', 'checked');
       }
     }
 
     function updateParameters() {
-      for (k in parameters) {
-        if (!parameters.hasOwnProperty(k)) {
-          continue;
+      for (var k in parameters) {
+        if (parameters.hasOwnProperty(k)) {
+          parameters[k] = $('input[name=' + k + ']', dialog).val();
         }
-        parameters[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
 
@@ -254,8 +262,19 @@
         state.HTTPProxyURL = null;
       }
       var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
+      var playlist = [];
+      $('input[type=checkbox].prerequisite', dialog).each(function () {
+        if ($(this).is(':checked')) {
+          playlist.push($(this).val());
+        }
+      });
+      if (playlist) {
+        playlist.push(state.walkthrough);
+        state.walkthrough = playlist.shift();
+        state.next = playlist;
+      }
       server.startWalkthrough(parameters, methods[method_name]);
-      if (!getdata['embedorigin']) {
+      if (!getdata.embedorigin) {
         buttons[Drupal.t('Cancel')]();
       }
     };
@@ -266,19 +285,13 @@
 
     function regenLinks() {
       updateParameters();
-      var parameter,
-        link,
-        embedurl,
-        embedkey,
-        embeddata;
 
       // Generate sharing link
-      link = window.location.origin + window.location.pathname + '?';
-      for (parameter in parameters) {
-        if (!parameters.hasOwnProperty(parameter)) {
-          continue;
+      var link = window.location.origin + window.location.pathname + '?';
+      for (var parameter in parameters) {
+        if (parameters.hasOwnProperty(parameter)) {
+          link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
         }
-        link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
       if (httpproxy) {
@@ -287,21 +300,19 @@
       share.val(link + '&autostart=1');
 
       // Generate embed data
-      embedurl = walkthroughlink.data('embedjs') + '?';
+      var embedurl = walkthroughlink.data('embedjs') + '?';
       for (parameter in parameters) {
-        if (!parameters.hasOwnProperty(parameter)) {
-          continue;
+        if (parameters.hasOwnProperty(parameter)) {
+          embedurl += 'parameters[' + parameter + ']=' + encodeURIComponent(parameters[parameter]) + '&';
         }
-
-        embedurl += 'parameters[' + parameter + ']=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       embedurl = embedurl.substr(0, embedurl.length - 1);
       if (httpproxy) {
         embedurl += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
       }
 
-      embedkey = walkthroughlink.data('embedjskey');
-      embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
+      var embedkey = walkthroughlink.data('embedjskey');
+      var embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
         .replace('EMBEDURL', embedurl)
         .replace('EMBEDKEY', embedkey);
 
@@ -317,7 +328,7 @@
       .change(regenLinks)
       .blur();
 
-    if (getdata['embedorigin']) {
+    if (getdata.embedorigin) {
       setTimeout(buttons[Drupal.t('Start walkthrough')], 100);
       return;
     }
@@ -380,17 +391,17 @@
       completed: false,
       stepIndex: 0,
       parameters: {},
-      HTTPProxyURL: ''
+      HTTPProxyURL: '',
+      next: []
     };
   }
 
   function WalkhubServer() {
-    var key = Math.random().toString(),
-      self = this,
-      currentURL = null,
-      state = defaultState(),
-      method,
-      finished = false;
+    var key = Math.random().toString();
+    var that = this;
+    var currentURL = null;
+    var state = defaultState();
+    var method;
 
     function maybeProxy(newdata, olddata) {
       if (olddata.proxy_key) {
@@ -481,7 +492,6 @@
         suppressErrorMessage(data.id);
       },
       finished: function (data, source) {
-        finished = true;
         embeddedPost({type: 'end'});
         method.teardown();
         state = defaultState();
@@ -539,9 +549,9 @@
       state.parameters = {};
       state.completed = false;
       state.socialSharing = $(this).attr('data-social-sharing');
-      finished = false;
+      state.next = [];
       currentURL = null;
-      createDialogForm($(this), self, state);
+      createDialogForm($(this), that, state);
     };
 
     this.startWalkthrough = function (parameters, wtmethod) {
