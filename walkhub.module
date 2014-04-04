@@ -583,26 +583,31 @@ function _walkhub_add_default_parameters($base, $node) {
  */
 function walkhub_entity_presave($entity, $type) {
   if ($type === 'field_collection_item' && $entity->field_name === 'field_parameters') {
-    $parameter_name = $entity->field_parameter_name['und'][0]['value'];
+    $parameter_name = $entity->field_parameter_name[LANGUAGE_NONE][0]['value'];
     if ($parameter_name === 'domain') {
-      $domain = $entity->field_parameter_default_value['und'][0]['value'];
-      $trimmed_domain = _walkhub_trim_domain_walkthrough_parameter($domain);
-      if ($domain !== $trimmed_domain) {
-        $entity->field_parameter_default_value['und'][0]['value'] = $trimmed_domain;
-        $entity->save();
+      $url = $entity->field_parameter_default_value[LANGUAGE_NONE][0]['value'];
+      $domain = _walkhub_get_domain_from_walkthrough_url_parameter($url);
+      if ($domain !== $url) {
+        $entity->field_parameter_default_value[LANGUAGE_NONE][0]['value'] = $domain;
       }
     }
   }
 }
 /**
- * Trims the 'domain' if needed
+ * Returns the domain from the $url
  *
- * @param string $domain
- *   The provided content for the domain parameter value
+ * @param string $url
+ *   The provided content for the $url parameter value
  */
-function _walkhub_trim_domain_walkthrough_parameter($domain) {
-  $result = ltrim($domain, 'http[s]?://[www.]?');
-  $result = rtrim($result, '/');
+function _walkhub_get_domain_from_walkthrough_url_parameter($url) {
+  $result = "";
+  $parsed_url = parse_url($url);
+  if (array_key_exists('host', $parsed_url)) {
+    $result =  $parsed_url['host'];
+  } else {
+    $result = ltrim($url, 'http[s]?://');
+    $result = rtrim($result, '/');
+  }
 
   return $result;
 }
