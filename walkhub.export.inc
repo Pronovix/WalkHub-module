@@ -3,6 +3,8 @@
 define('WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB', TRUE);
 define('WALKHUB_SELENIUM_EXPORT_WITHOUT_WALKHUB', FALSE);
 
+define('WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR', '.wtbubble-next');
+
 /**
  * Menu callback to export walkthrough node to selenium.
  *
@@ -350,7 +352,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     // Wait for popup.
     $output .= "\n\n";
     $output .= '$tires = 0;' . "\n";
-    $output .= 'while (!$this->byCssSelector(".joyride-next-tip") && $tries < 30) {$tries++; sleep(1);}' . "\n";
+    $output .= 'while (!$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR .'") && $tries < 30) {$tries++; sleep(1);}' . "\n";
 
     // Wait for the scroll.
     $output .= "sleep(1);\n";
@@ -362,7 +364,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     $output .= "}\n";
 
     // Click Next.
-    $output .= '$this->byCssSelector(".joyride-next-tip")->click();' . "\n";
+    $output .= '$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR . '")->click();' . "\n";
   }
 
   return $output;
