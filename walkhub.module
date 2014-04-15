@@ -152,6 +152,7 @@ function walkhub_walkthrough_node_load($nid) {
  * Attach data attributes to the walkthrough play button.
  */
 function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  module_load_include('inc', 'walkhub');
   if ($data['actions']['count']) {
     foreach ($data['actions']['output'] as &$action) {
       if ($action['#link']['path'] === 'node/%/start') {
@@ -181,6 +182,13 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
               'absolute' => TRUE,
             ));
 
+            $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
+            $prereqs = entity_uuid_load('node', $prerequuids);
+            $i = 0;
+            foreach ($prereqs as $prereq) {
+              $action['#link']['localized_options']['attributes']["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
+            }
+
             $action['#link']['localized_options']['attributes']['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
             $action['#link']['localized_options']['attributes']['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
           }
@@ -197,32 +205,6 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 function walkhub_menu_alter(&$items) {
   // Change clone module's link to local task.
   $items['node/%node/clone/%clone_token']['type'] = MENU_LOCAL_TASK;
-}
-
-/**
- * Implements hook_node_view_alter().
- */
-function walkhub_node_view_alter(&$build) {
-  if ($build['#node']->type == 'walkthrough') {
-    global $language;
-
-    $build['#attached']['css'][] = drupal_get_path('module', 'walkhub') . '/walkhub.css';
-
-    $items = field_get_items('node', $build['#node'], 'field_prerequisites', $language);
-    if (!empty($items)) {
-      $prerequisites = array();
-      foreach($items as $item) {
-        if (($node = node_load($item['target_id']))) {
-          $prerequisites[] = array(
-            'title' => $node->title,
-            'nid' => $node->nid,
-          );
-        }
-      }
-
-      drupal_add_js(array('walkhub' => array('prerequisites' => $prerequisites)), 'setting');
-    }
-  }
 }
 
 /**
