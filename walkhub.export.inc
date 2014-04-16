@@ -167,20 +167,29 @@ function walkhub_phpunit_export($node) {
 /**
  * Export callback for phpUnit.
  *
- * @param $node stdclass
+ * @param $walkthrough stdclass
  *   Drupal node.
  *
  * @param $via_walkhub bool
  *   True if the export is Via the walkhub, false otherwise.
  *
+ * @param $class_to_extend
+ *   PHPUnit class to extend.
+ *   It should be a derivative class of PHPUnit_EXtensions_Selenium2TestCase,
+ *   e.g.: Sauce\Sausage\WebDriverTestCase
+ *
  * @return string
  *   Exported phpunit class.
  */
-function _walkhub_get_phpunit_export_output($node, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
-  $output = _walkhub_phpunit_header($node, $via_walkhub, $class_to_extend);
-  $output .= _walkhub_get_phpunit_steps($node, $via_walkhub);
-  $output .= _walkhub_phpunit_footer($node);
+function _walkhub_get_phpunit_export_output($walkthrough, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
+  $output = _walkhub_phpunit_header($walkthrough, $via_walkhub, $class_to_extend);
+  $output .= _walkhub_get_phpunit_steps($walkthrough, $via_walkhub);
+  $output .= _walkhub_phpunit_footer($walkthrough);
   return $output;
+}
+
+function _walkhub_get_prerequisite_steps($walkthrough, $via_walkhub) {
+  return '/** Preq **/';
 }
 
 /**
@@ -246,7 +255,7 @@ function _walkhub_phpunit_footer($node) {
 }
 
 /**
- * @param $node stdClass
+ * @param $walkthrough stdClass
  *   Walkthrough node.
  * @param $via_walkhub bool
  *   If export steps via the walkhub or just as raw PHPUnit tests.
@@ -254,17 +263,19 @@ function _walkhub_phpunit_footer($node) {
  * @return string
  *   Exported steps.
  */
-function _walkhub_get_phpunit_steps($node, $via_walkhub = TRUE) {
+function _walkhub_get_phpunit_steps(stdClass $walkthrough, $via_walkhub = TRUE) {
   $output = '';
 
   // Resize window.
   $output .= '$this->currentWindow()->size(array("width" => $this->windowWidth, "height" => $this->windowHeight));' . "\n";
 
+  $output .= _walkhub_get_prerequisite_steps($walkthrough, $via_walkhub);
+
   if ($via_walkhub) {
-    $output .= _walkhub_phpunit_export_steps_via_walkhub($node);
+    $output .= _walkhub_phpunit_export_steps_via_walkhub($walkthrough);
   }
   else {
-    $output .= _walkhub_phpunit_export_steps_raw($node);
+    $output .= _walkhub_phpunit_export_steps_raw($walkthrough);
   }
 
   return $output;
