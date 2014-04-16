@@ -1,26 +1,14 @@
 (function ($) {
-  var walkthroughOrigin;
-
-  var MAXIMUM_ZINDEX = 2147483647;
-
-  var csrf_token = null;
+  "use strict";
 
   var getdata = window.location.search.substr(1).split('&').reduce(function (obj, str) {
-    str = str.split('=');
-    obj[str.shift()] = str.join('=');
+    var arrstr = str.split('=');
+    obj[arrstr.shift()] = arrstr.join('=');
     return obj;
   }, {});
-
-  function baseurl() {
-    return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
-  }
-
-  var iOS =
-    navigator.platform === 'iPad' ||
-    navigator.platform === 'iPad Simulator' ||
-    navigator.platform === 'iPhone' ||
-    navigator.platform === 'iPhone Simulator' ||
-    navigator.platform === 'iPod';
+  var MAXIMUM_ZINDEX = 2147483647;
+  var walkthroughOrigin;
+  var csrf_token = null;
 
   // @TODO convert these into proper objects. Remove the singleton state of methods.*.object.
   var methods = {
@@ -28,11 +16,12 @@
       name: 'iFrame',
       linkcheck: false,
       execute: function (url) {
-        var iframe = $('<iframe />')
-          .attr('src', url)
-          .attr('frameborder', 0)
-          .attr('scrolling', 'auto')
-          .attr('allowtransparency', 'true');
+        var widget,
+          iframe = $('<iframe />')
+            .attr('src', url)
+            .attr('frameborder', 0)
+            .attr('scrolling', 'auto')
+            .attr('allowtransparency', 'true');
 
         methods.iframe.object = iframe;
 
@@ -40,25 +29,63 @@
           .appendTo($('body'))
           .dialog({
             modal: true,
-            autoOpen: true
-          })
-          .parent().css('position', 'fixed');
+            autoOpen: true,
+            draggable: false,
+            resizable: false
+          });
+
+        widget = iframe.dialog('widget');
 
         function resize() {
-          iframe.dialog('option', 'width', $(window).width() - 20);
-          iframe.dialog('option', 'height', $(window).height() - 20);
-          iframe.css('width', '100%');
+          var width = $(window).width() - 20;
+          var height = $(window).height() - 20;
+
+          // If full window is required.
+          if ($('body').hasClass('walkthrough-full-window')) {
+            width = $(window).width();
+            height = $(window).height();
+            // Hide dialog title.
+            $('.ui-dialog-titlebar', widget).hide();
+            // Make the dialog display in full window.
+            widget.css('top', '0px');
+            widget.css('bottom', '0px');
+            widget.css('left', '0px');
+            widget.css('right', '0px');
+          }
+
+          iframe.dialog('option', 'width', width);
+          iframe.dialog('option', 'height', height);
           iframe.dialog('option', 'position', 'center');
-          iframe.parent().css('position', 'fixed');
+
+          widget.css('padding', '0px');
+          widget.css('margin', '0px');
+          widget.css('border', 'none');
+
+          iframe.css('width', width);
+          iframe.css('height', height);
+          iframe.css('position', 'center');
         }
 
         resize();
 
-        window.addEventListener('resize', resize);
+        // <IE8 uses window.attachEvent() and not window.addEventListender().
+        if (window.addEventListener) {
+          window.addEventListener('resize', resize);
+        } else {
+          window.attachEvent('onresize', resize);
+        }
 
         iframe
           .parent()
-            .css('z-index', MAXIMUM_ZINDEX);
+          .css('z-index', MAXIMUM_ZINDEX);
+
+        if (getdata.embedorigin) {
+          setTimeout(function () {
+            $('.ui-dialog-titlebar-close').click(function () {
+              embeddedPost({type: 'end'});
+            });
+          }, 500);
+        }
 
         return iframe.get(0).contentWindow;
       },
@@ -72,13 +99,32 @@
     }
   };
 
+
+  function jqCompat(version) {
+    var jqversionparts = $.fn.jquery.split('.');
+    var versionparts = version.split('.');
+
+    for (var p in versionparts) {
+      if (versionparts.hasOwnProperty(p)) {
+        if (versionparts[p] > (jqversionparts[p] || 0)) {
+          return false;
+        }
+        if (versionparts[p] < (jqversionparts[p] || 0)) {
+          return true;
+        }
+      }
+    }
+
+    return true;
+  }
+
   function getDefaultParameters(walkthroughlink) {
     var parameters = {};
     var data = walkthroughlink.data();
     var wtParamPrefix = jqCompat('1.6') ? 'walkthroughParameter' : 'walkthrough-parameter-';
 
     for (var k in data) {
-      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) == 0) {
+      if (data.hasOwnProperty(k) && k.indexOf(wtParamPrefix) === 0) {
         var parameter = k.substr(wtParamPrefix.length).toLowerCase();
         var default_value = data[k];
         parameters[parameter] = getdata[parameter] || default_value;
@@ -88,23 +134,24 @@
     return parameters;
   }
 
-  function jqCompat(version) {
-    var jqversionparts = $.fn.jquery.split('.');
-    var versionparts = version.split('.');
-    for (var p in versionparts) {
-      if (!versionparts.hasOwnProperty(p)) {
-        continue;
-      }
-      if (versionparts[p] > (jqversionparts[p] || 0)) {
-        return false;
-      }
-      if (versionparts[p] < (jqversionparts[p] || 0)) {
-        return true;
+  function getPrerequisites(walkthroughlink) {
+    var prereqs = {};
+    var attrs = walkthroughlink.get(0).attributes;
+    for (var i in attrs) {
+      if (attrs.hasOwnProperty(i)) {
+        var attr = attrs[i];
+        if (attr.name) {
+          var match = attr.name.match(/^data-walkthrough-prerequsite-[\d]+-([0-9a-f-]+)$/i);
+          if (match) {
+            prereqs[match[1]] = attr.value;
+          }
+        }
       }
     }
 
-    return true;
+    return prereqs;
   }
+
 
   function createDialogForm(walkthroughlink, server, state) {
     var parameters = getDefaultParameters(walkthroughlink);
@@ -114,21 +161,26 @@
       .addClass('walkthrough-dialog')
       .hide()
       .append($('<form><fieldset></fieldset></form>'));
-
     var fieldset = dialog.find('fieldset');
+    var buttons = {};
 
-    // Drupal.settings.walkhub.prerequisites stores walkthrough prerequisites.
-    if (typeof Drupal.settings.walkhub != 'undefined' && typeof Drupal.settings.walkhub.prerequisites != 'undefined') {
-      var basepath = baseurl();
-
+    var prerequisites = getPrerequisites(walkthroughlink);
+    if (prerequisites) {
       $('<p />')
-          .html(Drupal.t('Before this Walkthrough can run you need to:'))
-          .appendTo(fieldset);
-
-      for (var key in Drupal.settings.walkhub.prerequisites) {
-        if (Drupal.settings.walkhub.prerequisites.hasOwnProperty(key)) {
-          var href = basepath + "node/" + Drupal.settings.walkhub.prerequisites[key]['nid'];
-          $('<a href="' + href + '" target="_blank" class="button">' + Drupal.settings.walkhub.prerequisites[key]['title'] + '</a>').appendTo(fieldset);
+        .html(Drupal.t('Before this Walkthrough you may need to run:'))
+        .appendTo(fieldset);
+      for (var prerequsite in prerequisites) {
+        if (prerequisites.hasOwnProperty(prerequsite)) {
+          $('<label />')
+            .appendTo(fieldset)
+            .html(prerequisites[prerequsite])
+            .prepend($('<input />')
+              .attr('type', 'checkbox')
+              .attr('name', 'prereq-' + prerequsite)
+              .attr('id', 'prereq-' + prerequsite)
+              .attr('value', prerequsite)
+              .addClass('prerequisite')
+            );
         }
       }
     }
@@ -138,22 +190,21 @@
       .appendTo(fieldset);
 
     for (var parameter in parameters) {
-      if (!parameters.hasOwnProperty(parameter)) {
-        continue;
+      if (parameters.hasOwnProperty(parameter)) {
+        $('<label/>')
+          .attr('for', parameter)
+          .html(parameter)
+          .appendTo(fieldset);
+        $('<input />')
+          .attr('type', 'text')
+          .attr('name', parameter)
+          .attr('value', parameters[parameter])
+          .attr('id', parameter)
+          .addClass('text')
+          .addClass('ui-widget-content')
+          .addClass('ui-corner-all')
+          .appendTo(fieldset);
       }
-      $('<label/>')
-        .attr('for', parameter)
-        .html(parameter)
-        .appendTo(fieldset);
-      $('<input />')
-        .attr('type', 'text')
-        .attr('name', parameter)
-        .attr('value', parameters[parameter])
-        .attr('id', parameter)
-        .addClass('text')
-        .addClass('ui-widget-content')
-        .addClass('ui-corner-all')
-        .appendTo(fieldset);
     }
 
     var httpproxy = !!walkthroughlink.attr('data-walkthrough-proxy-url');
@@ -169,6 +220,17 @@
       .addClass('share')
       .appendTo(dialog.find('form'));
 
+    $('<label />')
+      .attr('for', 'embedlink')
+      .html(Drupal.t('Embed with these parameters: '))
+      .appendTo(dialog.find('form'));
+
+    var embed = $('<textarea />')
+      .attr('name', 'embedlink')
+      .attr('readonly', 'readonly')
+      .addClass('embed')
+      .appendTo(dialog.find('form'));
+
     var useproxy = null;
     if (httpproxy) {
       $('<label />')
@@ -181,29 +243,40 @@
         .attr('id', 'useproxy')
         .appendTo(dialog.find('form'));
 
-      if (getdata['useproxy'] !== '0') {
+      if (getdata.useproxy !== '0') {
         useproxy.attr('checked', 'checked');
       }
     }
 
     function updateParameters() {
       for (var k in parameters) {
-        if (!parameters.hasOwnProperty(k)) {
-          continue;
+        if (parameters.hasOwnProperty(k)) {
+          parameters[k] = $('input[name=' + k + ']', dialog).val();
         }
-        parameters[k] = $('input[name=' + k + ']', dialog).val();
       }
     }
 
-    var buttons = {};
     buttons[Drupal.t('Start walkthrough')] = function () {
       updateParameters();
       if (httpproxy && !useproxy.is(':checked')) {
         state.HTTPProxyURL = null;
       }
       var method_name = $('input[name=method]:checked', dialog).val() || 'iframe';
+      var playlist = [];
+      $('input[type=checkbox].prerequisite', dialog).each(function () {
+        if ($(this).is(':checked')) {
+          playlist.push($(this).val());
+        }
+      });
+      if (playlist) {
+        playlist.push(state.walkthrough);
+        state.walkthrough = playlist.shift();
+        state.next = playlist;
+      }
       server.startWalkthrough(parameters, methods[method_name]);
-      buttons[Drupal.t('Cancel')]();
+      if (!getdata.embedorigin) {
+        buttons[Drupal.t('Cancel')]();
+      }
     };
     buttons[Drupal.t('Cancel')] = function () {
       dialog.dialog('close');
@@ -213,18 +286,37 @@
     function regenLinks() {
       updateParameters();
 
+      // Generate sharing link
       var link = window.location.origin + window.location.pathname + '?';
       for (var parameter in parameters) {
-        if (!parameters.hasOwnProperty(parameter)) {
-          continue;
+        if (parameters.hasOwnProperty(parameter)) {
+          link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
         }
-        link += parameter + '=' + encodeURIComponent(parameters[parameter]) + '&';
       }
       link = link.substr(0, link.length - 1);
       if (httpproxy) {
         link += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
       }
       share.val(link + '&autostart=1');
+
+      // Generate embed data
+      var embedurl = walkthroughlink.data('embedjs') + '?';
+      for (parameter in parameters) {
+        if (parameters.hasOwnProperty(parameter)) {
+          embedurl += 'parameters[' + parameter + ']=' + encodeURIComponent(parameters[parameter]) + '&';
+        }
+      }
+      embedurl = embedurl.substr(0, embedurl.length - 1);
+      if (httpproxy) {
+        embedurl += '&useproxy=' + (useproxy.is(':checked') ? '1' : '0');
+      }
+
+      var embedkey = walkthroughlink.data('embedjskey');
+      var embeddata = "<script src=\"EMBEDURL\" type=\"application/javascript\"></script><div class=\"walkthroughbutton\" data-key=\"EMBEDKEY\"></div>"
+        .replace('EMBEDURL', embedurl)
+        .replace('EMBEDKEY', embedkey);
+
+      embed.val(embeddata);
     }
 
     regenLinks();
@@ -236,12 +328,19 @@
       .change(regenLinks)
       .blur();
 
+    if (getdata.embedorigin) {
+      setTimeout(buttons[Drupal.t('Start walkthrough')], 100);
+      return;
+    }
+
     dialog.appendTo($('body'));
     dialog.dialog({
       autoOpen: true,
       modal: true,
       buttons: buttons,
-      dialogClass: 'walkthrough-start-dialog'
+      dialogClass: 'walkthrough-start-dialog',
+      draggable: false,
+      resizable: false
     });
   }
 
@@ -268,6 +367,10 @@
     }
   };
 
+  function suppressErrorMessage(id) {
+    $('#walkhub-error-message-' + id, methods.iframe.object.parent()).remove();
+  }
+
   function showErrorMessage(id, error) {
     suppressErrorMessage(id);
     var msg = $('<div />')
@@ -281,29 +384,24 @@
     }
   }
 
-  function suppressErrorMessage(id) {
-    $('#walkhub-error-message-' + id, methods.iframe.object.parent()).remove();
-  }
-
-  function WalkhubServer() {
-    var key = Math.random().toString();
-
-    var self = this;
-
-    var currentURL = null;
-
-    var state = {
+  function defaultState() {
+    return {
       walkthrough: null,
       step: null,
       completed: false,
       stepIndex: 0,
       parameters: {},
-      HTTPProxyURL: ''
+      HTTPProxyURL: '',
+      next: []
     };
+  }
 
+  function WalkhubServer() {
+    var key = Math.random().toString();
+    var that = this;
+    var currentURL = null;
+    var state = defaultState();
     var method;
-
-    var finished = false;
 
     function maybeProxy(newdata, olddata) {
       if (olddata.proxy_key) {
@@ -385,7 +483,7 @@
       },
       log: function (data, source) {
         // TODO set a variable to enable/disable logging
-        window.console && console.log && console.log('REMOTE LOG', data.log);
+        console.log('REMOTE LOG', data.log);
       },
       showError: function (data, source) {
         showErrorMessage(data.id, data.error);
@@ -394,8 +492,9 @@
         suppressErrorMessage(data.id);
       },
       finished: function (data, source) {
-        finished = true;
+        embeddedPost({type: 'end'});
         method.teardown();
+        state = defaultState();
       },
       ping: function (data, source) {
         post({type: 'pong', tag: 'server'}, source, data.origin);
@@ -406,7 +505,7 @@
     handlers.ping.keyBypass = true;
 
     function logMessage(msg, prefix) {
-      if (msg.type && msg.type == 'log') {
+      if (msg.type && msg.type === 'log') {
         return;
       }
       console.log(prefix + "\t" + JSON.stringify(msg));
@@ -417,32 +516,42 @@
         logMessage(message, ">>");
         source.postMessage(JSON.stringify(message), origin || walkthroughOrigin);
       } else {
-        window.console && console.log && console.log('Sending message failed.');
+        console.log('Sending message failed.');
       }
     }
 
-    window.addEventListener('message', function (event) {
-      var data = JSON.parse(event.data);
-      var handler = data && data.type && handlers[data.type];
-      if (handler && (handler.keyBypass || (data.key && data.key == key))) {
+    function onMessageEventHandler(event) {
+      var data = JSON.parse(event.data),
+        handler = data && data.type && handlers[data.type];
+      if (handler && (handler.keyBypass || (data.key && data.key === key))) {
         logMessage(data, "<<");
         handler(data, event.source);
       } else {
         console.log('Message discarded', event);
       }
-    });
+    }
+
+    // Add message event handlers.
+    // <IE8 uses window.attachEvent() and not window.addEventListender().
+    if (window.addEventListener) {
+      window.addEventListener('message', onMessageEventHandler);
+    } else {
+      window.attachEvent('onmessage', onMessageEventHandler);
+    }
 
     this.clickEventHandler = function (event) {
       event.preventDefault();
+      state = defaultState();
       state.walkthrough = $(this).attr('data-walkthrough-uuid');
       state.HTTPProxyURL = $(this).attr('data-walkthrough-proxy-url');
       state.step = null;
       state.stepIndex = 0;
       state.parameters = {};
       state.completed = false;
-      finished = false;
+      state.socialSharing = $(this).attr('data-social-sharing');
+      state.next = [];
       currentURL = null;
-      createDialogForm($(this), self, state);
+      createDialogForm($(this), that, state);
     };
 
     this.startWalkthrough = function (parameters, wtmethod) {
@@ -452,6 +561,7 @@
         // TODO call window.proxy.resume() when the walkthrough finishes.
       }
       state.parameters = parameters;
+      embeddedPost({type: 'start'});
       method.execute(currentURL || (baseurl() + 'walkhub'));
     };
   }
@@ -469,4 +579,22 @@
         });
     }
   };
+
+  function baseurl() {
+    return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + Drupal.settings.basePath;
+  }
+
+  function embeddedPost(msg) {
+    var origin = (getdata.embedorigin && window.parent) ? getdata.embedorigin : null;
+    if (origin) {
+      if (!msg.origin) {
+        msg.origin = decodeURIComponent(origin);
+      }
+      if (!msg.ticket && getdata.ticket) {
+        msg.ticket = getdata.ticket;
+      }
+      window.parent.postMessage(JSON.stringify(msg), decodeURIComponent(origin));
+    }
+  }
+
 })(jQuery);

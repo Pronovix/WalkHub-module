@@ -8,24 +8,16 @@
  * Form callback 'admin/config/services/walkhub'.
  */
 function walkhub_configuration_form($form) {
-
-  $form['configuration'] = array(
+  $form['playback'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Walkhub settings'),
+    '#title' => t('Playback'),
   );
 
-  // @Todo provide default values.
-  $form['configuration']['walkhub_hub_origin'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Walkhub origin'),
-    '#default_value' => variable_get('walkhub_hub_origin'),
-  );
-
-  // @Todo provide default values.
-  $form['configuration']['walkhub_client_base_url'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Walkhub client base url'),
-    '#default_value' => variable_get('walkhub_client_base_url'),
+  $form['playback']['walkhub_social_sharing'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Social sharing'),
+    '#description' => t('Show social sharing dialog at the end of the walkthrough.'),
+    '#default_value' => variable_get('walkhub_social_sharing', TRUE),
   );
 
   $form['proxy'] = array(
@@ -33,21 +25,10 @@ function walkhub_configuration_form($form) {
     '#title' => t('Proxy'),
   );
 
-  $form['proxy']['walkhub_use_proxy'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use proxy'),
-    '#default_value' => variable_get('walkhub_use_proxy'),
-  );
-
   $form['proxy']['walkhub_proxy_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Proxy URL'),
     '#default_value' => variable_get('walkhub_proxy_url'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="walkhub_use_proxy"]' => array('checked' => TRUE),
-      ),
-    ),
   );
 
   return system_settings_form($form);

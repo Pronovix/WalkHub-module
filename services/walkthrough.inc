@@ -30,6 +30,11 @@ class WalkhubWalkthrough implements WalkhubObject {
   /**
    * @filter none
    */
+  public $prerequsites;
+
+  /**
+   * @filter none
+   */
   public $url;
 
   public function __construct(stdClass $node = NULL) {
@@ -41,6 +46,7 @@ class WalkhubWalkthrough implements WalkhubObject {
       $this->steps = walkhub_field_get_references('field_collection_item', $node, 'field_fc_steps', $node->language, 'value');
       $this->parameters = _walkhub_get_parameters($node);
       $this->url = call_user_func_array('url', node_uri($node) + array('options' => array('absolute' => TRUE))) . '/start';
+      $this->prerequsites = walkhub_field_get_references('node', $node, 'field_prerequisites');
     }
   }
 
@@ -99,7 +105,6 @@ function _walkthrough_prerequisites_retrieve($uuid) {
  *  PHPUnit test case.
  */
 function _walkthrough_phpunit_retrieve($uuid, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
-  dd(func_get_args());
   $return = array();
 
   $walkthrough = _walkhub_node_retrieve($uuid, 'walkthrough');

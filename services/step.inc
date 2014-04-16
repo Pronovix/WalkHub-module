@@ -106,6 +106,10 @@ class WalkhubStep implements WalkhubObject {
     $entity->field_fc_step_name[$entity->langcode()][0]['value'] = $this->titleRaw;
     $entity->field_fc_step_description[$entity->langcode()][0]['value'] = $this->descriptionRaw;
     $entity->field_fc_step_show_title[$entity->langcode()][0]['value'] = (int)(bool)$this->showTitle;
+    $entity->field_fc_step_command_1[$entity->langcode()][0]['value'] = $this->command;
+    $entity->field_fc_step_command_2[$entity->langcode()][0]['value'] = $this->arg1;
+    $entity->field_fc_step_command_3[$entity->langcode()][0]['value'] = $this->arg2;
+    $entity->field_fc_step_highlight[$entity->langcode()][0]['value'] = $this->highlight;
   }
 }
 

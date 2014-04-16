@@ -6,12 +6,17 @@
 
 include_once 'walkhub.features.inc';
 
+// Field name.
+define('WALKTHROUGH_FIELD_STEPS', 'field_fc_steps');
+
 /**
  * Implements hook_init().
  */
 function walkhub_init() {
+  $module_path = drupal_get_path('module', 'walkhub') ;
   drupal_add_js('misc/ajax.js', array('every_page' => TRUE));
-  drupal_add_js(drupal_get_path('module', 'walkhub') . '/walkhub.js', array('weight' => -10, 'group' => JS_DEFAULT, 'every_page' => TRUE));
+  drupal_add_js($module_path . '/walkhub-ie-fixes.js', array('weight' => -11, 'group' => JS_DEFAULT, 'every_page' => TRUE));
+  drupal_add_js($module_path . '/walkhub.js', array('weight' => -10, 'group' => JS_DEFAULT, 'every_page' => TRUE));
   drupal_add_library('system', 'ui.dialog', TRUE);
 }
 
@@ -42,11 +47,23 @@ function walkhub_menu() {
     'file' => 'walkhub.pages.inc',
   );
 
+  $items['node/%walkhub_walkthrough_node/embed.js'] = array(
+    'title' => 'Embed walkthrough',
+    'delivery callback' => 'walkthrough_deliver_embedjs',
+    'page callback' => 'walkhub_embedjs_page',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+    'type' => MENU_CALLBACK,
+    'file' => 'walkhub.pages.inc',
+  );
+
   $items['node/%walkhub_walkthrough_node/selenium_export'] = array(
     'title' => 'Export to selenium',
     'page callback' => 'walkhub_selenium_export',
     'page arguments' => array(1),
-    'access arguments' => array('export walkthrough'),
+    'access arguments' => array(1),
+    'access callback' => 'walkhub_export_access',
     'type' => MENU_LOCAL_TASK,
     'file' => 'walkhub.export.inc',
   );
@@ -55,7 +72,8 @@ function walkhub_menu() {
     'title' => 'Export to phpunit',
     'page callback' => 'walkhub_phpunit_export',
     'page arguments' => array(1),
-    'access arguments' => array('export walkthrough'),
+    'access arguments' => array(1),
+    'access callback' => 'walkhub_export_access',
     'type' => MENU_LOCAL_TASK,
     'file' => 'walkhub.export.inc',
   );
@@ -99,8 +117,11 @@ function walkhub_permission() {
     'administer walkthrough' => array(
       'title' => t('Administer walkthrough'),
     ),
-    'export walkthrough' => array(
+    'export any walkthrough' => array(
       'title' => t('Export walkthrough'),
+    ),
+    'export own walkthrough' => array(
+      'title' => t('Export own walkthrough'),
     ),
   );
 
@@ -127,8 +148,11 @@ function walkhub_walkthrough_node_load($nid) {
 
 /**
  * Implements hook_menu_local_tasks_alter().
+ *
+ * Attach data attributes to the walkthrough play button.
  */
 function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  module_load_include('inc', 'walkhub');
   if ($data['actions']['count']) {
     foreach ($data['actions']['output'] as &$action) {
       if ($action['#link']['path'] === 'node/%/start') {
@@ -140,13 +164,33 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         if (is_callable($loadfunc)) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
-            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-            if (variable_get('walkhub_use_proxy') && ($proxy_url = variable_get('walkhub_proxy_url'))) {
+            // Attach play via proxy flag.
+            $proxy_url = variable_get('walkhub_proxy_url');
+            if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
               $action['#link']['localized_options']['attributes']['data-walkthrough-proxy-url'] = $proxy_url;
             }
+
+            // Attach walkthrough uuid.
+            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
+
+            // Attach parameters.
             foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
               $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
             }
+
+            $action['#link']['localized_options']['attributes']['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
+              'absolute' => TRUE,
+            ));
+
+            $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
+            $prereqs = entity_uuid_load('node', $prerequuids);
+            $i = 0;
+            foreach ($prereqs as $prereq) {
+              $action['#link']['localized_options']['attributes']["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
+            }
+
+            $action['#link']['localized_options']['attributes']['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
+            $action['#link']['localized_options']['attributes']['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
           }
         }
         break;
@@ -160,33 +204,7 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function walkhub_menu_alter(&$items) {
   // Change clone module's link to local task.
-  $items['node/%node/clone']['type'] = MENU_LOCAL_TASK;
-}
-
-/**
- * Implements hook_node_view_alter().
- */
-function walkhub_node_view_alter(&$build) {
-  if ($build['#node']->type == 'walkthrough') {
-    global $language;
-
-    $build['#attached']['css'][] = drupal_get_path('module', 'walkhub') . '/walkhub.css';
-
-    $items = field_get_items('node', $build['#node'], 'field_prerequisites', $language);
-    if (!empty($items)) {
-      $prerequisites = array();
-      foreach($items as $item) {
-        if ($node = node_load($item['target_id'])) {
-          $prerequisites[] = array(
-            'title' => $node->title,
-            'nid' => $node->nid,
-          );
-        }
-      }
-
-      drupal_add_js(array('walkhub' => array('prerequisites' => $prerequisites)), 'setting');
-    }
-  }
+  $items['node/%node/clone/%clone_token']['type'] = MENU_LOCAL_TASK;
 }
 
 /**
@@ -208,10 +226,10 @@ function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
         'message' => t('This name is restricted. It cannot be used for parameters.'),
       );
     }
-    if ($field_value !== '' && !preg_match('/^[a-z]+$/', $field_value)) {
+    if ($field_value !== '' && !preg_match('/^[a-zA-Z0-9_]+$/', $field_value)) {
       $errors['field_parameter_name'][$lang][0][] = array(
         'error' => 'field_parameter_name_invalid',
-        'message' => t('The parameter name must contain only lowercase letters.'),
+        'message' => t('The parameter name can only contain lowercase- and uppercase letters and numbers.'),
       );
     }
   }
@@ -540,6 +558,8 @@ function walkhub_node_presave($node) {
       _walkhub_add_default_parameters($base, $node);
     }
 
+    $steps = _walkhub_filter_steps($steps);
+
     if (!empty($steps)) {
       // Create new nodes based on the selenium source.
       $walkthrough_steps = array();
@@ -551,6 +571,47 @@ function walkhub_node_presave($node) {
       $node->field_fc_steps[LANGUAGE_NONE] = $walkthrough_steps;
     }
   }
+}
+
+/**
+ * Filters walkhub steps, so we can ignore/disable steps we don't want to store.
+ *
+ * @param array $steps
+ * @return array
+ */
+function _walkhub_filter_steps(array $steps) {
+  $ignored_steps = array('waitForPageToLoad');
+
+  $steps = array_filter($steps, function($step) use ($ignored_steps) {
+    return (!in_array($step['action'], $ignored_steps));
+  });
+
+  return $steps;
+}
+
+/**
+ * Check that the currently logged in user has the right permission to export
+ * walkthroughs.
+ *
+ * @param $node
+ * @return bool
+ */
+function walkhub_export_access($node) {
+  global $user;
+
+  if ($user->uid == 1 || user_access('bypass node access')) {
+    return TRUE;
+  }
+
+  if (user_access('export any walkthrough')) {
+    return TRUE;
+  }
+
+  if (user_access('export own walkthrough') && $node->uid == $user->uid) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
@@ -824,82 +885,6 @@ function _walkhub_get_parameters($walkthrough) {
 }
 
 /**
- * Implements hook_extra_fields().
- */
-function walkhub_field_extra_fields() {
-  $extra_fields['node']['walkthrough'] = array(
-    'display' => array(
-      'walkhub_step_list' => array(
-        'label' => t('Rendered step list'),
-        'description' => t(''),
-        'weight' => 0,
-      ),
-    ),
-  );
-
-  return $extra_fields;
-}
-
-/**
- * Implements hook_node_view().
- */
-function walkhub_node_view($node, $view_mode) {
-  if ($node->type == 'walkthrough') {
-    $steps = array_map(
-      function($step) {
-        return node_load($step['target_id']);
-      },
-      isset($node->field_steps[$node->language]) ? $node->field_steps[$node->language] : array()
-    );
-
-    $node->content['walkhub_step_list'] = array(
-      '#theme' => 'walkhub_list_steps',
-      '#walkthrough_steps' => $steps,
-      '#weight' => 10,
-    );
-  }
-}
-
-/**
- * Implements hook_theme().
- */
-function walkhub_theme($existing, $type, $theme, $path) {
-  return array(
-    'walkhub_list_steps' => array(
-      'variables' => array(
-        'walkthrough_steps' => array(),
-      ),
-    ),
-    'walkthrough_step' => array(
-      'variables' => array(
-        'node' => new stdClass(),
-      ),
-      'path' => drupal_get_path('module', 'walkhub') . '/templates/',
-      'template' => 'walkthrough_step',
-    ),
-  );
-}
-
-/**
- * Theme callback for rendering the steps list.
- *
- * @param array $steps
- *   Array of node objects.
- */
-function theme_walkhub_list_steps(array $steps) {
-  $rendered_steps = array_map(
-    function($node) {
-      node_build_content($node);
-      return theme('walkthrough_step', array('node' => $node));
-    },
-    $steps['walkthrough_steps']
-  );
-
-  return theme('item_list', array('items' => $rendered_steps));
-}
-
-
-/**
  * Implements hook_walkhub_client_paths().
  */
 function walkhub_walkhub_client_paths() {
@@ -921,4 +906,122 @@ function walkhub_get_default_step_description($command) {
     ->fields('walhub_patterns', array('pattern'))
     ->condition('command', $command)
     ->execute()->fetchField();
+}
+
+/**
+ * Implements hook_field_collection_item_view().
+ */
+function walkhub_field_collection_item_view($field_collection_item, $view_mode, $langcode) {
+  if ($field_collection_item->field_name === WALKTHROUGH_FIELD_STEPS) {
+    $step = walkhub_get_position_from_step($field_collection_item->hostEntityId(), $field_collection_item->item_id);
+    // Display the position of the step in the begining of the field view.
+    $field_collection_item->content['position'] = array(
+      '#prefix' => '<span class="wt-step-position">',
+      '#markup' => $step,
+      '#suffix' => '</span>',
+      '#weight' => -30,
+    );
+  }
+}
+
+/**
+ * Return the position of the given step in the given walkthrough.
+ *
+ * @param $walkthrough_id
+ *   Id of the walkthrough node.
+ * @param $step_id
+ *   Id of the step field collection item.
+ * @return int
+ *   The position of the appropriate step in a walkthrough.
+ */
+function walkhub_get_position_from_step($walkthrough_id, $step_id) {
+  $positions = &drupal_static(__FUNCTION__, array());
+
+  if (!empty($positions[$walkthrough_id][$step_id])) {
+    return $positions[$walkthrough_id][$step_id];
+  }
+
+  $walkthrough =node_load($walkthrough_id);
+  $steps = field_get_items('node', $walkthrough, WALKTHROUGH_FIELD_STEPS);
+
+  // Get the position of the actual step in the walkthrough.
+  foreach ($steps as $key => $value) {
+    if ($value['value'] === $step_id) {
+      // We want to start the numbering from 1 instead of 0.
+      $position = $key+1;
+      $positions[$walkthrough_id][$step_id] = $position;
+    }
+  }
+
+  return $position;
+}
+
+/**
+ * Implements hook_preprocess_HOOK();
+ */
+function walkhub_preprocess_html(&$vars) {
+  // Add full window class, if the appropriate parameter has been added.
+  $vars['classes_array'][] = !empty($_GET['wt_full_window']) ? 'walkthrough-full-window' : '';
+}
+
+/**
+ * Helper function determine if the walkthrough node page should only display the start walkthrough button.
+ *
+ * @return bool
+ */
+function walkhub_is_button_page() {
+  return !empty($_GET['buttononly']) && ($node = menu_get_object('node')) && $node->type == 'walkthrough';
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function walkhub_page_alter(&$page) {
+  if (walkhub_is_button_page() && module_exists('admin_menu')) {
+    admin_menu_suppress();
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function walkhub_preprocess_page(&$variables) {
+  if (walkhub_is_button_page()) {
+    $variables['theme_hook_suggestions'][] = 'page__node__walkhub__button';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function walkhub_theme() {
+  return array(
+    'page__node__walkhub__button' => array(
+      'render element' => 'page',
+      'template' => 'page__node__walkhub__button',
+      'base hook' => 'page',
+      'path' => drupal_get_path('module', 'walkhub'),
+    ),
+  );
+}
+
+/**
+ * Returns a hash based on a node.
+ *
+ * @param stdClass $node
+ * @return string
+ *   sha1 hash
+ */
+function walkhub_get_id_hash($node) {
+  return sha1($node->uuid . $_SERVER['SERVER_NAME']);
+}
+
+/**
+ * Returns the origin (protocol + hostname + port) of this server.
+ *
+ * @return string
+ */
+function walkhub_get_origin() {
+  global $is_https;
+  return 'http' . ($is_https ? 's' : '') . "://{$_SERVER['SERVER_NAME']}" . (in_array($_SERVER['SERVER_PORT'], array(80, 443)) ? '' : ":{$_SERVER['SERVER_PORT']}");
 }
