@@ -164,39 +164,66 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         if (is_callable($loadfunc)) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
-            // Attach play via proxy flag.
-            $proxy_url = variable_get('walkhub_proxy_url');
-            if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
-              $action['#link']['localized_options']['attributes']['data-walkthrough-proxy-url'] = $proxy_url;
-            }
-
-            // Attach walkthrough uuid.
-            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-
-            // Attach parameters.
-            foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
-              $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
-            }
-
-            $action['#link']['localized_options']['attributes']['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
-              'absolute' => TRUE,
-            ));
-
-            $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
-            $prereqs = entity_uuid_load('node', $prerequuids);
-            $i = 0;
-            foreach ($prereqs as $prereq) {
-              $action['#link']['localized_options']['attributes']["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
-            }
-
-            $action['#link']['localized_options']['attributes']['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
-            $action['#link']['localized_options']['attributes']['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
+            $action['#link']['localized_options']['attributes'] += _walkhub_get_data_attributes($walkthrough);
           }
         }
         break;
       }
     }
   }
+}
+
+/**
+ * Get data attributes to the walkthrough play button.
+ *
+ * @param stdClass $walkthrough
+ *   Walkthrough to play.
+ *
+ * @return array
+ *   Array of data attributes.
+ */
+function _walkhub_get_data_attributes(stdClass $walkthrough) {
+  $attributes = array();
+
+  // Have to load entities here by hand, instead of entity_uuid_load(), because we are working with local references.
+  $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
+  $ids = entity_get_id_by_uuid('node', $prerequuids);
+  $prereqs = entity_load('node', $ids);
+
+  // Attach play via proxy flag.
+  $proxy_url = variable_get('walkhub_proxy_url');
+  if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
+    $attributes['data-walkthrough-proxy-url'] = $proxy_url;
+  }
+
+  // Attach walkthrough uuid.
+  $attributes['data-walkthrough-uuid'] = $walkthrough->uuid;
+
+  // Attach prerequisite parameters first (so it can be overridden by the walkthrough).
+  foreach ($prereqs as $prereq) {
+    foreach (_walkhub_get_parameters($prereq) as $parameter => $default_value) {
+      $attributes["data-walkthrough-parameter-{$parameter}"] = $default_value;
+    }
+  }
+
+  // Attach parameters.
+  foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
+    $attributes["data-walkthrough-parameter-{$parameter}"] = $default_value;
+  }
+
+  $attributes['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
+    'absolute' => TRUE,
+  ));
+
+  $i = 0;
+  foreach ($prereqs as $prereq) {
+    $attributes["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
+  }
+
+  $attributes['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
+  $attributes['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
+
+  return $attributes;
 }
 
 /**
