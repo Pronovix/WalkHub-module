@@ -167,7 +167,7 @@ function walkhub_phpunit_export($node) {
 /**
  * Export callback for phpUnit.
  *
- * @param $walkthrough stdclass
+ * @param $walkthrough stdClass
  *   Drupal node.
  *
  * @param $via_walkhub bool
@@ -181,15 +181,56 @@ function walkhub_phpunit_export($node) {
  * @return string
  *   Exported phpunit class.
  */
-function _walkhub_get_phpunit_export_output($walkthrough, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
+function _walkhub_get_phpunit_export_output(stdClass $walkthrough, $via_walkhub = WALKHUB_SELENIUM_EXPORT_VIA_WALKHUB, $class_to_extend = 'PHPUnit_Extensions_Selenium2TestCase') {
   $output = _walkhub_phpunit_header($walkthrough, $via_walkhub, $class_to_extend);
   $output .= _walkhub_get_phpunit_steps($walkthrough, $via_walkhub);
   $output .= _walkhub_phpunit_footer($walkthrough);
   return $output;
 }
 
-function _walkhub_get_prerequisite_steps($walkthrough, $via_walkhub) {
-  return '/** Preq **/';
+/**
+ * @param stdClass $walkthrough
+ *   Walkthrough to export the prerequisites for.
+ *
+ * @return string
+ *   PHPUnit steps to play through the prerequisite steps.
+ */
+function _walkhub_phpunit_export_prerequisites(stdClass $walkthrough) {
+  module_load_include('inc', 'walkthrough');
+
+  $return = '';
+  $prerequisites = _walkthrough_prerequisites_retrieve($walkthrough->uuid);
+  foreach ($prerequisites as $prerequisite) {
+    $prerequisite = node_load($prerequisite['nid']);
+    $return .= _walkhub_phpunit_export_get_prerequisite_steps($prerequisite);
+  }
+  return $return;
+}
+
+/**
+ * PHPUnit export for playing through the steps of a prerequisite.
+ *
+ * Playing through these prerequisites do not produce screenshots.
+ *
+ * @param $walkthrough
+ *   Prerequisite walkthrough.
+ *
+ * @return string
+ *   PHPUnit code.
+ */
+function _walkhub_phpunit_export_get_prerequisite_steps($walkthrough) {
+  $node_wrapper = entity_metadata_wrapper('node', $walkthrough);
+  $number_of_steps = count($node_wrapper->field_fc_steps) - 1;
+
+  $output = '/** Prerequisite: ' . $walkthrough->title . " **/\n";
+  $output .= _walkhub_get_phpunit_comment($walkthrough);
+
+  $commands = _walkhub_phpunit_export_wait_for_next_button();
+  $commands .= _walkhub_phpunit_export_click_next_button();
+  $output .= str_repeat($commands, $number_of_steps);
+  $output .= "\n";
+
+  return $output;
 }
 
 /**
@@ -269,7 +310,6 @@ function _walkhub_get_phpunit_steps(stdClass $walkthrough, $via_walkhub = TRUE) 
   // Resize window.
   $output .= '$this->currentWindow()->size(array("width" => $this->windowWidth, "height" => $this->windowHeight));' . "\n";
 
-  $output .= _walkhub_get_prerequisite_steps($walkthrough, $via_walkhub);
 
   if ($via_walkhub) {
     $output .= _walkhub_phpunit_export_steps_via_walkhub($walkthrough);
@@ -331,7 +371,10 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
   $walkthrough_node_url = url('node/' . $node->nid, array(
     'absolute' => TRUE,
-    'query' => array('wt_full_window' => 1),
+    'query' => array(
+        'wt_full_window' => 1,
+        'wt_play_prerequisites' => 1,
+      ),
     )
   );
   $output .= '$this->url("' . $walkthrough_node_url . '");' . "\n";
@@ -348,6 +391,8 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
 
   $output .= '$this->frame($frame);' . "\n";
 
+  $output .= _walkhub_phpunit_export_prerequisites($node);
+
   $node_wrapper = entity_metadata_wrapper('node', $node);
 
   // Get steps.
@@ -362,11 +407,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   foreach ($steps as $step_id) {
     // Wait for popup.
     $output .= "\n\n";
-    $output .= '$tires = 0;' . "\n";
-    $output .= 'while (!$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR .'") && $tries < 30) {$tries++; sleep(1);}' . "\n";
-
-    // Wait for the scroll.
-    $output .= "sleep(1);\n";
+    $output .= _walkhub_phpunit_export_wait_for_next_button();
 
     // Take screenshot.
     $screenshot_filename = $node->uuid . ':' . $step_id . '.png';
@@ -375,10 +416,38 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     $output .= "}\n";
 
     // Click Next.
-    $output .= '$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR . '")->click();' . "\n";
+    $output .= _walkhub_phpunit_export_click_next_button();
   }
 
   return $output;
+}
+
+/**
+ * Helper function for the PHPUnit code to wait for the "Next" button to show.
+ *
+ * Waits 30 seconds for the button to show.
+ *
+ * @return string
+ *   PHPUnit code.
+ */
+function _walkhub_phpunit_export_wait_for_next_button() {
+  $output = '$tires = 0;' . "\n";
+  $output .= 'while (!$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR .'") && $tries < 30) {$tries++; sleep(1);}' . "\n";
+
+  // Wait for the scroll.
+  $output .= "sleep(1);\n";
+
+  return $output;
+}
+
+/**
+ * Helper function for the PHPUnit code to click on the next button.
+ *
+ * @return string
+ *   PHPUnit code.
+ */
+function _walkhub_phpunit_export_click_next_button() {
+  return '$this->byCssSelector("' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR . '")->click();' . "\n";
 }
 
 /**
