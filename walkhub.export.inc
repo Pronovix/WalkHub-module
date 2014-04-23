@@ -230,6 +230,9 @@ function _walkhub_phpunit_export_get_prerequisite_steps($walkthrough) {
   $output .= str_repeat($commands, $number_of_steps);
   $output .= "\n";
 
+  // Click "Next" on the dialog between the two walkthroughs.
+  $output .= '$this->byCssSelector(".wtbubble-extrabutton + ' . WALKHUB_SELENIUM_EXPORT_NEXT_BUTTON_SELECTOR . '")->click();' . "\n";
+
   return $output;
 }
 
