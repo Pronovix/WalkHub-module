@@ -686,16 +686,21 @@ function walkhub_entity_presave($entity, $type) {
  *
  * @param string $url
  *   The provided content for the $url parameter value
+ *
+ * @return string
+ *   [domain]/[path]
  */
 function _walkhub_get_domain_from_walkthrough_url_parameter($url) {
-  $result = "";
   $parsed_url = parse_url($url);
   if (array_key_exists('host', $parsed_url)) {
     $result =  $parsed_url['host'];
+    if (!empty($parsed_url['path']) && $parsed_url['path'] !== '/') {
+      $result .= $parsed_url['path'];
+    }
   } else {
-    $result = ltrim($url, 'http[s]?://');
-    $result = rtrim($result, '/');
+    $result = preg_replace('#^http[s]?://#', '', $url);
   }
+  $result = rtrim($result, '/');
 
   return $result;
 }

@@ -1,0 +1,15 @@
+{
+    "name": "pronovix/walkhub_module",
+    "authors": [
+        {
+            "name": "Kornel Lugosi",
+            "email": "coornail@gmail.com"
+        }
+    ],
+    "require": {
+
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}
