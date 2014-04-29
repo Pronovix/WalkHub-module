@@ -183,6 +183,12 @@
             );
         }
       }
+
+      // If wt_play_prerequisites GET parameter is passed we automatically check
+      // all the prerequisites to play.
+      if ($('body').hasClass('walkthrough-play-prerequisites')) {
+        $('input[type=checkbox].prerequisite', dialog).attr('checked','checked');
+      }
     }
 
     $('<p />')
