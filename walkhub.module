@@ -175,39 +175,66 @@ function walkhub_menu_local_tasks_alter(&$data, $router_item, $root_path) {
         if (is_callable($loadfunc)) {
           $walkthrough = $loadfunc($nid);
           if ($walkthrough) {
-            // Attach play via proxy flag.
-            $proxy_url = variable_get('walkhub_proxy_url');
-            if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
-              $action['#link']['localized_options']['attributes']['data-walkthrough-proxy-url'] = $proxy_url;
-            }
-
-            // Attach walkthrough uuid.
-            $action['#link']['localized_options']['attributes']['data-walkthrough-uuid'] = $walkthrough->uuid;
-
-            // Attach parameters.
-            foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
-              $action['#link']['localized_options']['attributes']["data-walkthrough-parameter-{$parameter}"] = $default_value;
-            }
-
-            $action['#link']['localized_options']['attributes']['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
-              'absolute' => TRUE,
-            ));
-
-            $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
-            $prereqs = entity_uuid_load('node', $prerequuids);
-            $i = 0;
-            foreach ($prereqs as $prereq) {
-              $action['#link']['localized_options']['attributes']["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
-            }
-
-            $action['#link']['localized_options']['attributes']['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
-            $action['#link']['localized_options']['attributes']['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
+            $action['#link']['localized_options']['attributes'] += _walkhub_get_data_attributes($walkthrough);
           }
         }
         break;
       }
     }
   }
+}
+
+/**
+ * Get data attributes to the walkthrough play button.
+ *
+ * @param stdClass $walkthrough
+ *   Walkthrough to play.
+ *
+ * @return array
+ *   Array of data attributes.
+ */
+function _walkhub_get_data_attributes(stdClass $walkthrough) {
+  $attributes = array();
+
+  // Have to load entities here by hand, instead of entity_uuid_load(), because we are working with local references.
+  $prerequuids = walkhub_field_get_references('node', $walkthrough, 'field_prerequisites');
+  $ids = entity_get_id_by_uuid('node', $prerequuids);
+  $prereqs = entity_load('node', $ids);
+
+  // Attach play via proxy flag.
+  $proxy_url = variable_get('walkhub_proxy_url');
+  if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
+    $attributes['data-walkthrough-proxy-url'] = $proxy_url;
+  }
+
+  // Attach walkthrough uuid.
+  $attributes['data-walkthrough-uuid'] = $walkthrough->uuid;
+
+  // Attach prerequisite parameters first (so it can be overridden by the walkthrough).
+  foreach ($prereqs as $prereq) {
+    foreach (_walkhub_get_parameters($prereq) as $parameter => $default_value) {
+      $attributes["data-walkthrough-parameter-{$parameter}"] = $default_value;
+    }
+  }
+
+  // Attach parameters.
+  foreach (_walkhub_get_parameters($walkthrough) as $parameter => $default_value) {
+    $attributes["data-walkthrough-parameter-{$parameter}"] = $default_value;
+  }
+
+  $attributes['data-embedjs'] = url("node/{$walkthrough->nid}/embed.js", array(
+    'absolute' => TRUE,
+  ));
+
+  $i = 0;
+  foreach ($prereqs as $prereq) {
+    $attributes["data-walkthrough-prerequsite-{$i}-{$prereq->uuid}"] = check_plain($prereq->title);
+  }
+
+  $attributes['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
+  $attributes['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
+
+  return $attributes;
 }
 
 /**
@@ -561,6 +588,7 @@ function walkhub_services_resources() {
  * @param $node
  */
 function walkhub_node_presave($node) {
+
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid) && !isset($node->clone_from_original_nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
     if (($result = _walkhub_break_up_to_steps_json($source[0]['value']))) {
@@ -650,6 +678,48 @@ function _walkhub_add_default_parameters($base, $node) {
     'value' => $item->identifier(),
     'revision_id' => $item->revision_id,
   );
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * @param $node
+ */
+function walkhub_entity_presave($entity, $type) {
+  if ($type === 'field_collection_item' && $entity->field_name === 'field_parameters') {
+    $parameter_name = $entity->field_parameter_name[LANGUAGE_NONE][0]['value'];
+    if ($parameter_name === 'domain') {
+      $url = $entity->field_parameter_default_value[LANGUAGE_NONE][0]['value'];
+      $domain = _walkhub_get_domain_from_walkthrough_url_parameter($url);
+      if ($domain !== $url) {
+        $entity->field_parameter_default_value[LANGUAGE_NONE][0]['value'] = $domain;
+      }
+    }
+  }
+}
+
+/**
+ * Returns the domain from the $url
+ *
+ * @param string $url
+ *   The provided content for the $url parameter value
+ *
+ * @return string
+ *   [domain]/[path]
+ */
+function _walkhub_get_domain_from_walkthrough_url_parameter($url) {
+  $parsed_url = parse_url($url);
+  if (array_key_exists('host', $parsed_url)) {
+    $result =  $parsed_url['host'];
+    if (!empty($parsed_url['path']) && $parsed_url['path'] !== '/') {
+      $result .= $parsed_url['path'];
+    }
+  } else {
+    $result = preg_replace('#^http[s]?://#', '', $url);
+  }
+  $result = rtrim($result, '/');
+
+  return $result;
 }
 
 /**
@@ -985,6 +1055,7 @@ function walkhub_get_position_from_step($walkthrough_id, $step_id) {
 function walkhub_preprocess_html(&$vars) {
   // Add full window class, if the appropriate parameter has been added.
   $vars['classes_array'][] = !empty($_GET['wt_full_window']) ? 'walkthrough-full-window' : '';
+  $vars['classes_array'][] = !empty($_GET['wt_play_prerequisites']) ? 'walkthrough-play-prerequisites' : '';
 }
 
 /**
