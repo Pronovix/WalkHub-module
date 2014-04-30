@@ -682,8 +682,6 @@ function _walkhub_add_default_parameters($base, $node) {
 
 /**
  * Implements hook_entity_presave().
- *
- * @param $node
  */
 function walkhub_entity_presave($entity, $type) {
   if ($type === 'field_collection_item' && $entity->field_name === 'field_parameters') {
@@ -810,7 +808,7 @@ function _walkhub_break_up_to_steps_html($source) {
         substr($steps[$step]['action'], 0, -7) : $steps[$step]['action'];
       $steps[$step]['highlight'] = isset($highlightdata[$act]) ?
         ($highlightdata[$act] ? $steps[$step]['description'] : $steps[$step]['xpath']) : '';
-      // Makes all URLs absolute ones
+      // Makes all URLs absolute ones.
       if ($steps[$step]['action'] === 'open') {
         $components = parse_url($steps[$step]['xpath']);
         if (empty($components['host'])) {
