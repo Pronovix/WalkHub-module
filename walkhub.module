@@ -37,6 +37,17 @@ function walkhub_menu() {
     'file' => 'walkhub.pages.inc',
   );
 
+  $items['walkthrough/record'] = array(
+    'title' => 'Record walkthrough',
+    'description' => 'Walkthrough recorder to create walkthroughs',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('create', 'walkthrough'),
+    'access callback' => 'node_access',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('walkhub_record_form'),
+    'file' => 'walkhub.pages.inc',
+  );
+
   $items['node/%walkhub_walkthrough_node/start'] = array(
     'title' => 'Start walkthrough',
     'page callback' => 'walkhub_start_walkthrough',
@@ -580,7 +591,12 @@ function walkhub_node_presave($node) {
 
   if ($node->type == 'walkthrough' && !empty($node->field_raw_input[LANGUAGE_NONE][0]['value']) && empty($node->nid) && !isset($node->clone_from_original_nid)) {
     $source = field_get_items('node', $node, 'field_raw_input', LANGUAGE_NONE);
-    list($steps, $base) = _walkhub_break_up_to_steps($source[0]['value']);
+    if (($result = _walkhub_break_up_to_steps_json($source[0]['value']))) {
+      list($steps, $base) = $result;
+    } else {
+      list($steps, $base) = _walkhub_break_up_to_steps_html($source[0]['value']);
+    }
+
     if ($base) {
       _walkhub_add_default_parameters($base, $node);
     }
@@ -666,8 +682,6 @@ function _walkhub_add_default_parameters($base, $node) {
 
 /**
  * Implements hook_entity_presave().
- *
- * @param $node
  */
 function walkhub_entity_presave($entity, $type) {
   if ($type === 'field_collection_item' && $entity->field_name === 'field_parameters') {
@@ -681,6 +695,7 @@ function walkhub_entity_presave($entity, $type) {
     }
   }
 }
+
 /**
  * Returns the domain from the $url
  *
@@ -706,12 +721,55 @@ function _walkhub_get_domain_from_walkthrough_url_parameter($url) {
 }
 
 /**
+ * Breaks up the json formatted $source input into steps.
+ *
+ * @param string $source
+ *   JSON-encoded list of steps.
+ * @return array|null
+ *   Array of steps or NULL on failure.
+ */
+function _walkhub_break_up_to_steps_json($source) {
+  $decoded = json_decode($source, TRUE);
+  if (json_last_error() !== JSON_ERROR_NONE) {
+    return NULL;
+  }
+
+  $base = NULL;
+  if (count($decoded) && $decoded[0]['cmd'] === 'open') {
+    $base = $decoded[0]['arg0'];
+    $decoded[0]['arg0'] = http_build_url($decoded[0]['arg0'], array(
+      'host' => '[domain]',
+    ));
+  }
+
+  $highlightdata = _walkhub_get_supported_selenium_commands();
+  return array(array_map(function ($item) use (&$highlightdata) {
+    return array(
+      'action' => $item['cmd'],
+      'xpath' => $item['arg0'],
+      'description' => $item['arg1'],
+      'highlight' => isset($highlightdata[$item['cmd']]) ?
+        ($highlightdata[$item['cmd']] ? $item['arg1'] : $item['arg0']) : '',
+    );
+  }, $decoded), $base);
+}
+
+function _walkhub_get_origin($url) {
+  $parsed = parse_url($url);
+  unset($parsed['path']);
+  unset($parsed['query']);
+  unset($parsed['fragment']);
+
+  return http_build_url($parsed);
+}
+
+/**
  * Break up to steps $source selenium input.
  *
  * @param $source
  * @return array
  */
-function _walkhub_break_up_to_steps($source) {
+function _walkhub_break_up_to_steps_html($source) {
   $highlightdata = _walkhub_get_supported_selenium_commands();
 
   // Change <br /> to newlines.
@@ -750,6 +808,7 @@ function _walkhub_break_up_to_steps($source) {
         substr($steps[$step]['action'], 0, -7) : $steps[$step]['action'];
       $steps[$step]['highlight'] = isset($highlightdata[$act]) ?
         ($highlightdata[$act] ? $steps[$step]['description'] : $steps[$step]['xpath']) : '';
+      // Makes all URLs absolute ones.
       if ($steps[$step]['action'] === 'open') {
         $components = parse_url($steps[$step]['xpath']);
         if (empty($components['host'])) {

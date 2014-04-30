@@ -367,7 +367,7 @@
         })
         .appendTo(msg);
 
-      if (getdata['markbroken']) {
+      if (getdata.markbroken) {
         link.click();
       }
     }
@@ -390,6 +390,47 @@
     }
   }
 
+  function addStep(cmd, arg0, arg1) {
+    var container = $('textarea#edit-steps');
+    var stepdata = container.val();
+    var steps;
+    if (stepdata) {
+      steps = JSON.parse(stepdata);
+    } else {
+      steps = [];
+    }
+
+    steps.push({
+      cmd: cmd,
+      arg0: arg0,
+      arg1: arg1
+    });
+
+    container.val(JSON.stringify(steps));
+
+    var stepsContainer = $('#steps');
+    stepsContainer.find('li').remove();
+
+    for (var i in steps) {
+      if (steps.hasOwnProperty(i)) {
+        var text = steps[i].cmd;
+        if (steps[i].arg0) {
+          text += '(' + steps[i].arg0;
+          if (steps[i].arg1) {
+            text += ', ' + steps[i].arg1 + ')';
+          } else {
+            text += ')';
+          }
+        } else {
+          text += '()';
+        }
+        $('<li />')
+          .text(text)
+          .appendTo(stepsContainer);
+      }
+    }
+  }
+
   function defaultState() {
     return {
       walkthrough: null,
@@ -398,7 +439,12 @@
       stepIndex: 0,
       parameters: {},
       HTTPProxyURL: '',
-      next: []
+      next: [],
+      recording: false,
+      recordedSteps: [],
+      recordBuffer: {},
+      recordStartUrl: '',
+      recordStarted: false
     };
   }
 
@@ -460,6 +506,10 @@
             opts.type = 'PUT';
           }
 
+          if (data.method) {
+            opts.type = data.method;
+          }
+
           $.ajax(opts);
         };
         if (!data.data || csrf_token) {
@@ -486,6 +536,9 @@
       setState: function (data, source) {
         console.log("State updated", data.state);
         state = data.state;
+      },
+      saveStep: function (data, source) {
+        addStep(data.cmd, data.arg0, data.arg1);
       },
       log: function (data, source) {
         // TODO set a variable to enable/disable logging
@@ -560,6 +613,23 @@
       createDialogForm($(this), that, state);
     };
 
+    this.recorderClickEventHandlerFactory = function (urlField, useProxyField) {
+      return function (event) {
+        event.preventDefault();
+
+        // @TODO detect if the urlField's value is a valid url
+
+        state = defaultState();
+        state.recording = true;
+        state.recordStartUrl = urlField.val();
+        addStep('open', state.recordStartUrl, null);
+        if (useProxyField.is(':checked')) {
+          state.HTTPProxyURL = $(this).attr('data-proxy-url');
+        }
+        methods.iframe.execute(baseurl() + 'walkhub');
+      };
+    };
+
     this.startWalkthrough = function (parameters, wtmethod) {
       method = wtmethod;
       if (window.proxy) {
@@ -582,6 +652,16 @@
           if (getdata.autostart) {
             $(this).click();
           }
+        });
+      $('#walkhub-record-form:not(.walkhub-processed)', context)
+        .addClass('walkhub-processed')
+        .each(function () {
+          var appserver = new WalkhubServer();
+          $('#edit-record', $(this))
+            .click(appserver.recorderClickEventHandlerFactory(
+              $('#edit-url', $(this)),
+              $('#edit-use-proxy', $(this))
+            ));
         });
     }
   };

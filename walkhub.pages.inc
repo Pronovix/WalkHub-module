@@ -25,6 +25,85 @@ function walkhub_start_walkthrough($node) {
 }
 
 /**
+ * Form for the walkhub recorder.
+ */
+function walkhub_record_form() {
+  $form = array();
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+  );
+
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Starting URL'),
+  );
+
+  $form['use_proxy'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Record the walkthrough over the WalkHub proxy (in case you don\'t have the browser or site plugin available)'),
+    '#default_value' => 1,
+  );
+
+  $form['record'] = array(
+    '#type' => 'button',
+    '#value' => t('Record'),
+    '#attributes' => array(
+      'data-proxy-url' => variable_get('walkhub_proxy_url'),
+    ),
+  );
+
+  $form['steps'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Steps'),
+  );
+
+  $form['stepcontainer'] = array(
+    '#markup' => '<h3>Recorded steps</h3><ul id="steps"></ul>',
+  );
+
+  $form['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#attached'] = array(
+    'js' => array(
+      drupal_get_path('module', 'walkhub') . '/walkhub.js',
+    ),
+    'css' => array(
+      drupal_get_path('module', 'walkhub') . '/walkhub.css',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for 'walkhub_record_form'.
+ */
+function walkhub_record_form_submit($form, &$form_state) {
+  $walkthrough_node = (object) array(
+    'type' => 'walkthrough',
+    'language' => LANGUAGE_NONE,
+    'title' => $form_state['values']['title'],
+    'field_raw_input' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => $form_state['values']['steps'],
+        ),
+      ),
+    ),
+  );
+
+  node_save($walkthrough_node);
+
+  $form_state['redirect'] = "node/{$walkthrough_node->nid}";
+}
+
+/**
  * Multi step form to create walkthroughs.
  */
 function walkhub_create_walkthrough_form($form, &$form_state) {
