@@ -26,13 +26,22 @@
 }
 
 .walkhub-error-message {
-    color: white;
-    background-color: red;
-    font-size: 12px;
-    cursor: default;
-    font-weight: bold;
+  color: white;
+  background-color: red;
+  font-size: 12px;
+  cursor: default;
+  font-weight: bold;
 }
 
 #walkhub-record-form .form-item-steps {
-    display: none;
+  display: none;
+}
+
+#walkhub-record-form .form-item-password-parameter {
+  display: none;
+}
+
+.walkhub-recording-indicator {
+  cursor: default;
+  font-weight: bold;
 }
