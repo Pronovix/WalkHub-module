@@ -678,6 +678,20 @@ function _walkhub_add_default_parameters($base, $node) {
     'value' => $item->identifier(),
     'revision_id' => $item->revision_id,
   );
+
+  if (isset($node->__password_parameter) && $node->__password_parameter) {
+    $pwitem = new FieldCollectionItemEntity();
+    $pwitem->is_new = TRUE;
+    $pwitem->field_name = 'field_parameters';
+    $pwitem->setHostEntity('node', $node, $node->language, FALSE);
+    $pwitem->field_parameter_name[$node->language][0]['value'] = 'password';
+    $pwitem->field_parameter_default_value[$node->language][0]['value'] = '';
+    $pwitem->save(TRUE);
+    $node->field_parameters[$node->language][] = array(
+      'value' => $pwitem->identifier(),
+      'revision_id' => $pwitem->revision_id,
+    );
+  }
 }
 
 /**

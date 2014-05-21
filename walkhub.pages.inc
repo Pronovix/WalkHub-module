@@ -60,6 +60,11 @@ function walkhub_record_form() {
     '#title' => t('Steps'),
   );
 
+  $form['password_parameter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Generate password parameter'),
+  );
+
   $form['stepcontainer'] = array(
     '#markup' => '<h3>Recorded steps</h3><ul id="steps"></ul>',
   );
@@ -89,6 +94,7 @@ function walkhub_record_form_submit($form, &$form_state) {
     'type' => 'walkthrough',
     'language' => LANGUAGE_NONE,
     'title' => $form_state['values']['title'],
+    '__password_parameter' => (bool) $form_state['values']['password_parameter'],
     'field_raw_input' => array(
       LANGUAGE_NONE => array(
         array(
