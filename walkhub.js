@@ -455,6 +455,7 @@
       stepIndex: 0,
       parameters: {},
       HTTPProxyURL: "",
+      editLink: "",
       next: [],
       recording: false,
       recordedSteps: [],
@@ -622,6 +623,7 @@
       state = defaultState();
       state.walkthrough = $(this).attr("data-walkthrough-uuid");
       state.HTTPProxyURL = $(this).attr("data-walkthrough-proxy-url");
+      state.editLink = $(this).attr("data-walkthrough-edit-link");
       state.step = null;
       state.stepIndex = 0;
       state.parameters = {};
