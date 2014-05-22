@@ -234,6 +234,8 @@ function _walkhub_get_data_attributes(stdClass $walkthrough) {
   $attributes['data-embedjskey'] = walkhub_get_id_hash($walkthrough);
   $attributes['data-social-sharing'] = variable_get('walkhub_social_sharing', TRUE);
 
+  $attributes['data-walkthrough-edit-link'] = url("node/{$walkthrough->nid}/edit", array('absolute' => TRUE));
+
   return $attributes;
 }
 
