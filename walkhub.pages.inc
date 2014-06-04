@@ -193,11 +193,12 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
 
     $form['user_groups'] = array(
       '#type' => 'select',
-      '#title' => t('Save in'),
+      '#title' => t('Collection'),
       '#options' => $options,
       '#empty_option' => 'Do not post into collection',
       '#empty_value' => FALSE,
       '#multiple' => TRUE,
+      '#chosen' => TRUE,
     );
   }
 
