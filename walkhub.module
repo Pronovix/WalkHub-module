@@ -236,6 +236,15 @@ function _walkhub_get_data_attributes(stdClass $walkthrough) {
 
   $attributes['data-walkthrough-edit-link'] = url("node/{$walkthrough->nid}/edit", array('absolute' => TRUE));
 
+  $severity = field_get_items('node', $walkthrough, 'field_severity_of_the_change');
+
+  if ($severity) {
+    $severity_field = field_info_field('field_severity_of_the_change');
+    $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+    $attributes['data-walkthrough-severity'] =  $severity[0]['value'];
+    $attributes['data-walkthrough-severity-text'] = t('@label: %severity', array('@label' => t($severity_info_instance['label']), '%severity' => t($severity_field['settings']['allowed_values'][$severity[0]['value']])));
+  }
+
   return $attributes;
 }
 
