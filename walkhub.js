@@ -252,6 +252,11 @@
       if (getdata.useproxy !== "0") {
         useproxy.attr("checked", "checked");
       }
+
+      $("<p />")
+        .addClass('wt-severity-' + walkthroughlink.data('walkthrough-severity'))
+        .html(walkthroughlink.data('walkthrough-severity-text'))
+        .appendTo(dialog.find("form"));
     }
 
     function updateParameters() {

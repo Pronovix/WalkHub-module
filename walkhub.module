@@ -236,6 +236,15 @@ function _walkhub_get_data_attributes(stdClass $walkthrough) {
 
   $attributes['data-walkthrough-edit-link'] = url("node/{$walkthrough->nid}/edit", array('absolute' => TRUE));
 
+  $severity = field_get_items('node', $walkthrough, 'field_severity_of_the_change');
+
+  if ($severity) {
+    $severity_field = field_info_field('field_severity_of_the_change');
+    $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+    $attributes['data-walkthrough-severity'] =  $severity[0]['value'];
+    $attributes['data-walkthrough-severity-text'] = t('@label: %severity', array('@label' => t($severity_info_instance['label']), '%severity' => t($severity_field['settings']['allowed_values'][$severity[0]['value']])));
+  }
+
   return $attributes;
 }
 
@@ -272,6 +281,17 @@ function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
         'message' => t('The parameter name can only contain lowercase- and uppercase letters and numbers.'),
       );
     }
+  }
+}
+
+/**
+ * Implements template_preprocess_field().
+ *
+ * Add an extra class for severity field based on the selected item.
+ */
+function walkhub_preprocess_field(&$variables, $hook) {
+  if ($variables['element']['#field_name'] == 'field_severity_of_the_change' && isset($variables['element']['#items'][0]['value'])) {
+    $variables['classes_array'][] = 'wt-severity-' . $variables['element']['#items'][0]['value'];
   }
 }
 
