@@ -325,7 +325,7 @@ function walkhub_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -378,7 +378,7 @@ function walkhub_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -400,7 +400,7 @@ function walkhub_field_default_field_instances() {
           'view_mode' => 'full',
         ),
         'type' => 'field_collection_view',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -442,7 +442,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -469,7 +469,7 @@ function walkhub_field_default_field_instances() {
       'module' => 'field_collection',
       'settings' => array(),
       'type' => 'field_collection_embed',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -488,7 +488,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -517,7 +517,7 @@ function walkhub_field_default_field_instances() {
         'display_label' => 1,
       ),
       'type' => 'options_onoff',
-      'weight' => 41,
+      'weight' => 13,
     ),
   );
 
@@ -532,7 +532,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 9,
+        'weight' => 10,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -583,7 +583,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 9,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -641,7 +641,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 8,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -675,6 +675,51 @@ function walkhub_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-walkthrough-field_severity_of_the_change'
+  $field_instances['node-walkthrough-field_severity_of_the_change'] = array(
+    'bundle' => 'walkthrough',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 0,
+      ),
+      'entity_reference' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_severity_of_the_change',
+    'label' => 'Severity of the change',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 1,
+    ),
+  );
+
   // Exported field_instance: 'node-walkthrough-field_tags'
   $field_instances['node-walkthrough-field_tags'] = array(
     'bundle' => 'walkthrough',
@@ -686,7 +731,7 @@ function walkhub_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'entity_reference' => array(
         'label' => 'above',
@@ -734,6 +779,7 @@ function walkhub_field_default_field_instances() {
   t('Play via proxy');
   t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
+  t('Severity of the change');
   t('Show title');
   t('Step highlight');
   t('Steps');
