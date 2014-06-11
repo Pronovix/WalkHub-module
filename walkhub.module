@@ -285,6 +285,17 @@ function walkhub_field_attach_validate($entity_type, $entity, &$errors) {
 }
 
 /**
+ * Implements template_preprocess_field().
+ *
+ * Add an extra class for severity field based on the selected item.
+ */
+function walkhub_preprocess_field(&$variables, $hook) {
+  if ($variables['element']['#field_name'] == 'field_severity_of_the_change' && isset($variables['element']['#items'][0]['value'])) {
+    $variables['classes_array'][] = 'wt-severity-' . $variables['element']['#items'][0]['value'];
+  }
+}
+
+/**
  * Implements hook_services_resources().
  */
 function walkhub_services_resources() {
