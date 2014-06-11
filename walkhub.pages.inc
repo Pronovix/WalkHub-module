@@ -36,6 +36,15 @@ function walkhub_record_form() {
     '#required' => TRUE,
   );
 
+  $severity_field = field_info_field('field_severity_of_the_change');
+  $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+  $form['severity'] = array(
+    '#type' => 'select',
+    '#title' => $severity_info_instance['label'],
+    '#required' => TRUE,
+    '#options' => $severity_field['settings']['allowed_values'],
+  );
+
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('Starting URL'),
@@ -100,6 +109,11 @@ function walkhub_record_form_submit($form, &$form_state) {
         array(
           'value' => $form_state['values']['steps'],
         ),
+      ),
+    ),
+    'field_severity_of_the_change' => array(
+      LANGUAGE_NONE => array(
+        array('value' => $form_state['values']['severity']),
       ),
     ),
   );
