@@ -90,8 +90,11 @@ function walkhub_record_form() {
  * Submit handler for 'walkhub_record_form'.
  */
 function walkhub_record_form_submit($form, &$form_state) {
+  global $user;
+
   $walkthrough_node = (object) array(
     'type' => 'walkthrough',
+    'uid' => $user->uid,
     'language' => LANGUAGE_NONE,
     'title' => $form_state['values']['title'],
     '__password_parameter' => (bool) $form_state['values']['password_parameter'],
