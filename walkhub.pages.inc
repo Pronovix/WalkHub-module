@@ -36,6 +36,15 @@ function walkhub_record_form() {
     '#required' => TRUE,
   );
 
+  $severity_field = field_info_field('field_severity_of_the_change');
+  $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+  $form['severity'] = array(
+    '#type' => 'select',
+    '#title' => $severity_info_instance['label'],
+    '#required' => TRUE,
+    '#options' => $severity_field['settings']['allowed_values'],
+  );
+
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('Starting URL'),
@@ -103,6 +112,11 @@ function walkhub_record_form_submit($form, &$form_state) {
         array(
           'value' => $form_state['values']['steps'],
         ),
+      ),
+    ),
+    'field_severity_of_the_change' => array(
+      LANGUAGE_NONE => array(
+        array('value' => $form_state['values']['severity']),
       ),
     ),
   );
@@ -178,6 +192,15 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
     '#default_value' => !empty($form_state['walkthrough']->title) ? $form_state['walkthrough']->title : NULL,
   );
 
+  $severity_field = field_info_field('field_severity_of_the_change');
+  $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+  $form['severity'] = array(
+    '#type' => 'select',
+    '#title' => $severity_info_instance['label'],
+    '#required' => TRUE,
+    '#options' => $severity_field['settings']['allowed_values'],
+  );
+
   $form['body'] = array(
     '#type' => 'textarea',
     '#title' => t('Description'),
@@ -196,11 +219,12 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
 
     $form['user_groups'] = array(
       '#type' => 'select',
-      '#title' => t('Save in'),
+      '#title' => t('Collection'),
       '#options' => $options,
       '#empty_option' => 'Do not post into collection',
       '#empty_value' => FALSE,
       '#multiple' => TRUE,
+      '#chosen' => TRUE,
     );
   }
 
@@ -241,9 +265,10 @@ function walkhub_create_walkthrough_form_previous($form, &$form_state) {
  * Submit function to save the defined walkthrough.
  */
 function walkhub_create_walkthrough_form_save($form, &$form_state) {
-  // Set the body and title fields.
+  // Set the body, title and severity fields.
   $form_state['walkthrough']->title = $form_state['values']['title'];
   $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
+  $form_state['walkthrough']->field_severity_of_the_change[LANGUAGE_NONE][0]['value'] = $form_state['values']['severity'];
   // Set the group audience field value.
   foreach ($form_state['values']['user_groups'] as $group) {
     $form_state['walkthrough']->og_group_ref[LANGUAGE_NONE][] = array(
