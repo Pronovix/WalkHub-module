@@ -143,8 +143,8 @@
   color: #3bb1d5;
 }
 
-@media all and (max-width: 1279px) {
+@media handheld {
   .block-walkhub-floating-record-button {
-  display: none;
+    display: none;
   }
 }
