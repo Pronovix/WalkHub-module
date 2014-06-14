@@ -45,8 +45,7 @@ function walkhub_block_view($delta = '') {
   }
   switch ($delta) {
     case 'floating_record_button':
-      $variables = array();
-      $block['content'] = theme('walkthrough__record__block', $variables);
+      $block['content'] = theme('walkthrough__record__block');
       break;
   }
   return $block;
@@ -1155,17 +1154,19 @@ function walkhub_preprocess_page(&$variables) {
  * Implements hook_theme().
  */
 function walkhub_theme() {
+  $module_path = drupal_get_path('module', 'walkhub');
+
   return array(
     'page__node__walkhub__button' => array(
       'render element' => 'page',
       'template' => 'page__node__walkhub__button',
       'base hook' => 'page',
-      'path' => drupal_get_path('module', 'walkhub'),
+      'path' => $module_path,
     ),
     'walkthrough__record__block' => array(
-      'variables' => array("form" => drupal_get_form('walkhub_record_form', TRUE)),
+      'variables' => array('form' => drupal_get_form('walkhub_record_form', TRUE)),
       'template' => 'walkthrough__record__block',
-      'path' => drupal_get_path('module', 'walkhub'),
+      'path' => $module_path,
     ),
   );
 }
@@ -1263,16 +1264,16 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
 
   $form['#attached'] = array(
     'js' => array(
-      drupal_get_path('module', 'walkhub') . '/walkhub.js',
+      $module_path . '/walkhub.js',
     ),
     'css' => array(
-      drupal_get_path('module', 'walkhub') . '/walkhub.css',
+      $module_path . '/walkhub.css',
     ),
   );
 
   if ($floating_record_button) {
-    $form["#attached"]['js'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.js';
-    $form["#attached"]['css'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.css';
+    $form["#attached"]['js'][] = $module_path . '/walkthrough_record_block.js';
+    $form["#attached"]['css'][] = $module_path . '/walkthrough_record_block.css';
   }
 
   return $form;
