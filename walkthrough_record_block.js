@@ -29,7 +29,7 @@
       } else {
         $("#url-error").hide();
         $("#edit-url").val(url);
-        $("#edit-record").click();
+        $(".walkhub-record-form .edit-record").click();
 
         var $title = $("#walkthrough-record-title-wrapper");
         var $severity = $("#walkthrough-record-severity-wrapper");
@@ -55,7 +55,7 @@
       }
     });
 
-    $("#steps").bind('DOMSubtreeModified', function(e) {
+    $("#steps").bind("DOMSubtreeModified", function(e) {
       var $stepsBox = $("#walkthrough-recorded-steps");
       var $steps = $("#steps");
       if (e.target.innerHTML.length > 0) {

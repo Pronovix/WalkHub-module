@@ -1196,7 +1196,11 @@ function walkhub_get_origin() {
  * Form for the walkhub recorder.
  */
 function walkhub_record_form($form, &$form_state, $floating_record_button = FALSE) {
-  $form['#action'] = url('walkthrough/record/');
+  $module_path = drupal_get_path('module', 'walkhub');
+
+  $form['#attributes'] = array('class' => array('walkhub-record-form'));
+
+  //$form['#action'] = url('walkthrough/record/');
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -1215,12 +1219,18 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('Starting URL'),
+    '#attributes' => array(
+      'class' => array('edit-url'),
+    ),
   );
 
   $form['use_proxy'] = array(
     '#type' => 'checkbox',
     '#title' => t('Record the walkthrough over the WalkHub proxy (in case you don\'t have the browser or site plugin available)'),
     '#default_value' => 1,
+    '#attributes' => array(
+      'class' => array('edit-use-proxy'),
+    ),
   );
 
   $form['record'] = array(
@@ -1228,6 +1238,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
     '#value' => t('Record'),
     '#attributes' => array(
       'data-proxy-url' => variable_get('walkhub_proxy_url'),
+      'class' => array('edit-record'),
     ),
   );
 
