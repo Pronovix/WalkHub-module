@@ -45,7 +45,8 @@ function walkhub_block_view($delta = '') {
   }
   switch ($delta) {
     case 'floating_record_button':
-      $block['content'] = theme('walkthrough__record__block');
+      $form = drupal_get_form('walkhub_record_form', TRUE);
+      $block['content'] = theme('walkthrough__record__block', $form);
       break;
   }
   return $block;
@@ -1164,7 +1165,7 @@ function walkhub_theme() {
       'path' => $module_path,
     ),
     'walkthrough__record__block' => array(
-      'variables' => array('form' => drupal_get_form('walkhub_record_form', TRUE)),
+      'variables' => array('form' => array()),
       'template' => 'walkthrough__record__block',
       'path' => $module_path,
     ),
@@ -1201,7 +1202,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
 
   $form['#attributes'] = array('class' => array('walkhub-record-form'));
 
-  //$form['#action'] = url('walkthrough/record/');
+  $form['#action'] = url('walkthrough/record/');
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
