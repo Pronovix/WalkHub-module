@@ -68,5 +68,5 @@
       </div>
     </div>
   </div>
-  <div id="record-a-walkthrough-hidden-form" style="display: none;"><?php echo drupal_render($form); ?></div>
+  <div id="record-a-walkthrough-hidden-form" style="display: none;"><?php echo $form; ?></div>
 </div>
