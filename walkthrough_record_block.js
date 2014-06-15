@@ -1,9 +1,45 @@
 (function($) {
   "use strict";
 
-  Drupal.behaviors.walkhubRecord = {
+  Drupal.walkhubRecordBlock = {};
+
+  Drupal.walkhubRecordBlock.startRecording = function(context) {
+    var url_re = /^https?:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]+(\/\S*)?$/;
+
+    var url = $("#walkthrough-record-url", context).val();
+    if (!url_re.test(url)) {
+      $("#url-error", context).show();
+    } else {
+      $("#url-error", context).hide();
+      $("#edit-url", context).val(url);
+      $(".walkhub-record-form .edit-record").click();
+
+      var $title = $("#walkthrough-record-title-wrapper", context);
+      var $severity = $("#walkthrough-record-severity-wrapper", context);
+      $title.find("label").text($(".form-item-title label", context).text());
+      var title_input = $("#edit-title", context).clone();
+      title_input.attr("id", "walkthrough-record-title");
+      $title.find(".form-element").html(title_input);
+      $title.find("label").attr("for", "walkthrough-record-title");
+
+      $severity.find("label").text($(".form-item-severity label", context).text());
+      var severity_select = $("#edit-severity", context).clone();
+      severity_select.attr("id", "walkthrough-record-severity");
+      $severity.find(".form-element").html(severity_select);
+      $severity.find("label").attr("for", "walkthrough-record-severity");
+
+      $("#walkthrough-record-first-step", context).hide();
+      $("#walkthrough-record-second-step", context).show();
+      $("#walkthrough-recorder-popup-notice", context).hide();
+      $(".walkthrough-record-first-step-title", context).hide();
+      $(".walkthrough-record-second-step-title", context).show();
+      $("#record-a-walkthrough-button .record-action", context).hide();
+      $("#record-a-walkthrough-button .save-action", context).show();
+    }
+  };
+
+  Drupal.behaviors.walkhubRecordBlock = {
     attach: function (context, settings) {
-      var url_re = /^https?:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]+(\/\S*)?$/;
       var DEFAULT_URL = "http://pronovix.com/contact-us";
 
       $("#record-a-walkthrough-button", context).click(function (e) {
@@ -19,41 +55,12 @@
 
       $("#walkthrough-record-url", context).keyup(function(e) {
         if (e.keyCode === 13) {
-          $("#walkthrough-start-recording", context).click();
+          Drupal.walkhubRecordBlock.startRecording(context);
         }
       });
 
       $("#walkthrough-start-recording", context).click(function (e) {
-        var url = $("#walkthrough-record-url", context).val();
-        if (!url_re.test(url)) {
-          $("#url-error", context).show();
-        } else {
-          $("#url-error", context).hide();
-          $("#edit-url", context).val(url);
-          $(".walkhub-record-form .edit-record").click();
-
-          var $title = $("#walkthrough-record-title-wrapper", context);
-          var $severity = $("#walkthrough-record-severity-wrapper", context);
-          $title.find("label").text($(".form-item-title label", context).text());
-          var title_input = $("#edit-title", context).clone();
-          title_input.attr("id", "walkthrough-record-title");
-          $title.find(".form-element").html(title_input);
-          $title.find("label").attr("for", "walkthrough-record-title");
-
-          $severity.find("label").text($(".form-item-severity label", context).text());
-          var severity_select = $("#edit-severity", context).clone();
-          severity_select.attr("id", "walkthrough-record-severity");
-          $severity.find(".form-element").html(severity_select);
-          $severity.find("label").attr("for", "walkthrough-record-severity");
-
-          $("#walkthrough-record-first-step", context).hide();
-          $("#walkthrough-record-second-step", context).show();
-          $("#walkthrough-recorder-popup-notice", context).hide();
-          $(".walkthrough-record-first-step-title", context).hide();
-          $(".walkthrough-record-second-step-title", context).show();
-          $("#record-a-walkthrough-button .record-action", context).hide();
-          $("#record-a-walkthrough-button .save-action", context).show();
-        }
+        Drupal.walkhubRecordBlock.startRecording(context);
       });
 
       $("#steps", context).bind("DOMSubtreeModified", function(e) {
@@ -64,25 +71,24 @@
         }
       });
 
+      /**
+       * Form error handling on saving the walkthrough.
+       */
       $("#walkthrough-record-save", context).click(function() {
-        var $input_title = $("#walkthrough-record-title", context);
-        var $select_severity = $("#walkthrough-record-severity", context);
-        var error = false;
-        if ($input_title.val() === "") {
-          error = true;
-          $("#walkthrough-record-title-error", context).show();
-        } else {
-          $("#walkthrough-record-title-error", context).hide();
-        }
-        if ($select_severity.val() === "") {
-          error = true;
-          $("#walkthrough-record-severity-error", context).show();
-        } else {
-          $("#walkthrough-record-severity-error", context).hide();
-        }
+        var input_title = $("#walkthrough-record-title", context).val();
+        var input_title_is_empty = (input_title === "");
+
+        var severity = $("#walkthrough-record-severity", context).val();
+        var severity_is_empty = (severity === "");
+
+        var error = (input_title_is_empty || severity_is_empty);
+
+        $("#walkthrough-record-title-error", context).toggle(input_title_is_empty);
+        $("#walkthrough-record-severity-error", context).toggle(severity_is_empty);
+
         if (!error) {
-          $("#edit-title", context).val($input_title.val());
-          $("#edit-severity", context).val($select_severity.val());
+          $("#edit-title", context).val(input_title);
+          $("#edit-severity", context).val(severity);
           $("#edit-save", context).click();
         }
       });
