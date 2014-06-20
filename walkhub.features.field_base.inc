@@ -438,9 +438,9 @@ function walkhub_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        0 => 'No changes (tour)',
-        1 => 'Changes content (run only on sites where this is ok)',
-        2 => 'Changes configuration (run only on staging or test environments)',
+        0 => 'does not change anything (tour)',
+        1 => 'changes content (run only on sites where this is ok)',
+        2 => 'changes configuration (run only on staging or test environments)',
       ),
       'allowed_values_function' => '',
     ),
