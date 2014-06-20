@@ -40,8 +40,7 @@ function walkhub_block_info() {
  */
 function walkhub_block_view($delta = '') {
   $block = array();
-  $user_roles = $GLOBALS[user]->roles;
-  if (!in_array("authenticated user", $user_roles)) {
+  if (user_is_anonymous()) {
     return FALSE;
   }
   switch ($delta) {
@@ -1164,7 +1163,7 @@ function walkhub_theme() {
       'path' => drupal_get_path('module', 'walkhub'),
     ),
     'walkthrough__record__block' => array(
-      'variables' => array("form" => drupal_get_form('walkhub_record_form', true)),
+      'variables' => array("form" => drupal_get_form('walkhub_record_form', TRUE)),
       'template' => 'walkthrough__record__block',
       'path' => drupal_get_path('module', 'walkhub'),
     ),
