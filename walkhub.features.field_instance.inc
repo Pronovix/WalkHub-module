@@ -704,7 +704,7 @@ function walkhub_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_severity_of_the_change',
-    'label' => 'Severity of the change',
+    'label' => 'This walkthrough',
     'required' => 1,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -779,7 +779,7 @@ function walkhub_field_default_field_instances() {
   t('Play via proxy');
   t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
-  t('Severity of the change');
+  t('This walkthrough');
   t('Show title');
   t('Step highlight');
   t('Steps');

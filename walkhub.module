@@ -21,6 +21,38 @@ function walkhub_init() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function walkhub_block_info() {
+  $blocks['floating_record_button'] = array(
+    'info' => t('Floating Record a Walkthrough button'),
+    'status' => TRUE,
+    'region' => 'header',
+    'weight' => 0,
+    'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+    'pages' => 'walkthrough/record'
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function walkhub_block_view($delta = '') {
+  $block = array();
+  if (user_is_anonymous()) {
+    return FALSE;
+  }
+  switch ($delta) {
+    case 'floating_record_button':
+      $variables = array();
+      $block['content'] = theme('walkthrough__record__block', $variables);
+      break;
+  }
+  return $block;
+}
+
+/**
  * Implements hook_menu().
  */
 function walkhub_menu() {
@@ -44,7 +76,7 @@ function walkhub_menu() {
     'access arguments' => array('create', 'walkthrough'),
     'access callback' => 'node_access',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('walkhub_record_form'),
+    'page arguments' => array('walkhub_record_form', FALSE),
     'file' => 'walkhub.pages.inc',
   );
 
@@ -1130,6 +1162,11 @@ function walkhub_theme() {
       'base hook' => 'page',
       'path' => drupal_get_path('module', 'walkhub'),
     ),
+    'walkthrough__record__block' => array(
+      'variables' => array("form" => drupal_get_form('walkhub_record_form', TRUE)),
+      'template' => 'walkthrough__record__block',
+      'path' => drupal_get_path('module', 'walkhub'),
+    ),
   );
 }
 
@@ -1152,4 +1189,80 @@ function walkhub_get_id_hash($node) {
 function walkhub_get_origin() {
   global $is_https;
   return 'http' . ($is_https ? 's' : '') . "://{$_SERVER['SERVER_NAME']}" . (in_array($_SERVER['SERVER_PORT'], array(80, 443)) ? '' : ":{$_SERVER['SERVER_PORT']}");
+}
+
+
+/**
+ * Form for the walkhub recorder.
+ */
+function walkhub_record_form($form, &$form_state, $floating_record_button = FALSE) {
+  $form['#action'] = url('walkthrough/record/');
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+  );
+
+  $severity_field = field_info_field('field_severity_of_the_change');
+  $severity_info_instance = field_info_instance('node', 'field_severity_of_the_change', 'walkthrough');
+  $form['severity'] = array(
+    '#type' => 'select',
+    '#title' => $severity_info_instance['label'],
+    '#required' => TRUE,
+    '#options' => $severity_field['settings']['allowed_values'],
+  );
+
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Starting URL'),
+  );
+
+  $form['use_proxy'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Record the walkthrough over the WalkHub proxy (in case you don\'t have the browser or site plugin available)'),
+    '#default_value' => 1,
+  );
+
+  $form['record'] = array(
+    '#type' => 'button',
+    '#value' => t('Record'),
+    '#attributes' => array(
+      'data-proxy-url' => variable_get('walkhub_proxy_url'),
+    ),
+  );
+
+  $form['steps'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Steps'),
+  );
+
+  $form['password_parameter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Generate password parameter'),
+  );
+
+  $form['stepcontainer'] = array(
+    '#markup' => '<h3>Recorded steps</h3><ul id="steps"></ul>',
+  );
+
+  $form['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#attached'] = array(
+    'js' => array(
+      drupal_get_path('module', 'walkhub') . '/walkhub.js',
+    ),
+    'css' => array(
+      drupal_get_path('module', 'walkhub') . '/walkhub.css',
+    ),
+  );
+
+  if ($floating_record_button) {
+    $form["#attached"]['js'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.js';
+    $form["#attached"]['css'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.css';
+  }
+
+  return $form;
 }
