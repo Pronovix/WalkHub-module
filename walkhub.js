@@ -679,14 +679,14 @@
             $(this).click();
           }
         });
-      $("#walkhub-record-form:not(.walkhub-processed)", context)
+      $(".walkhub-record-form:not(.walkhub-processed)", context)
         .addClass("walkhub-processed")
         .each(function () {
           var appserver = new WalkhubServer();
-          $("#edit-record", $(this))
+          $(".edit-record", $(this))
             .click(appserver.recorderClickEventHandlerFactory(
-              $("#edit-url", $(this)),
-              $("#edit-use-proxy", $(this))
+              $(".edit-url", $(this)),
+              $(".edit-use-proxy", $(this))
             ));
         });
     }

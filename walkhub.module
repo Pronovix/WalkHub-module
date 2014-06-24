@@ -45,8 +45,9 @@ function walkhub_block_view($delta = '') {
   }
   switch ($delta) {
     case 'floating_record_button':
-      $variables = array();
-      $block['content'] = theme('walkthrough__record__block', $variables);
+      $form = drupal_get_form('walkhub_record_form', TRUE);
+      $form = drupal_render($form);
+      $block['content'] = theme('walkthrough__record__block', array('form' => $form));
       break;
   }
   return $block;
@@ -1155,17 +1156,19 @@ function walkhub_preprocess_page(&$variables) {
  * Implements hook_theme().
  */
 function walkhub_theme() {
+  $module_path = drupal_get_path('module', 'walkhub');
+
   return array(
     'page__node__walkhub__button' => array(
       'render element' => 'page',
       'template' => 'page__node__walkhub__button',
       'base hook' => 'page',
-      'path' => drupal_get_path('module', 'walkhub'),
+      'path' => $module_path,
     ),
     'walkthrough__record__block' => array(
-      'variables' => array("form" => drupal_get_form('walkhub_record_form', TRUE)),
+      'variables' => array('form' => NULL),
       'template' => 'walkthrough__record__block',
-      'path' => drupal_get_path('module', 'walkhub'),
+      'path' => $module_path,
     ),
   );
 }
@@ -1196,6 +1199,10 @@ function walkhub_get_origin() {
  * Form for the walkhub recorder.
  */
 function walkhub_record_form($form, &$form_state, $floating_record_button = FALSE) {
+  $module_path = drupal_get_path('module', 'walkhub');
+
+  $form['#attributes'] = array('class' => array('walkhub-record-form'));
+
   $form['#action'] = url('walkthrough/record/');
   $form['title'] = array(
     '#type' => 'textfield',
@@ -1215,12 +1222,18 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('Starting URL'),
+    '#attributes' => array(
+      'class' => array('edit-url'),
+    ),
   );
 
   $form['use_proxy'] = array(
     '#type' => 'checkbox',
     '#title' => t('Record the walkthrough over the WalkHub proxy (in case you don\'t have the browser or site plugin available)'),
     '#default_value' => 1,
+    '#attributes' => array(
+      'class' => array('edit-use-proxy'),
+    ),
   );
 
   $form['record'] = array(
@@ -1228,6 +1241,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
     '#value' => t('Record'),
     '#attributes' => array(
       'data-proxy-url' => variable_get('walkhub_proxy_url'),
+      'class' => array('edit-record'),
     ),
   );
 
@@ -1252,16 +1266,16 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
 
   $form['#attached'] = array(
     'js' => array(
-      drupal_get_path('module', 'walkhub') . '/walkhub.js',
+      $module_path . '/walkhub.js',
     ),
     'css' => array(
-      drupal_get_path('module', 'walkhub') . '/walkhub.css',
+      $module_path . '/walkhub.css',
     ),
   );
 
   if ($floating_record_button) {
-    $form["#attached"]['js'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.js';
-    $form["#attached"]['css'][] = drupal_get_path('module', 'walkhub') . '/walkthrough_record_block.css';
+    $form["#attached"]['js'][] = $module_path . '/walkthrough_record_block.js';
+    $form["#attached"]['css'][] = $module_path . '/walkthrough_record_block.css';
   }
 
   return $form;
