@@ -40,14 +40,13 @@ function walkhub_block_info() {
  */
 function walkhub_block_view($delta = '') {
   $block = array();
-  if (user_is_anonymous()) {
-    return FALSE;
-  }
   switch ($delta) {
     case 'floating_record_button':
-      $form = drupal_get_form('walkhub_record_form', TRUE);
-      $form = drupal_render($form);
-      $block['content'] = theme('walkthrough__record__block', array('form' => $form));
+      if (user_access('create walkthrough content')) {
+        $form = drupal_get_form('walkhub_record_form', TRUE);
+        $form = drupal_render($form);
+        $block['content'] = theme('walkthrough__record__block', array('form' => $form));
+      }
       break;
   }
   return $block;
