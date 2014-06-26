@@ -35,6 +35,7 @@
       $(".walkthrough-record-second-step-title", context).show();
       $("#record-a-walkthrough-button .record-action", context).hide();
       $("#record-a-walkthrough-button .save-action", context).show();
+      $("#record-a-walkthrough-button", context).addClass("wide");
     }
   };
 
