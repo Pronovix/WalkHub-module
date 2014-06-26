@@ -16,7 +16,7 @@
     </span>
   </span>
   <div id="record-a-walkthrough-popup-modal">
-    <div id="record-a-walkthrough-popup" class="recorder-popup small-12 large-4 large-centered columns">
+    <div id="record-a-walkthrough-popup" class="recorder-popup small-12 large-6 large-centered columns">
       <div class="row" id="walkthrough-record-popup-title">
         <p class="small-10 columns walkthrough-record-first-step-title">Where would you like to record your Walkthrough?</p>
         <p class="small-10 columns walkthrough-record-second-step-title" style="display: none;">Save your Walkthrough!</p>
@@ -64,7 +64,7 @@
         </div>
       </div>
       <div class="row" id="walkthrough-recorder-popup-notice">
-        <p class="small-12 columns">You are about to record a Walkthrough. The recorder is still in alpha, we need your help to make it better. If something goes wrong, let us know so that we can fix it (send a mail to <a href="mailto:kata@pronovix.com?subject=Walkthrough recorder error">kata@pronovix.com</a>).</p>
+        <p class="small-12 columns">You are about to record a Walkthrough. The recorder is still in alpha, we need your help to make it better. We know that the recorder doesn't work with menus that require you to hover over a link, our proxy doesn't yet support https and you should still expect trouble with WYSIWYG editors. If something else goes wrong, let us know so that we can fix it (send a mail to <a href="mailto:kata@pronovix.com?subject=Walkthrough recorder error">kata@pronovix.com</a>).</p>
       </div>
     </div>
   </div>
