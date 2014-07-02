@@ -805,7 +805,7 @@ function _walkhub_break_up_to_steps_json($source) {
   $base = NULL;
   if (count($decoded) && $decoded[0]['cmd'] === 'open') {
     $base = $decoded[0]['arg0'];
-    $decoded[0]['arg0'] = http_build_url($decoded[0]['arg0'], array(
+    $decoded[0]['arg0'] = walkhub_build_url($decoded[0]['arg0'], array(
       'host' => '[domain]',
     ));
   }
@@ -828,7 +828,7 @@ function _walkhub_get_origin($url) {
   unset($parsed['query']);
   unset($parsed['fragment']);
 
-  return http_build_url($parsed);
+  return walkhub_build_url($parsed);
 }
 
 /**
@@ -1278,4 +1278,61 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
   }
 
   return $form;
+}
+
+/**
+ * Builds an URL from the given components.
+ *
+ * @param array|string $url
+ *   Input URL. Can be either in text format, or parsed by parse_url().
+ * @param array $replace
+ *   Parts to replace in the input URL.
+ *
+ * @return string
+ *   Built URL.
+ */
+function walkhub_build_url($url, array $replace = array()) {
+  $parsed_url = is_array($url) ? $url : parse_url($url);
+
+  $processed_url = $replace + $parsed_url;
+
+  $scheme = isset($processed_url['scheme']) ? $processed_url['scheme'] : NULL;
+  $host = isset($processed_url['host']) ? $processed_url['host'] : NULL;
+  $port = isset($processed_url['port']) ? $processed_url['port'] : NULL;
+  $user = isset($processed_url['user']) ? $processed_url['user'] : NULL;
+  $pass = isset($processed_url['pass']) ? $processed_url['pass'] : NULL;
+  $path = isset($processed_url['path']) ? $processed_url['path'] : NULL;
+  $query = isset($processed_url['query']) ? $processed_url['query'] : NULL;
+  $fragment = isset($processed_url['fragment']) ? $processed_url['fragment'] : NULL;
+
+  $final_url = "";
+  if ($scheme) {
+    $final_url .= "{$scheme}://";
+  }
+  if ($user) {
+    $final_url .= $user;
+  }
+  if ($pass) {
+    $final_url .= ":{$pass}";
+  }
+  if ($user || $pass) {
+    $final_url .= '@';
+  }
+  if ($host) {
+    $final_url .= $host;
+  }
+  if ($port) {
+    $final_url .= ":{$port}";
+  }
+  if ($path) {
+    $final_url .= '/' . ltrim($path, '/');
+  }
+  if ($query) {
+    $final_url .= "?{$query}";
+  }
+  if ($fragment) {
+    $final_url .= "#{$fragment}";
+  }
+
+  return $final_url;
 }
