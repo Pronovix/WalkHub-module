@@ -96,13 +96,7 @@ function walkhub_strongarm() {
           'weight' => '0',
         ),
         'metatags' => array(
-          'weight' => '12',
-        ),
-        'path' => array(
-          'weight' => '11',
-        ),
-        'redirect' => array(
-          'weight' => '10',
+          'weight' => '40',
         ),
       ),
       'display' => array(
@@ -134,7 +128,7 @@ function walkhub_strongarm() {
         ),
         'walkthrough_screening_widget' => array(
           'default' => array(
-            'weight' => '1',
+            'weight' => '0',
             'visible' => TRUE,
           ),
         ),
