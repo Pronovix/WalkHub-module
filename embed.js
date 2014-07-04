@@ -1,4 +1,6 @@
 (function ($) {
+  "use strict";
+
   window.WalkhubEmbedData = window.WalkhubEmbedData || {};
 
   if (window.WalkhubEmbedJS) {
