@@ -1,6 +1,6 @@
 .block-walkhub-floating-record-button > div {
   position: relative;
-  z-index: 100;
+  z-index: 10;
 }
 
 #record-a-walkthrough-button {
