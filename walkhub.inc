@@ -265,6 +265,15 @@ function _walkhub_node_resource_access($type, $op = 'view', $args = array()) {
   if (!$node) {
     return FALSE;
   }
+  foreach (module_implements('walkhub_node_resource_access') as $module) {
+    $function = "{$module}_walkhub_node_resource_access";
+    if (function_exists($function)) {
+      $result = $function($op, $node);
+      if ($result !== NULL) {
+        return $result;
+      }
+    }
+  }
   return _node_resource_access($op, array($node));
 }
 

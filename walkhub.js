@@ -497,8 +497,12 @@
       },
       request: function (data, source) {
         var request = function () {
+          var url = data.URL;
+          if (getdata.access_key) {
+            url += (url.indexOf("?") === -1 ? "?" : "&") + "access_key=" + getdata.access_key;
+          }
           var opts = {
-            url: data.URL,
+            url: url,
             type: "GET",
             success: function (respdata) {
               post(maybeProxy({
