@@ -128,7 +128,7 @@ function walkthrough_sharelink_form_walkthrough_node_form_alter(&$form, &$form_s
  */
 function walkthrough_sharelink_walkthrough_node_form_validate($form, &$form_state) {
   if ($form_state['triggering_element']['#value'] === t('Save and publish')) {
-    form_set_value($form['options']['status'], 1, $form_state);
+    form_set_value($form['options']['status'], NODE_PUBLISHED, $form_state);
   }
 }
 

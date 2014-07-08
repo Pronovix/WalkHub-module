@@ -1339,6 +1339,13 @@ function walkhub_build_url($url, array $replace = array()) {
 
 /**
  * Implements hook_field_collection_item_load().
+ *
+ * This forces loading the host entity for the field collection item. When the field collection item loads the host
+ * entity, it uses node_access to determine if the current user has access to the given entity. This is because how
+ * EntityFieldQuery is implemented.
+ *
+ * If you try to load the host entity of a field collection item as a user who does not have access to that entity,
+ * the host entity won't be loaded. This could cause fatal errors.
  */
 function walkhub_field_collection_item_load(array $entities) {
   foreach ($entities as $entity) {
