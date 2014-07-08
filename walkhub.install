@@ -317,6 +317,14 @@ function walkhub_update_7009() {
 }
 
 /**
+ * Remove severity of the change above the widget on WT page.
+ */
+function walkhub_update_7010() {
+  walkhub_features_revert(array('walkhub'));
+  return t('Walkhub feature reverted.');
+}
+
+/**
  * Return default patterns to base selenium commands.
  */
 function _walkhub_get_default_patterns() {
