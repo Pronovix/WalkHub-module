@@ -84,8 +84,8 @@ function walkhub_menu() {
     'title' => 'Start walkthrough',
     'page callback' => 'walkhub_start_walkthrough',
     'page arguments' => array(1),
-    'access callback' => 'node_access',
-    'access arguments' => array('view', 1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
     'type' => MENU_LOCAL_ACTION,
     'file' => 'walkhub.pages.inc',
   );
@@ -1100,7 +1100,7 @@ function walkhub_get_position_from_step($walkthrough_id, $step_id) {
     return $positions[$walkthrough_id][$step_id];
   }
 
-  $walkthrough =node_load($walkthrough_id);
+  $walkthrough = node_load($walkthrough_id);
   $steps = field_get_items('node', $walkthrough, WALKTHROUGH_FIELD_STEPS);
 
   // Get the position of the actual step in the walkthrough.
@@ -1335,4 +1335,37 @@ function walkhub_build_url($url, array $replace = array()) {
   }
 
   return $final_url;
+}
+
+/**
+ * Implements hook_field_collection_item_load().
+ */
+function walkhub_field_collection_item_load(array $entities) {
+  foreach ($entities as $entity) {
+    /** @var FieldCollectionItemEntity $entity */
+
+    if ($entity->item_id) {
+      $query = new EntityFieldQuery();
+      $query->fieldCondition($entity->fieldInfo(), 'revision_id', $entity->revision_id);
+      if (!$entity->isInUse()) {
+        $query->age(FIELD_LOAD_REVISION);
+      }
+      $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+      $result = $query->execute();
+      list($entity_type, $data) = each($result);
+
+      $entity_id = NULL;
+      $revision_id = NULL;
+      if ($entity->isInUse()) {
+        $entity_id = $data ? key($data) : FALSE;
+      }
+
+      if ($entity_id) {
+        $host_entity = entity_load_single($entity_type, $entity_id);
+        $entity->is_new = TRUE;
+        $entity->setHostEntity($entity_type, $host_entity, LANGUAGE_NONE, FALSE);
+        $entity->is_new = NULL;
+      }
+    }
+  }
 }

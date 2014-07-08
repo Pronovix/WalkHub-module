@@ -1,0 +1,365 @@
+<?php
+
+/**
+ * Impelements hook_permission().
+ */
+function walkthrough_sharelink_permission() {
+  return array(
+    'walkthrough sharelink use' => array(
+      'title' => t('Use sharelinks on a walkthrough'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function walkthrough_sharelink_menu() {
+  $items = array();
+
+  $items['walkthrough/generate-share-link/nojs/%walkhub_walkthrough_node'] = array(
+    'page callback' => 'walkthrough_sharelink_generate_page',
+    'page arguments' => array(2, 3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 3),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['walkthrough/generate-share-link/ajax/%walkhub_walkthrough_node'] = array(
+    'delivery callback' => 'ajax_deliver',
+  ) + $items['walkthrough/generate-share-link/nojs/%walkhub_walkthrough_node'];
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_get_item_alter().
+ */
+function walkthrough_sharelink_menu_get_item_alter(&$router_item, $path, $original_map) {
+  if (!($access_key = walkthrough_sharelink_get_access_key())) {
+    return;
+  }
+
+  $load_funtions = unserialize($router_item['load_functions']);
+  $access_arguments = unserialize($router_item['access_arguments']);
+  $page_arguments = unserialize($router_item['page_arguments']);
+
+  $path_parts = explode('/', $path);
+
+  if (!in_array('node_load', $load_funtions) && !in_array('walkhub_walkthrough_node_load', $load_funtions)) {
+    return;
+  }
+
+  if ($router_item['access_callback'] !== 'node_access') {
+    return;
+  }
+
+  if (count($access_arguments) !== 2 || $access_arguments[0] !== 'view') {
+    return;
+  }
+
+  $access_key_nid = walkthrough_sharelink_get_nid($access_key);
+  if (!$access_key_nid) {
+    return;
+  }
+
+  $nid_found = FALSE;
+  foreach ($page_arguments as $page_argument) {
+    if (is_numeric($page_argument)) {
+      if (isset($path_parts[$page_argument]) && $path_parts[$page_argument] === $access_key_nid) {
+        $nid_found = TRUE;
+        break;
+      }
+    }
+  }
+
+  if (!$nid_found) {
+    return;
+  }
+
+  $router_item['access_callback'] = 'user_access';
+  $router_item['access_arguments'] = serialize(array('access content'));
+}
+
+/**
+ * Implements hook_walkhub_node_resource_access().
+ */
+function walkthrough_sharelink_walkhub_node_resource_access($op, $node) {
+  if ($op !== 'view') {
+    return NULL;
+  }
+
+  if (!($access_key = walkthrough_sharelink_get_access_key())) {
+    return NULL;
+  }
+
+  if (!($access_key_nid = walkthrough_sharelink_get_nid($access_key))) {
+    return NULL;
+  }
+
+  if ($node->nid === $access_key_nid) {
+    return TRUE;
+  }
+
+  return NULL;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * This adds the "Save and publish" button to the walkthrough edit form.
+ */
+function walkthrough_sharelink_form_walkthrough_node_form_alter(&$form, &$form_state) {
+  if (!$form['#node']->status) {
+    $form['actions']['save_and_publish'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save and publish'),
+      '#weight' => 7,
+      '#submit' => &$form['actions']['submit']['#submit'],
+    );
+    $form['#validate'][] = 'walkthrough_sharelink_walkthrough_node_form_validate';
+  }
+}
+
+/**
+ * Validation callback for the walkthrough edit form.
+ *
+ * It sets the status = 1 (published) when the form is submitted through the "Save and publish" button.
+ */
+function walkthrough_sharelink_walkthrough_node_form_validate($form, &$form_state) {
+  if ($form_state['triggering_element']['#value'] === t('Save and publish')) {
+    form_set_value($form['options']['status'], 1, $form_state);
+  }
+}
+
+/**
+ * Returns the node id which belong to the given access key.
+ *
+ * @param string $access_key
+ *   Access key.
+ * @return int|bool
+ *   Node ID if found, FALSE otherwise.
+ */
+function walkthrough_sharelink_get_nid($access_key) {
+  return db_query('SELECT nid FROM {walkthrough_sharelink} WHERE access_key = :access_key', array(':access_key' => $access_key))
+    ->fetchField();
+}
+
+/**
+ * Loads a node from its access key.
+ *
+ * This function is helpful as a load function in hook_menu().
+ *
+ * @param $access_key
+ *   Access key
+ * @return bool|stdClass
+ *   FALSE if the node is not found, the node object otherwise.
+ */
+function wtsharelink_load($access_key) {
+  $nid = walkthrough_sharelink_get_nid($access_key);
+  if ($nid) {
+    $node = node_load($nid);
+    if ($node->type === 'walkthrough') {
+      return $node;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Page callback for 'walkthrough/generate-share-link/nojs/%walkhub_walkthrough_node'.
+ *
+ * Generates a token for a walkthrough node.
+ *
+ * @param string $ajax
+ * @param stdClass $walkthrough
+ *   Walkthrough node object.
+ * @return mixed
+ *   Page callback result.
+ */
+function walkthrough_sharelink_generate_page($ajax, $walkthrough) {
+  $is_ajax = $ajax === 'ajax';
+
+  if (empty($_GET['token']) || !drupal_valid_token($_GET['token'], "sharelink_generate_{$walkthrough->nid}")) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  if (!user_access('walkthrough sharelink use')) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  if ($walkthrough->type !== 'walkthrough') {
+    return MENU_ACCESS_DENIED;
+  }
+
+  $access_key = _walkthrough_sharelink_generate();
+  db_merge('walkthrough_sharelink')
+    ->key(array(
+      'nid' => $walkthrough->nid,
+    ))
+    ->fields(array(
+      'access_key' => $access_key,
+    ))
+    ->execute();
+
+  if ($is_ajax) {
+    $commands = array();
+
+    $link = _walkthrough_sharelink_get_link_render_array($walkthrough, $access_key);
+    $rendered_link = drupal_render($link);
+    $commands[] = ajax_command_replace('div.walkthrough-sharelink', $rendered_link);
+
+    return array(
+      '#type' => 'ajax',
+      '#commands' => $commands,
+    );
+  }
+  else {
+    drupal_goto();
+  }
+
+  return NULL;
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function walkthrough_sharelink_node_view_alter(&$build) {
+  if ($build['#node']->type !== 'walkthrough') {
+    return;
+  }
+
+  if (!user_access('walkthrough sharelink use')) {
+    return;
+  }
+
+  if ($build['#node']->status) {
+    return;
+  }
+
+  $nid = $build['#node']->nid;
+  $access_key = walkthrough_sharelink_get($nid);
+
+  $prefix_suffix = array(
+    '#prefix' => '<div class="walkthrough-sharelink">',
+    '#suffix' => '</div>',
+  );
+
+  if ($access_key) {
+    $build['sharelink'] = _walkthrough_sharelink_get_link_render_array($build['#node'], $access_key) + $prefix_suffix;
+  }
+  else {
+    $build['sharelink'] = array(
+      '#theme' => 'link',
+      '#text' => t('Share this walkthrough with a link'),
+      '#path' => 'walkthrough/generate-share-link/nojs/' . $nid,
+      '#options' => array(
+        'html' => FALSE,
+        'attributes' => array(
+          'class' => array('use-ajax'),
+        ),
+        'query' => array(
+          'token' => drupal_get_token('sharelink_generate_' . $nid),
+        ) + drupal_get_destination(),
+      ),
+      '#attached' => array(
+        'library' => array(
+          array('system', 'drupal.ajax'),
+        ),
+      ),
+    ) + $prefix_suffix;
+  }
+
+  if (!empty($build['walkthrough_screening_widget']) && ($access_key = walkthrough_sharelink_get_access_key())) {
+    $build['walkthrough_screening_widget']['#source'] .= "?access_key={$access_key}";
+  }
+}
+
+/**
+ * Implemenets field_collection_item_view_alter().
+ */
+function walkthrough_sharelink_field_collection_item_view_alter(&$build) {
+  if ($build['#bundle'] !== 'field_fc_steps') {
+    return;
+  }
+
+  if (!($access_key = walkthrough_sharelink_get_access_key())) {
+    return;
+  }
+
+  if (!empty($build['screenshot'])) {
+    $build['screenshot']['#options']['query']['access_key'] = $access_key;
+  }
+}
+
+/**
+ * Generates a render array for a walkthrough node with an access key.
+ *
+ * @param $walkthrough_node
+ * @param $access_key
+ * @return array
+ */
+function _walkthrough_sharelink_get_link_render_array($walkthrough_node, $access_key) {
+  return array(
+    '#theme' => 'link',
+    '#text' => t('Shared link'),
+    '#path' => "node/{$walkthrough_node->nid}",
+    '#options' => array(
+      'html' => FALSE,
+      'attributes' => array(),
+      'query' => array(
+        'access_key' => $access_key,
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns an access key for a given walkthrough node if exists.
+ *
+ * @param int $nid
+ *   Walkthrough node id.
+ * @return string|bool
+ *   Access key or FALSE if not found.
+ */
+function walkthrough_sharelink_get($nid) {
+  return db_query('SELECT access_key FROM {walkthrough_sharelink} WHERE nid = :nid', array(':nid' => $nid))
+    ->fetchField();
+}
+
+/**
+ * Generates a share link.
+ *
+ * Based on user_password().
+ *
+ * @param int $length
+ *   Length of the link.
+ * @return string
+ */
+function _walkthrough_sharelink_generate($length = 64) {
+  $allowable_characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ*+-:;=_|~';
+
+  $len = strlen($allowable_characters) - 1;
+
+  $ret = '';
+
+  for ($i = 0; $i < $length; $i++) {
+    do {
+      $index = ord(drupal_random_bytes(1));
+    } while ($index > $len);
+
+    $ret .= $allowable_characters[$index];
+  }
+
+  return $ret;
+}
+
+/**
+ * Returns the access key from the URL.
+ *
+ * @return string|null
+ */
+function walkthrough_sharelink_get_access_key() {
+  return empty($_GET['access_key']) ? NULL : $_GET['access_key'];
+}

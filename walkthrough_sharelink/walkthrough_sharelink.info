@@ -1,0 +1,5 @@
+name = Walkthrough share link
+description = Share link generation for walthroughs
+core = 7.x
+dependencies = walkhub
+package = Walkthrough

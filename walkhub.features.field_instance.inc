@@ -779,12 +779,12 @@ function walkhub_field_default_field_instances() {
   t('Play via proxy');
   t('Prerequisites (Walkthroughs you need to run before this one)');
   t('Proxy warning message');
-  t('This walkthrough');
   t('Show title');
   t('Step highlight');
   t('Steps');
   t('Tags');
   t('The Selenium locator that will be used to position the step description call-out.');
+  t('This walkthrough');
   t('Title');
   t('When you create a new walkthrough, you can automatically generate steps from a Selenium test. <a href="https://github.com/kvantomme/Walkthrough/wiki/How-to-create-a-walkthrough-with-automated-steps">Learn more</a>');
 
