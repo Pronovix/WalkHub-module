@@ -30,11 +30,15 @@ function walkhub_start_walkthrough($node) {
 function walkhub_record_form_submit($form, &$form_state) {
   global $user;
 
+  $options = variable_get('node_options_walkthrough', array());
+  $published = in_array('status', $options) ? NODE_PUBLISHED : NODE_NOT_PUBLISHED;
+
   $walkthrough_node = (object) array(
     'type' => 'walkthrough',
     'uid' => $user->uid,
     'language' => LANGUAGE_NONE,
     'title' => $form_state['values']['title'],
+    'status' => $published,
     '__password_parameter' => (bool) $form_state['values']['password_parameter'],
     'field_raw_input' => array(
       LANGUAGE_NONE => array(
