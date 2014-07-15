@@ -31,6 +31,14 @@
   font-size: 12px;
   cursor: default;
   font-weight: bold;
+  white-space: normal;
+  padding: 5px;
+  line-height: 16px;
+  margin-bottom: 5px;
+}
+
+.button.markbroken {
+  float: right;
 }
 
 #walkhub-record-form .form-item-steps {

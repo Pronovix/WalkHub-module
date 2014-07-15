@@ -370,7 +370,7 @@
           event.preventDefault();
           flagWalkthroughAsBroken();
         })
-        .appendTo(msg);
+        .appendTo(msg.parent());
 
       if (getdata.markbroken) {
         link.click();
@@ -387,8 +387,8 @@
     var msg = $("<div />")
       .attr("id", "walkhub-error-message-" + id)
       .addClass("walkhub-error-message")
-      .html(error)
-      .appendTo($("span.ui-dialog-title", methods.iframe.object.parent()));
+      .html(error);
+    $("span.ui-dialog-title", methods.iframe.object.parent()).html(msg);
 
     if (errormessages_alter.hasOwnProperty(id)) {
       errormessages_alter[id](msg);
