@@ -299,9 +299,9 @@
 
       // Generate sharing link
       var link = window.location.origin + window.location.pathname + "?";
-      for (var parameter in parameters) {
-        if (parameters.hasOwnProperty(parameter)) {
-          link += parameter + "=" + encodeURIComponent(parameters[parameter]) + "&";
+      for (var param in parameters) {
+        if (parameters.hasOwnProperty(param)) {
+          link += param + "=" + encodeURIComponent(parameters[param]) + "&";
         }
       }
       link = link.substr(0, link.length - 1);
@@ -312,9 +312,9 @@
 
       // Generate embed data
       var embedurl = walkthroughlink.data("embedjs") + "?";
-      for (parameter in parameters) {
-        if (parameters.hasOwnProperty(parameter)) {
-          embedurl += "parameters[" + parameter + "]=" + encodeURIComponent(parameters[parameter]) + "&";
+      for (param in parameters) {
+        if (parameters.hasOwnProperty(param)) {
+          embedurl += "parameters[" + param + "]=" + encodeURIComponent(parameters[param]) + "&";
         }
       }
       embedurl = embedurl.substr(0, embedurl.length - 1);
