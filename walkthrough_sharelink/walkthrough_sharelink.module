@@ -230,6 +230,10 @@ function walkthrough_sharelink_node_view_alter(&$build) {
     return;
   }
 
+  if (!empty($build['walkthrough_screening_widget']) && ($access_key = walkthrough_sharelink_get_access_key())) {
+    $build['walkthrough_screening_widget']['#source'] .= '?access_key=' . urlencode($access_key);
+  }
+
   if (!user_access('walkthrough sharelink use')) {
     return;
   }
@@ -269,10 +273,6 @@ function walkthrough_sharelink_node_view_alter(&$build) {
         ),
       ),
     ) + $prefix_suffix;
-  }
-
-  if (!empty($build['walkthrough_screening_widget']) && ($access_key = walkthrough_sharelink_get_access_key())) {
-    $build['walkthrough_screening_widget']['#source'] .= "?access_key={$access_key}";
   }
 }
 
