@@ -372,6 +372,15 @@ function _walkhub_phpunit_export_steps_raw($node) {
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output = '$this->timeouts()->implicitWait(30000);' . "\n";
 
+  // Unpublished nodes can only be accessed by their owner.
+  if ($node->status == NODE_NOT_PUBLISHED) {
+    $account = user_load($node->uid);
+    if ($account && $account->uid > 0) {
+      $one_time_login_link = user_pass_reset_url($account) . '/login';
+      $output .= '$this->url("' . $one_time_login_link . '");' . "\n";
+    }
+  }
+
   $walkthrough_node_url = url('node/' . $node->nid, array(
     'absolute' => TRUE,
     'query' => array(
@@ -383,7 +392,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
   $output .= '$this->url("' . $walkthrough_node_url . '");' . "\n";
   $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
 
-  $output .= '$this->byXPath("//button[@type=\'button\']")->click();' . "\n";
+  $output .= '$this->byCssSelector(".ui-widget button[type=\"button\"]")->click();' . "\n";
 
   $output .= '$frame = $this->byCssSelector("#ui-id-2");' . "\n";
 
