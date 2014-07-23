@@ -1122,6 +1122,7 @@ function walkhub_preprocess_html(&$vars) {
   // Add full window class, if the appropriate parameter has been added.
   $vars['classes_array'][] = !empty($_GET['wt_full_window']) ? 'walkthrough-full-window' : '';
   $vars['classes_array'][] = !empty($_GET['wt_play_prerequisites']) ? 'walkthrough-play-prerequisites' : '';
+  $vars['classes_array'][] = !empty($_GET['wt_hide_edit']) ? 'walkthrough-hide-edit' : '';
 }
 
 /**

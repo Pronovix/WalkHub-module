@@ -386,6 +386,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     'query' => array(
         'wt_full_window' => 1,
         'wt_play_prerequisites' => 1,
+        'wt_hide_edit' => 1,
       ),
     )
   );
