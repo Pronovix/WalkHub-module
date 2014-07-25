@@ -15,7 +15,7 @@
     iframe: {
       name: "iFrame",
       linkcheck: false,
-      execute: function (url) {
+      execute: function (url, recording) {
         var widget,
           iframe = $("<iframe />")
             .attr("src", url)
@@ -25,20 +25,77 @@
 
         methods.iframe.object = iframe;
 
+        var widgetHeader = $("<div />");
+        var recordingContainer = $("<div />")
+          .addClass("recordingContainer");
+        $("<span/>")
+          .attr("id", "recDot")
+          .appendTo(recordingContainer);
+        $("<span />")
+          .addClass("recLabel")
+          .text(Drupal.t("recording"))
+          .appendTo(recordingContainer);
+        recordingContainer.appendTo(widgetHeader);
+
+        var recordedSteps = $("<span />")
+          .attr("id", "stepListContainer");
+        $("<ol />")
+          .css("padding", "3px 0px")
+          .css("border", "1px solid #000")
+          .css("height", "1.9rem")
+          .attr("id", "stepList")
+          .appendTo(recordedSteps);
+        $("<span />")
+          .addClass("icon-chevron-down")
+          .appendTo(recordedSteps);
+        recordedSteps.appendTo(widgetHeader);
+
+        $("<button />")
+          .addClass("cta")
+          .attr("id", "stopRecording")
+          .html(Drupal.t("Stop recording<br>and save"))
+          .appendTo(widgetHeader);
+
         iframe
           .appendTo($("body"))
           .dialog({
             modal: true,
             autoOpen: true,
             draggable: false,
-            resizable: false
+            resizable: false,
+            beforeClose: function(event, ui) {
+              $("body").css({ overflow: 'inherit' });
+            },
+            create: function (event, ui) {
+              $("body").css({ overflow: 'hidden' });
+              if (recording) {
+                $(this).siblings().find("span.ui-dialog-title").html(widgetHeader.html());
+                $(this).siblings("div.ui-dialog-titlebar").addClass("recording");
+              }
+            }
           });
 
         widget = iframe.dialog("widget");
 
+        $("#stepList").css({"padding-left": ($(".stepsLabel", "span.ui-dialog-title").width() + 5) + "px", "padding-right": "28px"});
+
+        function blinkRecDot() {
+          var $recDot = $("#recDot");
+          if ($recDot.is("visible")) {
+            setTimeout(blinkRecDot, 900);
+          } else {
+            setTimeout(blinkRecDot, 600);
+          }
+          $recDot.toggle();
+        }
+
+        blinkRecDot();
+
         function resize() {
-          var width = $(window).width() - 20;
-          var height = $(window).height() - 20;
+          var width = $(window).width();
+          var height = $(window).height();
+          var $title = $("span.ui-dialog-title");
+          var $stepList = $("#stepList");
 
           // If full window is required.
           if ($("body").hasClass("walkthrough-full-window")) {
@@ -55,15 +112,18 @@
 
           iframe.dialog("option", "width", width);
           iframe.dialog("option", "height", height);
-          iframe.dialog("option", "position", "center");
+          iframe.dialog("option", "position", "top");
 
           widget.css("padding", "0px");
           widget.css("margin", "0px");
-          widget.css("border", "none");
 
           iframe.css("width", width);
-          iframe.css("height", height);
+          iframe.css("height", height - $title.parent().innerHeight() - 2);
           iframe.css("position", "center");
+
+          var stepListWidth = $title.width() - $title.find("button.cta").innerWidth() - $title.find("#recDot").parent().innerWidth() - 50;
+          $stepList.innerWidth(stepListWidth);
+          $stepList.parent().find("span.icon-chevron-down").css("left", (stepListWidth - 22) + "px");
         }
 
         resize();
@@ -407,6 +467,60 @@
     }, 1000);
   }
 
+  function resizeStepsDropdown(open) {
+    var $stepList = $("#stepList");
+    if ($stepList.data("collapsedHeight") == null) {
+      $stepList.data("collapsedHeight", $stepList.innerHeight() + parseInt($stepList[0].style.borderWidth));
+    }
+    if ($stepList.find("li").size() <= 1) {
+      open = false;
+    }
+    var height = $stepList.data("collapsedHeight");
+    if (open) {
+      height = $stepList.find("li").innerHeight() * $stepList.find("li").size() + parseInt($stepList[0].style.paddingTop) + parseInt($stepList[0].style.paddingBottom) + parseInt($stepList[0].style.borderWidth);
+      $stepList.data("maxHeight", "false");
+      var maxHeight = $(window).height() * 0.8;
+      if (height > maxHeight) {
+        height = maxHeight;
+        $stepList.data("maxHeight", "true");
+      }
+    }
+    $stepList.stop();
+    if (open) {
+      $stepList.animate({"height": height + "px"}, 300, function () {
+        if ($(this).data("maxHeight") === "true") {
+          $(this).css("overflow", "scroll");
+        } else {
+          $(this).css("overflow", "hidden");
+        }
+      });
+    } else {
+      $stepList.animate({"height": height + "px"}, 300, function () {
+        $(this).data("maxHeight", "false");
+        $(this).css("overflow", "hidden");
+        $(this).scrollTop(0);
+      });
+    }
+  }
+
+  function updateTitlebarStepList(cmd, arg0, arg1) {
+    var $stepList = $("#stepList");
+    var listItem = $("<li />")
+      .css("padding","0px 10px")
+      .attr("value", parseInt($stepList.find("li").size()) + 1)
+      .text(formatStep(cmd, arg0, arg1))
+      .prependTo($stepList);
+    $("<span />")
+      .css("float", "right")
+      .css("position", "relative")
+      .css("top", "5px")
+      .addClass("icon-trash removeStep")
+      .appendTo(listItem);
+    if ($("#stepList:hover").size() > 0) {
+      resizeStepsDropdown();
+    }
+  }
+
   function formatStep(cmd, arg0, arg1) {
     var text = cmd + "(";
     if (arg0) {
@@ -418,6 +532,20 @@
     text += ")";
 
     return text;
+  }
+
+  function removeStep(n) {
+    var $container = $("textarea#edit-steps");
+    var stepdata = $container.val();
+    var steps;
+    if (stepdata) {
+      steps = JSON.parse(stepdata);
+    } else {
+      steps = [];
+    }
+    steps.splice(n, 1);
+    $container.val(JSON.stringify(steps));
+    renderStepList($container.val());
   }
 
   function addStep(cmd, arg0, arg1) {
@@ -438,18 +566,28 @@
 
     container.val(JSON.stringify(steps));
 
-    var stepsContainer = $("#steps");
-    stepsContainer.find("li").remove();
+    renderStepList(container.val());
+
+    updateTitlebarStepList(cmd, arg0, arg1);
+  }
+
+  function renderStepList(stepsJSON) {
+    var steps;
+    if (stepsJSON) {
+      steps = JSON.parse(stepsJSON);
+    } else {
+      steps = [];
+    }
+    var $stepsContainer = $("#steps");
+    $stepsContainer.find("li").remove();
 
     for (var i in steps) {
       if (steps.hasOwnProperty(i)) {
         $("<li />")
           .text(formatStep(steps[i].cmd, steps[i].arg0, steps[i].arg1))
-          .appendTo(stepsContainer);
+          .appendTo($stepsContainer);
       }
     }
-
-    flashStep(cmd, arg0, arg1);
   }
 
   function defaultState() {
@@ -656,7 +794,7 @@
         if (useProxyField.is(":checked")) {
           state.HTTPProxyURL = $(this).attr("data-proxy-url");
         }
-        methods.iframe.execute(baseurl() + "walkhub");
+        methods.iframe.execute(baseurl() + "walkhub", true);
       };
     };
 
@@ -693,6 +831,27 @@
               $(".edit-use-proxy", $(this))
             ));
         });
+      $("#stepList, .icon-chevron-down", "#stepListContainer").live("mouseenter", function(e) {
+        resizeStepsDropdown();
+      }).live("mouseleave", function(e) {
+        resizeStepsDropdown(false);
+      });
+      $(".removeStep", context).live("click", function() {
+        var $stepList = $("#stepList");
+        var n = $stepList.find("li").index($(this).parent());
+        var listLength = $stepList.find("li").size();
+        var prevs = $(this).parent().prevAll();
+        $(this).parent().remove();
+        removeStep(listLength - n);
+        resizeStepsDropdown($stepList.find("li").size() !== 1);
+        prevs.each(function(index) {
+          $(this).attr("value", n + 1 + index);
+        });
+      });
+
+      $("#stopRecording", context).live("click", function() {
+        methods.iframe.object.dialog("close");
+      });
     }
   };
 
