@@ -16,7 +16,6 @@
       name: "iFrame",
       linkcheck: false,
       execute: function (url, recording) {
-        recording = typeof recording !== "boolean" ? false : recording;
         var widget,
           iframe = $("<iframe />")
             .attr("src", url)
@@ -26,7 +25,7 @@
 
         methods.iframe.object = iframe;
 
-        var widgetHeader = $("<div />")
+        var widgetHeader = $("<div />");
         var recordingContainer = $("<div />")
           .addClass("recordingContainer");
         $("<span/>")
@@ -119,12 +118,12 @@
           widget.css("margin", "0px");
 
           iframe.css("width", width);
-          iframe.css("height", height-$title.parent().innerHeight()-2);
+          iframe.css("height", height - $title.parent().innerHeight() - 2);
           iframe.css("position", "center");
 
           var stepListWidth = $title.width() - $title.find("button.cta").innerWidth() - $title.find("#recDot").parent().innerWidth() - 50;
           $stepList.innerWidth(stepListWidth);
-          $stepList.parent().find("span.icon-chevron-down").css("left", (stepListWidth-22)+"px");
+          $stepList.parent().find("span.icon-chevron-down").css("left", (stepListWidth - 22) + "px");
         }
 
         resize();
@@ -469,7 +468,6 @@
   }
 
   function resizeStepsDropdown(open) {
-    open = typeof open !== 'boolean' ? true : open;
     var $stepList = $("#stepList");
     if ($stepList.data("collapsedHeight") == null) {
       $stepList.data("collapsedHeight", $stepList.innerHeight() + parseInt($stepList[0].style.borderWidth));
@@ -490,7 +488,7 @@
     $stepList.stop();
     if (open) {
       $stepList.animate({"height": height + "px"}, 300, function () {
-        if ($(this).data("maxHeight") == "true") {
+        if ($(this).data("maxHeight") === "true") {
           $(this).css("overflow", "scroll");
         } else {
           $(this).css("overflow", "hidden");
@@ -509,7 +507,7 @@
     var $stepList = $("#stepList");
     var listItem = $("<li />")
       .css("padding","0px 10px")
-      .attr("value", parseInt($stepList.find("li").size())+1)
+      .attr("value", parseInt($stepList.find("li").size()) + 1)
       .text(formatStep(cmd, arg0, arg1))
       .prependTo($stepList);
     $("<span />")
@@ -845,9 +843,9 @@
         var prevs = $(this).parent().prevAll();
         $(this).parent().remove();
         removeStep(listLength - n);
-        resizeStepsDropdown($stepList.find("li").size() != 1);
+        resizeStepsDropdown($stepList.find("li").size() !== 1);
         prevs.each(function(index) {
-          $(this).attr("value", n+1+index);
+          $(this).attr("value", n + 1 + index);
         });
       });
 
