@@ -777,6 +777,7 @@
       state.completed = false;
       state.socialSharing = $(this).attr("data-social-sharing");
       state.next = [];
+      state.allowEditing = (!$("body").hasClass("walkthrough-hide-edit"));
       currentURL = null;
       createDialogForm($(this), that, state);
     };

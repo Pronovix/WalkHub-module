@@ -370,20 +370,36 @@ function _walkhub_phpunit_export_steps_raw($node) {
  *   PHPUnit steps.
  */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
+  global $user;
+
   $output = '$this->timeouts()->implicitWait(30000);' . "\n";
+
+  // Unpublished nodes can only be accessed by their owner.
+  if ($node->status == NODE_NOT_PUBLISHED) {
+    $account = user_load($node->uid);
+    $is_creator_not_anonymous = ($account && $account->uid > 0);
+    $is_own_node = ($user->uid == $node->uid);
+
+    // To generate one-time login, either the user has to own the node or has permission to administer the users.
+    if ($is_creator_not_anonymous && ($is_own_node || user_access('administer users'))) {
+      $one_time_login_link = user_pass_reset_url($account) . '/login';
+      $output .= '$this->url("' . $one_time_login_link . '");' . "\n";
+    }
+  }
 
   $walkthrough_node_url = url('node/' . $node->nid, array(
     'absolute' => TRUE,
     'query' => array(
         'wt_full_window' => 1,
         'wt_play_prerequisites' => 1,
+        'wt_hide_edit' => 1,
       ),
     )
   );
   $output .= '$this->url("' . $walkthrough_node_url . '");' . "\n";
   $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
 
-  $output .= '$this->byXPath("//button[@type=\'button\']")->click();' . "\n";
+  $output .= '$this->byCssSelector(".ui-widget button[type=\"button\"]")->click();' . "\n";
 
   $output .= '$frame = $this->byCssSelector("#ui-id-2");' . "\n";
 
