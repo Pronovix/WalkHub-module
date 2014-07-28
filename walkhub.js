@@ -818,12 +818,13 @@
     };
   }
 
+  var appserver = new WalkhubServer();
+
   Drupal.behaviors.walkhub = {
     attach: function (context) {
       $(".walkthrough-start:not(.walkhub-processed)", context)
         .addClass("walkhub-processed")
         .each(function () {
-          var appserver = new WalkhubServer();
           $(this).click(appserver.clickEventHandler);
           if (getdata.autostart) {
             $(this).click();
@@ -832,7 +833,6 @@
       $(".walkhub-record-form:not(.walkhub-processed)", context)
         .addClass("walkhub-processed")
         .each(function () {
-          var appserver = new WalkhubServer();
           $(".edit-record", $(this))
             .click(appserver.recorderClickEventHandlerFactory(
               $(".edit-url", $(this)),
