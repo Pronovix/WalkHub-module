@@ -370,12 +370,18 @@ function _walkhub_phpunit_export_steps_raw($node) {
  *   PHPUnit steps.
  */
 function _walkhub_phpunit_export_steps_via_walkhub($node) {
+  global $user;
+
   $output = '$this->timeouts()->implicitWait(30000);' . "\n";
 
   // Unpublished nodes can only be accessed by their owner.
   if ($node->status == NODE_NOT_PUBLISHED) {
     $account = user_load($node->uid);
-    if ($account && $account->uid > 0) {
+    $is_creator_not_anonymous = ($account && $account->uid > 0);
+    $is_own_node = ($user->uid == $node->uid);
+
+    // To generate one-time login, either the user has to own the node or has permission to administer the users.
+    if ($is_creator_not_anonymous && ($is_own_node || user_access('administer users'))) {
       $one_time_login_link = user_pass_reset_url($account) . '/login';
       $output .= '$this->url("' . $one_time_login_link . '");' . "\n";
     }
