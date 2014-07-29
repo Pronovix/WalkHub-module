@@ -64,10 +64,14 @@
             draggable: false,
             resizable: false,
             beforeClose: function(event, ui) {
-              $("body").css({ overflow: 'inherit' });
+              $("body").css({
+                overflow: "inherit"
+              });
             },
             create: function (event, ui) {
-              $("body").css({ overflow: 'hidden' });
+              $("body").css({
+                overflow: "hidden"
+              });
               if (recording) {
                 $(this).siblings().find("span.ui-dialog-title").html(widgetHeader.html());
                 $(this).siblings("div.ui-dialog-titlebar").addClass("recording");
@@ -77,7 +81,10 @@
 
         widget = iframe.dialog("widget");
 
-        $("#stepList").css({"padding-left": ($(".stepsLabel", "span.ui-dialog-title").width() + 5) + "px", "padding-right": "28px"});
+        $("#stepList").css({
+          "padding-left": ($(".stepsLabel", "span.ui-dialog-title").width() + 5) + "px",
+          "padding-right": "28px"
+        });
 
         function blinkRecDot() {
           var $recDot = $("#recDot");
@@ -314,8 +321,8 @@
       }
 
       $("<p />")
-        .addClass('wt-severity-' + walkthroughlink.data('walkthrough-severity'))
-        .html(walkthroughlink.data('walkthrough-severity-text'))
+        .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
+        .html(walkthroughlink.data("walkthrough-severity-text"))
         .appendTo(dialog.find("form"));
     }
 
@@ -469,7 +476,7 @@
 
   function resizeStepsDropdown(open) {
     var $stepList = $("#stepList");
-    if ($stepList.data("collapsedHeight") == null) {
+    if (!$stepList.data("collapsedHeight")) {
       $stepList.data("collapsedHeight", $stepList.innerHeight() + parseInt($stepList[0].style.borderWidth));
     }
     if ($stepList.find("li").size() <= 1) {
@@ -747,13 +754,13 @@
     }
 
     function onMessageEventHandler(event) {
-      var data = JSON.parse(event.data),
-        handler = data && data.type && handlers[data.type];
+      var data = JSON.parse(event.data);
+      var handler = data && data.type && handlers[data.type];
       if (handler && (handler.keyBypass || (data.key && data.key === key))) {
         logMessage(data, "<<");
         handler(data, event.source);
       } else {
-        console.log("Message discarded", event);
+        console.log("Message discarded", JSON.stringify(data), event);
       }
     }
 
@@ -811,12 +818,13 @@
     };
   }
 
+  var appserver = new WalkhubServer();
+
   Drupal.behaviors.walkhub = {
     attach: function (context) {
       $(".walkthrough-start:not(.walkhub-processed)", context)
         .addClass("walkhub-processed")
         .each(function () {
-          var appserver = new WalkhubServer();
           $(this).click(appserver.clickEventHandler);
           if (getdata.autostart) {
             $(this).click();
@@ -825,7 +833,6 @@
       $(".walkhub-record-form:not(.walkhub-processed)", context)
         .addClass("walkhub-processed")
         .each(function () {
-          var appserver = new WalkhubServer();
           $(".edit-record", $(this))
             .click(appserver.recorderClickEventHandlerFactory(
               $(".edit-url", $(this)),
