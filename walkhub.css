@@ -57,12 +57,12 @@
 .ui-dialog-titlebar.recording {
   background-color: #eee;
   border-bottom: 2px groove #999;
-  border-bottom-left-radius: 0px;
-  -moz-border-radius-bottomleft: 0px;
-  -webkit-border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-  -moz-border-radius-bottomright: 0px;
-  -webkit-border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  -moz-border-radius-bottomright: 0;
+  -webkit-border-bottom-right-radius: 0;
   height: 54px;
 }
 
@@ -84,7 +84,7 @@
   background-color: #f00;
   position: absolute;
   top: .2rem;
-  left: 0rem;
+  left: 0;
 }
 
 .ui-dialog-titlebar.recording .recLabel {
@@ -108,11 +108,10 @@
   text-align: left;
   list-style-position: inside;
   margin: 0;
-  padding: 3px 0px;
-  padding-right: 28px;
+  padding:3px 28px 3px 0;
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   border: 1px solid #000;
   background-color: #fff;
   z-index: 100;
