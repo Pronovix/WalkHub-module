@@ -53,7 +53,7 @@
         $("<button />")
           .addClass("cta")
           .attr("id", "stopRecording")
-          .html(Drupal.t("Stop recording<br>and save"))
+          .html(Drupal.t("Finish & save"))
           .appendTo(widgetHeader);
 
         iframe
