@@ -68,6 +68,7 @@
 
 .ui-dialog-titlebar.recording .ui-dialog-title {
   text-align: right;
+  height: 40px;
 }
 
 .ui-dialog-titlebar .recordingContainer {
@@ -159,7 +160,7 @@
   font-size: .8rem;
   line-height: 1rem;
   text-align: center;
-  top: 10px;
+  top: 8px;
 }
 
 #stopRecording:hover {
