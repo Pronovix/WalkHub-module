@@ -516,7 +516,7 @@
       .addClass("icon-trash removeStep")
       .appendTo(listItem);
     if ($("#stepList:hover").size() > 0) {
-      resizeStepsDropdown();
+      resizeStepsDropdown(true);
     }
   }
 
@@ -832,7 +832,7 @@
             ));
         });
       $("#stepList, .icon-chevron-down", "#stepListContainer").live("mouseenter", function(e) {
-        resizeStepsDropdown();
+        resizeStepsDropdown(true);
       }).live("mouseleave", function(e) {
         resizeStepsDropdown(false);
       });
