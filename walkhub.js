@@ -472,15 +472,21 @@
 
   function resizeStepsDropdown(open) {
     var $stepList = $("#stepList");
+    var $steps = $stepList.find("li");
+
     if (!$stepList.data("collapsedHeight")) {
-      $stepList.data("collapsedHeight", $stepList.innerHeight() + parseInt($stepList[0].style.borderWidth));
-    }
-    if ($stepList.find("li").size() <= 1) {
-      open = false;
+      $stepList.data("collapsedHeight", $stepList.outerHeight());
     }
     var height = $stepList.data("collapsedHeight");
+
+    if ($steps.size() <= 1) {
+      open = false;
+    }
+
     if (open) {
-      height = $stepList.find("li").innerHeight() * $stepList.find("li").size() + parseInt($stepList[0].style.paddingTop) + parseInt($stepList[0].style.paddingBottom) + parseInt($stepList[0].style.borderWidth);
+      height = $steps.outerHeight(true) * $steps.size();
+      height += parseInt($stepList.css("padding-top")) + parseInt($stepList.css("padding-bottom"));
+
       $stepList.data("maxHeight", "false");
       var maxHeight = $(window).height() * 0.8;
       if (height > maxHeight) {
@@ -488,7 +494,9 @@
         $stepList.data("maxHeight", "true");
       }
     }
+
     $stepList.stop();
+
     if (open) {
       $stepList.animate({"height": height + "px"}, 300, function () {
         if ($(this).data("maxHeight") === "true") {
