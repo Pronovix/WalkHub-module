@@ -228,7 +228,7 @@
     var buttons = {};
 
     var prerequisites = getPrerequisites(walkthroughlink);
-    if (prerequisites) {
+    if (prerequisites && prerequisites.size > 0) {
       $("<p />")
         .html(Drupal.t("Before this Walkthrough you may need to run:"))
         .appendTo(fieldset);
