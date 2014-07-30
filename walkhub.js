@@ -219,7 +219,7 @@
   function createDialogForm(walkthroughlink, server, state) {
     var form = "<form>" +
       "<fieldset class=\"walkthrough-settings\"></fieldset>" +
-      "<span class=\"walkthrough-more-toggle\">More</span>" +
+      "<a class=\"walkthrough-more-toggle\" href=\"#\">More</a>" +
       "<fieldset class=\"walkthrough-more\" style=\"display: none\"></fieldset>" +
       "</form>";
 
