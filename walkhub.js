@@ -217,11 +217,20 @@
 
 
   function createDialogForm(walkthroughlink, server, state) {
+    // @Todo
+    // * Fix checkbox theming
+    // * Add toggle to the More link
+    // * Theme more link (theme is in the theme sass files)
     var form = "<form>" +
       "<fieldset class=\"walkthrough-settings\"></fieldset>" +
       "<a class=\"walkthrough-more-toggle\" href=\"#\">More</a>" +
       "<fieldset class=\"walkthrough-more\" style=\"display: none\"></fieldset>" +
       "</form>";
+
+    $(form).find('.walkthrough-more-toggle').click(function() {
+      // @Todo I'm not working for some reason.
+      $(form).find('.walkthrough-more').toggle();
+    });
 
     var parameters = getDefaultParameters(walkthroughlink);
     var dialog = $("<div />")
