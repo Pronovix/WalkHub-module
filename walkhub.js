@@ -40,9 +40,6 @@
         var recordedSteps = $("<span />")
           .attr("id", "stepListContainer");
         $("<ol />")
-          .css("padding", "3px 0px")
-          .css("border", "1px solid #000")
-          .css("height", "1.9rem")
           .attr("id", "stepList")
           .appendTo(recordedSteps);
         $("<span />")
@@ -53,7 +50,7 @@
         $("<button />")
           .addClass("cta")
           .attr("id", "stopRecording")
-          .html(Drupal.t("Stop recording<br>and save"))
+          .html(Drupal.t("Finish & save"))
           .appendTo(widgetHeader);
 
         iframe
@@ -82,8 +79,7 @@
         widget = iframe.dialog("widget");
 
         $("#stepList").css({
-          "padding-left": ($(".stepsLabel", "span.ui-dialog-title").width() + 5) + "px",
-          "padding-right": "28px"
+          "padding-left": ($(".stepsLabel", "span.ui-dialog-title").width() + 5) + "px"
         });
 
         function blinkRecDot() {
@@ -513,14 +509,10 @@
   function updateTitlebarStepList(cmd, arg0, arg1) {
     var $stepList = $("#stepList");
     var listItem = $("<li />")
-      .css("padding","0px 10px")
       .attr("value", parseInt($stepList.find("li").size()) + 1)
       .text(formatStep(cmd, arg0, arg1))
       .prependTo($stepList);
     $("<span />")
-      .css("float", "right")
-      .css("position", "relative")
-      .css("top", "5px")
       .addClass("icon-trash removeStep")
       .appendTo(listItem);
     if ($("#stepList:hover").size() > 0) {
