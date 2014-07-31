@@ -208,7 +208,8 @@ function walkthrough_sharelink_generate_page($ajax, $walkthrough) {
 
     $link = _walkthrough_sharelink_get_link_render_array($walkthrough, $access_key);
     $rendered_link = drupal_render($link);
-    $commands[] = ajax_command_replace('div.walkthrough-sharelink', $rendered_link);
+    $commands[] = ajax_command_html('div.walkthrough-sharelink', $rendered_link);
+    $commands[] = ajax_command_remove('p.sharing-notice.private');
 
     return array(
       '#type' => 'ajax',
@@ -238,30 +239,63 @@ function walkthrough_sharelink_node_view_alter(&$build) {
     return;
   }
 
+  $build['sharelink'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('walkthrough-sharelink-container'),
+    ),
+    '#weight' => -10,
+  );
+  $build['sharelink']['public_private_switch'] = array(
+    '#type' => 'markup',
+    '#markup' => '<span class="icon-unlock"></span>
+                  <div class="switch tiny">
+                    <input id="switch-private" name="walkthrough-private-public" type="radio" onclick="window.location.href=\'/node/' . $build['#node']->nid . '/edit\';" ' . ($build['#node']->status ? '' : 'checked') . '>
+                    <label for="switch-private" onclick=""></label>
+                    <input id="switch-public" name="walkthrough-private-public" type="radio" onclick="window.location.href=\'/node/' . $build['#node']->nid . '/edit\';" ' . ($build['#node']->status ? 'checked' : '') . '>
+                    <label for="switch-public" onclick=""></label>
+                    <span></span>
+                  </div>
+                  <span class="icon-lock"></span>
+                  <div class="walkthrough-status-text">This walkthrough is <strong>' . ($build['#node']->status ? 'public' : 'private') . '</strong></div>',
+    '#weight' => 10,
+  );
+
   if ($build['#node']->status) {
+    $build['sharelink']['note'] = array(
+      '#type' => 'markup',
+      '#markup' => '<p class="icon-share sharing-notice"> To share this walkthrough, just copy it\'s url form the address bar.</p>',
+      '#weight' => '20',
+    );
     return;
   }
 
   $nid = $build['#node']->nid;
   $access_key = walkthrough_sharelink_get($nid);
 
-  $prefix_suffix = array(
+  $prefix_suffix_weight = array(
     '#prefix' => '<div class="walkthrough-sharelink">',
     '#suffix' => '</div>',
+    '#weight' => 20,
   );
 
   if ($access_key) {
-    $build['sharelink'] = _walkthrough_sharelink_get_link_render_array($build['#node'], $access_key) + $prefix_suffix;
+    $build['sharelink']['sharelink'] = _walkthrough_sharelink_get_link_render_array($build['#node'], $access_key) + $prefix_suffix_weight;
   }
   else {
-    $build['sharelink'] = array(
+    $build['sharelink']['sharelink'] = array(
       '#theme' => 'link',
-      '#text' => t('Share this walkthrough with a link'),
+      '#text' => t(' Share this walkthrough with a link'),
       '#path' => 'walkthrough/generate-share-link/nojs/' . $nid,
       '#options' => array(
         'html' => FALSE,
         'attributes' => array(
-          'class' => array('use-ajax'),
+          'class' => array(
+            'use-ajax',
+            'button',
+            'small',
+            'icon-share',
+          ),
         ),
         'query' => array(
           'token' => drupal_get_token('sharelink_generate_' . $nid),
@@ -272,7 +306,13 @@ function walkthrough_sharelink_node_view_alter(&$build) {
           array('system', 'drupal.ajax'),
         ),
       ),
-    ) + $prefix_suffix;
+    ) + $prefix_suffix_weight;
+
+    $build['sharelink']['note'] = array(
+      '#type' => 'markup',
+      '#markup' => '<p class="sharing-notice private"> Or you can make it public, to share with everyone free of charge.</p>',
+      '#weight' => 30,
+    );
   }
 }
 
@@ -303,7 +343,7 @@ function walkthrough_sharelink_field_collection_item_view_alter(&$build) {
 function _walkthrough_sharelink_get_link_render_array($walkthrough_node, $access_key) {
   return array(
     '#theme' => 'link',
-    '#text' => t('Shared link'),
+    '#text' => t('Your link to share privately'),
     '#path' => "node/{$walkthrough_node->nid}",
     '#options' => array(
       'html' => FALSE,
