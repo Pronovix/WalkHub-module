@@ -122,6 +122,52 @@ function walkthrough_sharelink_form_walkthrough_node_form_alter(&$form, &$form_s
 }
 
 /**
+ * Implements hook_theme().
+ *
+ * Add theming functions.
+ */
+function walkthrough_sharelink_theme() {
+  $module_path = drupal_get_path('module', 'walkthrough_sharelink');
+
+  return array(
+    'walkthrough_sharelink_public_private_switch' => array(
+      'variables' => array('nid' => NULL, 'status' => NULL),
+      'template' => 'walkthrough_sharelink_public_private_switch',
+      'path' => $module_path,
+    ),
+    'walkthrough_sharelink_notice' => array(
+      'variables' => array('status' => NULL, 'text' => NULL, 'icon_class' => NULL),
+      'function' => 'theme_walkthrough_sharelink_notice',
+    ),
+  );
+}
+
+/**
+ * Theme function for the notice at the bottom of the link sharing stuff.
+ *
+ * @param $variables
+ *   Passed variables for the theming process.
+ * @return string
+ *   HTML markup.
+ */
+function theme_walkthrough_sharelink_notice($variables) {
+  $markup = '<p class="sharing-notice';
+  if ($variables['status'] == 0) {
+    $markup .= ' private';
+  }
+  if ($variables['icon_class'] !== NULL) {
+    $markup .= ' ' . $variables['icon_class'];
+  }
+  $markup .= '">';
+  if ($markup['icon_class'] !== NULL) {
+    $markup .= ' ';
+  }
+  $markup .= t($variables['text']);
+  $markup .= '</p>';
+  return $markup;
+}
+
+/**
  * Validation callback for the walkthrough edit form.
  *
  * It sets the status = 1 (published) when the form is submitted through the "Save and publish" button.
@@ -248,23 +294,21 @@ function walkthrough_sharelink_node_view_alter(&$build) {
   );
   $build['sharelink']['public_private_switch'] = array(
     '#type' => 'markup',
-    '#markup' => '<span class="icon-unlock"></span>
-                  <div class="switch tiny">
-                    <input id="switch-private" name="walkthrough-private-public" type="radio" onclick="window.location.href=\'/node/' . $build['#node']->nid . '/edit\';" ' . ($build['#node']->status ? '' : 'checked') . '>
-                    <label for="switch-private" onclick=""></label>
-                    <input id="switch-public" name="walkthrough-private-public" type="radio" onclick="window.location.href=\'/node/' . $build['#node']->nid . '/edit\';" ' . ($build['#node']->status ? 'checked' : '') . '>
-                    <label for="switch-public" onclick=""></label>
-                    <span></span>
-                  </div>
-                  <span class="icon-lock"></span>
-                  <div class="walkthrough-status-text">This walkthrough is <strong>' . ($build['#node']->status ? 'public' : 'private') . '</strong></div>',
+    '#markup' => theme('walkthrough_sharelink_public_private_switch', array(
+      'nid' => $build['#node']->nid,
+      'status' => $build['#node']->status,
+    )),
     '#weight' => 10,
   );
 
   if ($build['#node']->status) {
     $build['sharelink']['note'] = array(
       '#type' => 'markup',
-      '#markup' => '<p class="icon-share sharing-notice"> To share this walkthrough, just copy it\'s url form the address bar.</p>',
+      '#markup' => theme_walkthrough_sharelink_notice(array(
+        'status' => $build['#node']->status,
+        'text' => 'To share this walkthrough, just copy it\'s url form the address bar.',
+        'icon_class' => 'icon-share',
+      )),
       '#weight' => '20',
     );
     return;
@@ -285,7 +329,7 @@ function walkthrough_sharelink_node_view_alter(&$build) {
   else {
     $build['sharelink']['sharelink'] = array(
       '#theme' => 'link',
-      '#text' => t(' Share this walkthrough with a link'),
+      '#text' => ' ' . t('Share this walkthrough with a link'),
       '#path' => 'walkthrough/generate-share-link/nojs/' . $nid,
       '#options' => array(
         'html' => FALSE,
@@ -310,7 +354,10 @@ function walkthrough_sharelink_node_view_alter(&$build) {
 
     $build['sharelink']['note'] = array(
       '#type' => 'markup',
-      '#markup' => '<p class="sharing-notice private"> Or you can make it public, to share with everyone free of charge.</p>',
+      '#markup' => theme_walkthrough_sharelink_notice(array(
+        'status' => $build['#node']->status,
+        'text' => 'Or you can make it public, to share with everyone free of charge.',
+      )),
       '#weight' => 30,
     );
   }
