@@ -57,16 +57,18 @@
 .ui-dialog-titlebar.recording {
   background-color: #eee;
   border-bottom: 2px groove #999;
-  border-bottom-left-radius: 0px;
-  -moz-border-radius-bottomleft: 0px;
-  -webkit-border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-  -moz-border-radius-bottomright: 0px;
-  -webkit-border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  -moz-border-radius-bottomright: 0;
+  -webkit-border-bottom-right-radius: 0;
+  height: 54px;
 }
 
 .ui-dialog-titlebar.recording .ui-dialog-title {
   text-align: right;
+  height: 40px;
 }
 
 .ui-dialog-titlebar .recordingContainer {
@@ -83,7 +85,7 @@
   background-color: #f00;
   position: absolute;
   top: .2rem;
-  left: 0rem;
+  left: 0;
 }
 
 .ui-dialog-titlebar.recording .recLabel {
@@ -107,10 +109,10 @@
   text-align: left;
   list-style-position: inside;
   margin: 0;
-  padding: 3px 0px;
+  padding:3px 28px 3px 0;
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   border: 1px solid #000;
   background-color: #fff;
   z-index: 100;
@@ -118,26 +120,30 @@
   overflow: hidden;
 }
 
-#stepList li span.removeStep {
-  color: #eee;
+#stepList li {
+  padding: 0 10px;
+}
+
+#stepList li:hover {
+    background-color: #eee;
 }
 
 #stepList li::before {
-  content: "Step";
-  float: left;
-  margin-right: 5px;
+    content: "Step";
+    float: left;
+    margin-right: 5px;
 }
 
 #stepList li span.removeStep {
+  color: #eee;
   display: none;
+  float: right;
+  position: relative;
+  top: 5px;
 }
 
 #stepList:hover li span.removeStep {
   display: block;
-}
-
-#stepList li:hover {
-  background-color: #eee;
 }
 
 #stepList li:hover span.removeStep {
@@ -154,6 +160,7 @@
   font-size: .8rem;
   line-height: 1rem;
   text-align: center;
+  top: 8px;
 }
 
 #stopRecording:hover {
