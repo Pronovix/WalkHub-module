@@ -322,6 +322,17 @@
         .appendTo(dialog.find("form"));
     }
 
+    $("<label />")
+      .attr("for", "disableclicks")
+      .html(Drupal.t("Disable clicks outside of the walkthrough"))
+      .appendTo(dialog.find("form"));
+    var disableClicks = $("<input />")
+      .attr("type", "checkbox")
+      .attr("name", "disableclicks")
+      .attr("id", "disableclicks")
+      .attr("checked", "checked")
+      .appendTo(dialog.find("form"));
+
     function updateParameters() {
       for (var k in parameters) {
         if (parameters.hasOwnProperty(k)) {
@@ -334,6 +345,9 @@
       updateParameters();
       if (httpproxy && !useproxy.is(":checked")) {
         state.HTTPProxyURL = null;
+      }
+      if (disableClicks.is(":checked")) {
+        state.disableClicks = true;
       }
       var method_name = $("input[name=method]:checked", dialog).val() || "iframe";
       var playlist = [];
