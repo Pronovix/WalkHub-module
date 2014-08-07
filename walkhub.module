@@ -81,7 +81,7 @@ function walkhub_menu() {
   );
 
   $items['node/%walkhub_walkthrough_node/start'] = array(
-    'title' => 'Start walkthrough',
+    'title' => 'Play',
     'page callback' => 'walkhub_start_walkthrough',
     'page arguments' => array(1),
     'access callback' => 'user_access',
@@ -1150,6 +1150,15 @@ function walkhub_preprocess_page(&$variables) {
   if (walkhub_is_button_page()) {
     $variables['theme_hook_suggestions'][] = 'page__node__walkhub__button';
   }
+  foreach($variables['action_links'] as $key => $action) {
+    if ($action['#link']['path'] == "node/%/start") {
+      $action['#link']['localized_options']['attributes']['class'][] = 'cta';
+      unset($variables['action_links'][$key]);
+      break;
+    }
+  }
+  $variables['title_prefix'] = '<div class="title-container">';
+  $variables['title_suffix'] = '<ul>' . drupal_render($action) . '</ul></div>';
 }
 
 /**
