@@ -217,19 +217,28 @@
 
 
   function createDialogForm(walkthroughlink, server, state) {
-    // @Todo
-    // * Fix checkbox theming
-    // * Add toggle to the More link
-    // * Theme more link (theme is in the theme sass files)
-    var form = "<form>" +
-      "<fieldset class=\"walkthrough-settings\"></fieldset>" +
-      "<a class=\"walkthrough-more-toggle\" href=\"#\">More</a>" +
-      "<fieldset class=\"walkthrough-more\" style=\"display: none\"></fieldset>" +
-      "</form>";
+    var form = $('<form />');
+    $('<fieldset />')
+      .addClass('walkthrough-settings')
+      .appendTo(form);
+    $('<a />')
+      .addClass('walkthrough-more-toggle')
+      .attr('href', '#')
+      .text(Drupal.t('More'))
+      .appendTo(form);
+    $('<fieldset />')
+      .addClass('walkthrough-more')
+      .hide()
+      .appendTo(form);
 
     $(form).find('.walkthrough-more-toggle').click(function() {
-      // @Todo I'm not working for some reason.
-      $(form).find('.walkthrough-more').toggle();
+      var more_options = $(form).find('.walkthrough-more');
+      more_options.toggle();
+      if (more_options.is(':visible')) {
+        $(this).text(Drupal.t('Less'));
+      } else {
+        $(this).text(Drupal.t('More'));
+      }
     });
 
     var parameters = getDefaultParameters(walkthroughlink);
@@ -243,10 +252,12 @@
     var buttons = {};
 
     // Severity of changes.
-    $("<p />")
-      .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
-      .html(walkthroughlink.data("walkthrough-severity-text"))
-      .appendTo(dialog.find("fieldset.walkthrough-settings"));
+    if (walkthroughlink.data("walkthrough-severity") !== 'undefined') {
+      $("<div />")
+        .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
+        .html(walkthroughlink.data("walkthrough-severity-text"))
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+    }
 
     // Use proxy.
     var useproxy = null;
@@ -260,6 +271,8 @@
       $("<label />")
         .attr("for", "useproxy")
         .html(Drupal.t("Use proxy"))
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+      $('<br />')
         .appendTo(dialog.find("fieldset.walkthrough-settings"));
 
       if (getdata.useproxy !== "0") {
@@ -281,7 +294,7 @@
 
     // Prerequisites.
     var prerequisites = getPrerequisites(walkthroughlink);
-    if (prerequisites && prerequisites.size > 0) {
+    if (prerequisites && !$.isEmptyObject(prerequisites)) {
       $("<p />")
         .html(Drupal.t("Before this Walkthrough you may need to run:"))
         .appendTo(fieldset);
@@ -352,6 +365,10 @@
       .attr("readonly", "readonly")
       .addClass("embed")
       .appendTo(fieldset);
+
+    $(share).add(embed).click(function() {
+      $(this).select();
+    });
 
 
     function updateParameters() {
