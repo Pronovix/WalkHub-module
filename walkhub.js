@@ -217,18 +217,84 @@
 
 
   function createDialogForm(walkthroughlink, server, state) {
+    var form = $('<form />');
+    $('<fieldset />')
+      .addClass('walkthrough-settings')
+      .appendTo(form);
+    $('<a />')
+      .addClass('walkthrough-more-toggle')
+      .attr('href', '#')
+      .text(Drupal.t('More'))
+      .appendTo(form);
+    $('<fieldset />')
+      .addClass('walkthrough-more')
+      .hide()
+      .appendTo(form);
+
+    $(form).find('.walkthrough-more-toggle').click(function() {
+      var more_options = $(form).find('.walkthrough-more');
+      more_options.toggle();
+      if (more_options.is(':visible')) {
+        $(this).text(Drupal.t('Less'));
+      } else {
+        $(this).text(Drupal.t('More'));
+      }
+    });
+
     var parameters = getDefaultParameters(walkthroughlink);
     var dialog = $("<div />")
       .attr("id", "walkthrough-dialog-" + Math.random().toString())
       .attr("title", Drupal.t("Start Walkthrough"))
       .addClass("walkthrough-dialog")
       .hide()
-      .append($("<form><fieldset></fieldset></form>"));
-    var fieldset = dialog.find("fieldset");
+      .append($(form));
+    var fieldset = dialog.find("fieldset.walkthrough-more");
     var buttons = {};
 
+    // Severity of changes.
+    if (walkthroughlink.data("walkthrough-severity") !== 'undefined') {
+      $("<div />")
+        .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
+        .html(walkthroughlink.data("walkthrough-severity-text"))
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+    }
+
+    // Use proxy.
+    var useproxy = null;
+    var httpproxy = !!walkthroughlink.attr("data-walkthrough-proxy-url");
+    if (httpproxy) {
+      useproxy = $("<input />")
+        .attr("type", "checkbox")
+        .attr("name", "useproxy")
+        .attr("id", "useproxy")
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+      $("<label />")
+        .attr("for", "useproxy")
+        .html(Drupal.t("Use proxy"))
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+      $('<br />')
+        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+
+      if (getdata.useproxy !== "0") {
+        useproxy.attr("checked", "checked");
+      }
+    }
+
+    // Disable clicking outside.
+    var disableClicks = $("<input />")
+      .attr("type", "checkbox")
+      .attr("name", "disableclicks")
+      .attr("id", "disableclicks")
+      .attr("checked", "checked")
+      .appendTo(dialog.find("fieldset.walkthrough-settings"));
+    $("<label />")
+      .attr("for", "disableclicks")
+      .html(Drupal.t("Disable clicks outside of the walkthrough"))
+      .appendTo(dialog.find("fieldset.walkthrough-settings"));
+
+    // Prerequisites.
     var prerequisites = getPrerequisites(walkthroughlink);
-    if (prerequisites) {
+    if (prerequisites && !$.isEmptyObject(prerequisites)) {
       $("<p />")
         .html(Drupal.t("Before this Walkthrough you may need to run:"))
         .appendTo(fieldset);
@@ -254,6 +320,7 @@
       }
     }
 
+    // Parameters.
     $("<p />")
       .html(Drupal.t("The following parameters are available in this walkthrough:"))
       .appendTo(fieldset);
@@ -276,62 +343,33 @@
       }
     }
 
-    var httpproxy = !!walkthroughlink.attr("data-walkthrough-proxy-url");
-
+    // Share widgets.
     $("<label />")
       .attr("for", "sharelink")
       .html(Drupal.t("Share with these parameters: "))
-      .appendTo(dialog.find("form"));
+      .appendTo(fieldset);
 
     var share = $("<textarea />")
       .attr("name", "sharelink")
       .attr("readonly", "readonly")
       .addClass("share")
-      .appendTo(dialog.find("form"));
+      .appendTo(fieldset);
 
     $("<label />")
       .attr("for", "embedlink")
       .html(Drupal.t("Embed with these parameters: "))
-      .appendTo(dialog.find("form"));
+      .appendTo(fieldset);
 
     var embed = $("<textarea />")
       .attr("name", "embedlink")
       .attr("readonly", "readonly")
       .addClass("embed")
-      .appendTo(dialog.find("form"));
+      .appendTo(fieldset);
 
-    var useproxy = null;
-    if (httpproxy) {
-      $("<label />")
-        .attr("for", "useproxy")
-        .html(Drupal.t("Use proxy"))
-        .appendTo(dialog.find("form"));
-      useproxy = $("<input />")
-        .attr("type", "checkbox")
-        .attr("name", "useproxy")
-        .attr("id", "useproxy")
-        .appendTo(dialog.find("form"));
+    $(share).add(embed).click(function() {
+      $(this).select();
+    });
 
-      if (getdata.useproxy !== "0") {
-        useproxy.attr("checked", "checked");
-      }
-
-      $("<p />")
-        .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
-        .html(walkthroughlink.data("walkthrough-severity-text"))
-        .appendTo(dialog.find("form"));
-    }
-
-    $("<label />")
-      .attr("for", "disableclicks")
-      .html(Drupal.t("Disable clicks outside of the walkthrough"))
-      .appendTo(dialog.find("form"));
-    var disableClicks = $("<input />")
-      .attr("type", "checkbox")
-      .attr("name", "disableclicks")
-      .attr("id", "disableclicks")
-      .attr("checked", "checked")
-      .appendTo(dialog.find("form"));
 
     function updateParameters() {
       for (var k in parameters) {
