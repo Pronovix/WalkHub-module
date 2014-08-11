@@ -151,20 +151,11 @@ function walkthrough_sharelink_theme() {
  *   HTML markup.
  */
 function theme_walkthrough_sharelink_notice($variables) {
-  $markup = '<p class="sharing-notice';
-  if ($variables['status'] == 0) {
-    $markup .= ' private';
-  }
-  if ($variables['icon_class'] !== NULL) {
-    $markup .= ' ' . $variables['icon_class'];
-  }
-  $markup .= '">';
-  if ($markup['icon_class'] !== NULL) {
-    $markup .= ' ';
-  }
-  $markup .= t($variables['text']);
-  $markup .= '</p>';
-  return $markup;
+  $private = $variables['status'] ? '' : ' private';
+  $icon_class = isset($variables['icon_class']) ? " {$variables['icon_class']}" : '';
+  $text = ($icon_class ? ' ' : '') . check_plain($variables['text']);
+
+  return "<p class=\"sharing-notice{$private}{$icon_class}\">{$text}</p>";
 }
 
 /**
