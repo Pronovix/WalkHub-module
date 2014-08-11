@@ -29,6 +29,30 @@ function walkthrough_sharelink_menu() {
     'delivery callback' => 'ajax_deliver',
   ) + $items['walkthrough/generate-share-link/nojs/%walkhub_walkthrough_node'];
 
+  $items['walkthrough/publish/nojs/%walkhub_walkthrough_node'] = array(
+    'page callback' => 'walkthrough_sharelink_set_node_status_page',
+    'page arguments' => array(TRUE, 2, 3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 3),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['walkthrough/publish/ajax/%walkhub_walkthrough_node'] = array(
+    'delivery callback' => 'ajax_deliver',
+  ) + $items['walkthrough/publish/nojs/%walkhub_walkthrough_node'];
+
+  $items['walkthrough/unpublish/nojs/%walkhub_walkthrough_node'] = array(
+    'page callback' => 'walkthrough_sharelink_set_node_status_page',
+    'page arguments' => array(FALSE, 2, 3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 3),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['walkthrough/unpublish/ajax/%walkhub_walkthrough_node'] = array(
+    'delivery callback' => 'ajax_deliver',
+  ) + $items['walkthrough/unpublish/nojs/%walkhub_walkthrough_node'];
+
   return $items;
 }
 
@@ -131,7 +155,7 @@ function walkthrough_sharelink_theme() {
 
   return array(
     'walkthrough_sharelink_public_private_switch' => array(
-      'variables' => array('nid' => NULL, 'status' => NULL),
+      'variables' => array('nid' => NULL, 'status' => NULL, 'token' => NULL,),
       'template' => 'walkthrough_sharelink_public_private_switch',
       'path' => $module_path,
     ),
@@ -151,20 +175,11 @@ function walkthrough_sharelink_theme() {
  *   HTML markup.
  */
 function theme_walkthrough_sharelink_notice($variables) {
-  $markup = '<p class="sharing-notice';
-  if ($variables['status'] == 0) {
-    $markup .= ' private';
-  }
-  if ($variables['icon_class'] !== NULL) {
-    $markup .= ' ' . $variables['icon_class'];
-  }
-  $markup .= '">';
-  if ($markup['icon_class'] !== NULL) {
-    $markup .= ' ';
-  }
-  $markup .= t($variables['text']);
-  $markup .= '</p>';
-  return $markup;
+  $private = $variables['status'] ? '' : ' private';
+  $icon_class = isset($variables['icon_class']) ? " {$variables['icon_class']}" : '';
+  $text = ($icon_class ? ' ' : '') . check_plain($variables['text']);
+
+  return "<p class=\"sharing-notice{$private}{$icon_class}\">{$text}</p>";
 }
 
 /**
@@ -255,7 +270,72 @@ function walkthrough_sharelink_generate_page($ajax, $walkthrough) {
     $link = _walkthrough_sharelink_get_link_render_array($walkthrough, $access_key);
     $rendered_link = drupal_render($link);
     $commands[] = ajax_command_html('div.walkthrough-sharelink', $rendered_link);
-    $commands[] = ajax_command_remove('p.sharing-notice.private');
+    $commands[] = ajax_command_html('div.walkthrough-sharelink-note', '');
+
+    return array(
+      '#type' => 'ajax',
+      '#commands' => $commands,
+    );
+  }
+  else {
+    drupal_goto();
+  }
+
+  return NULL;
+}
+
+/**
+ * Page callback to publish/unpublish a walkthrough node.
+ *
+ * @param bool $status
+ *   Whether to set the node published or unpublished.
+ * @param string $ajax
+ * @param stdClass $walkthrough
+ *   Walkthrough node object.
+ * @return array|int|null
+ */
+function walkthrough_sharelink_set_node_status_page($status, $ajax, $walkthrough) {
+  $is_ajax = $ajax === 'ajax';
+
+  if (empty($_GET['token']) || !drupal_valid_token($_GET['token'], "sharelink_set_node_status_{$walkthrough->nid}")) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  if ($walkthrough->type !== 'walkthrough') {
+    return MENU_ACCESS_DENIED;
+  }
+
+  $walkthrough->status = (bool) $status;
+  node_save($walkthrough);
+
+  if ($is_ajax) {
+    $commands = array();
+
+    $content = array(
+      '#theme' => 'walkthrough_sharelink_public_private_switch',
+      '#nid' => $walkthrough->nid,
+      '#status' => $walkthrough->status,
+      '#token' => drupal_get_token("sharelink_set_node_status_{$walkthrough->nid}"),
+    );
+    $rendered_content = drupal_render($content);
+    $commands[] = ajax_command_html('div.public-private-switch', $rendered_content);
+
+    $note = NULL;
+
+    if ($walkthrough->status) {
+      $note = _walkthrough_sharelink_published_note_render_array($walkthrough);
+    }
+    else if (!walkthrough_sharelink_get($walkthrough->nid)) {
+      $note = _walkthrough_sharelink_not_shared_note_render_array($walkthrough);
+    }
+
+    $commands[] = ajax_command_html('div.walkthrough-sharelink-note', $note ? drupal_render($note) : '');
+
+    $sharelink = NULL;
+    if (!$walkthrough->status) {
+      list($sharelink,) = _walkthrough_sharelink_get_button($walkthrough);
+    }
+    $commands[] = ajax_command_html('div.walkthrough-sharelink', $sharelink ? drupal_render($sharelink) : '');
 
     return array(
       '#type' => 'ajax',
@@ -281,9 +361,8 @@ function walkthrough_sharelink_node_view_alter(&$build) {
     $build['walkthrough_screening_widget']['#source'] .= '?access_key=' . urlencode($access_key);
   }
 
-  if (!user_access('walkthrough sharelink use')) {
-    return;
-  }
+  $build['#attached']['library'][] = array('system', 'drupal.ajax');
+  $build['#attached']['js'][] = drupal_get_path('module', 'walkthrough_sharelink') . '/walkthrough_sharelink.js';
 
   $build['sharelink'] = array(
     '#type' => 'container',
@@ -292,45 +371,65 @@ function walkthrough_sharelink_node_view_alter(&$build) {
     ),
     '#weight' => -10,
   );
-  $build['sharelink']['public_private_switch'] = array(
-    '#type' => 'markup',
-    '#markup' => theme('walkthrough_sharelink_public_private_switch', array(
-      'nid' => $build['#node']->nid,
-      'status' => $build['#node']->status,
-    )),
-    '#weight' => 10,
-  );
 
-  if ($build['#node']->status) {
-    $build['sharelink']['note'] = array(
-      '#type' => 'markup',
-      '#markup' => theme_walkthrough_sharelink_notice(array(
-        'status' => $build['#node']->status,
-        'text' => 'To share this walkthrough, just copy it\'s url form the address bar.',
-        'icon_class' => 'icon-share',
-      )),
-      '#weight' => '20',
+  if (node_access('update', $build['#node'])) {
+    $build['sharelink']['public_private_switch'] = array(
+      '#theme' => 'walkthrough_sharelink_public_private_switch',
+      '#nid' => $build['#node']->nid,
+      '#status' => $build['#node']->status,
+      '#token' => drupal_get_token("sharelink_set_node_status_{$build['#node']->nid}"),
+      '#weight' => 10,
+      '#prefix' => '<div class="public-private-switch">',
+      '#suffix' => '</div>',
     );
-    return;
   }
 
-  $nid = $build['#node']->nid;
-  $access_key = walkthrough_sharelink_get($nid);
+  $build['sharelink']['note'] = array(
+    '#prefix' => '<div class="walkthrough-sharelink-note">',
+    '#suffix' => '</div>',
+    '#weight' => 30,
+  );
 
-  $prefix_suffix_weight = array(
+  $build['sharelink']['sharelink'] = array(
     '#prefix' => '<div class="walkthrough-sharelink">',
     '#suffix' => '</div>',
     '#weight' => 20,
   );
 
+  if ($build['#node']->status) {
+    $build['sharelink']['note'] += _walkthrough_sharelink_published_note_render_array($build['#node']);
+    return;
+  }
+
+  if (!user_access('walkthrough sharelink use')) {
+    return;
+  }
+
+  list($sharelink, $access_key) = _walkthrough_sharelink_get_button($build['#node']);
+  $build['sharelink']['sharelink'] += $sharelink;
+  if (!$access_key) {
+    $build['sharelink']['note'] += _walkthrough_sharelink_not_shared_note_render_array($build['#node']);
+  }
+}
+
+/**
+ * Creates a render array for the walkthrough sharelink button.
+ *
+ * @param stdClass $walkthrough_node
+ *   Walkthrough node object.
+ * @return array
+ */
+function _walkthrough_sharelink_get_button($walkthrough_node) {
+  $access_key = walkthrough_sharelink_get($walkthrough_node->nid);
+
   if ($access_key) {
-    $build['sharelink']['sharelink'] = _walkthrough_sharelink_get_link_render_array($build['#node'], $access_key) + $prefix_suffix_weight;
+    $render = _walkthrough_sharelink_get_link_render_array($walkthrough_node, $access_key);
   }
   else {
-    $build['sharelink']['sharelink'] = array(
+    $render = array(
       '#theme' => 'link',
       '#text' => ' ' . t('Share this walkthrough with a link'),
-      '#path' => 'walkthrough/generate-share-link/nojs/' . $nid,
+      '#path' => "walkthrough/generate-share-link/nojs/{$walkthrough_node->nid}",
       '#options' => array(
         'html' => FALSE,
         'attributes' => array(
@@ -342,25 +441,44 @@ function walkthrough_sharelink_node_view_alter(&$build) {
           ),
         ),
         'query' => array(
-          'token' => drupal_get_token('sharelink_generate_' . $nid),
-        ) + drupal_get_destination(),
+            'token' => drupal_get_token('sharelink_generate_' . $walkthrough_node->nid),
+          ) + drupal_get_destination(),
       ),
-      '#attached' => array(
-        'library' => array(
-          array('system', 'drupal.ajax'),
-        ),
-      ),
-    ) + $prefix_suffix_weight;
-
-    $build['sharelink']['note'] = array(
-      '#type' => 'markup',
-      '#markup' => theme_walkthrough_sharelink_notice(array(
-        'status' => $build['#node']->status,
-        'text' => 'Or you can make it public, to share with everyone free of charge.',
-      )),
-      '#weight' => 30,
     );
   }
+
+  return array($render, $access_key);
+}
+
+/**
+ * Creates a render array for the note on the walkthrough page if the walkthrough node is published.
+ *
+ * @param stdClass $walkthrough_node
+ *   Walkthrough node object.
+ * @return array
+ */
+function _walkthrough_sharelink_published_note_render_array($walkthrough_node) {
+  return array(
+    '#theme' => 'walkthrough_sharelink_notice',
+    '#status' => $walkthrough_node->status,
+    '#text' => t('To share this walkthrough, just copy it\'s url form the address bar.'),
+    '#icon_class' => 'icon-share',
+  );
+}
+
+/**
+ * Creates a render array for the note on the walkthrough page if the walkthrough node is unpublished and not shared.
+ *
+ * @param $walkthrough_node
+ *   Walkthrough node object.
+ * @return array
+ */
+function _walkthrough_sharelink_not_shared_note_render_array($walkthrough_node) {
+  return array(
+    '#theme' => 'walkthrough_sharelink_notice',
+    '#status' => $walkthrough_node->status,
+    '#text' => t('Or you can make it public, to share with everyone free of charge.'),
+  );
 }
 
 /**

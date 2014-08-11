@@ -3,8 +3,6 @@
 
   var gulp = require("gulp");
 
-  var args = require("yargs").argv;
-  var uglify = require("gulp-uglify");
   var eslint = require("gulp-eslint");
 
   var paths = {
@@ -13,8 +11,8 @@
       // walkhub-ie-fixes.js adds hacks for IE, it does not conform eslint for now:
       // "./walkhub-ie-fixes.js",
       "./walkhub.js",
-      "./walkthrough_record_block.js",
-    ],
+      "./walkthrough_record_block.js"
+    ]
   };
 
   gulp.task("eslint", function () {
@@ -41,12 +39,12 @@
           "no-console": 0
         },
         globals: {
-          'console': true,
-          'jqWalkhub': true,
-          'Drupal': true,
-          'window': true,
-          'jQuery': true
-        },
+          "console": true,
+          "jqWalkhub": true,
+          "Drupal": true,
+          "window": true,
+          "jQuery": true
+        }
       }))
       .pipe(eslint.format())
       .pipe(eslint.failOnError());
