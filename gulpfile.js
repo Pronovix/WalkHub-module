@@ -3,8 +3,7 @@
 
   var gulp = require("gulp");
 
-  var eslnode_access
-  ('update', $build['#node'])int = require("gulp-eslint");
+  var eslint = require("gulp-eslint");
 
   var paths = {
     non_vendor_scripts: [
