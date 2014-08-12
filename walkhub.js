@@ -217,27 +217,28 @@
 
 
   function createDialogForm(walkthroughlink, server, state) {
-    var form = $('<form />');
-    $('<fieldset />')
-      .addClass('walkthrough-settings')
+    var form = $("<form />");
+
+    var settings = $("<fieldset />")
+      .addClass("walkthrough-settings")
       .appendTo(form);
-    $('<a />')
-      .addClass('walkthrough-more-toggle')
-      .attr('href', '#')
-      .text(Drupal.t('More'))
+    var toggle = $("<a />")
+      .addClass("walkthrough-more-toggle")
+      .attr("href", "#")
+      .text(Drupal.t("More"))
       .appendTo(form);
-    $('<fieldset />')
-      .addClass('walkthrough-more')
+    var fieldset = $("<fieldset />")
+      .addClass("walkthrough-more")
       .hide()
       .appendTo(form);
 
-    $(form).find('.walkthrough-more-toggle').click(function() {
-      var more_options = $(form).find('.walkthrough-more');
+    toggle.click(function() {
+      var more_options = $(form).find(".walkthrough-more");
       more_options.toggle();
-      if (more_options.is(':visible')) {
-        $(this).text(Drupal.t('Less'));
+      if (more_options.is(":visible")) {
+        $(this).text(Drupal.t("Less"));
       } else {
-        $(this).text(Drupal.t('More'));
+        $(this).text(Drupal.t("More"));
       }
     });
 
@@ -248,15 +249,14 @@
       .addClass("walkthrough-dialog")
       .hide()
       .append($(form));
-    var fieldset = dialog.find("fieldset.walkthrough-more");
     var buttons = {};
 
     // Severity of changes.
-    if (walkthroughlink.data("walkthrough-severity") !== 'undefined') {
+    if (walkthroughlink.data("walkthrough-severity") !== "undefined") {
       $("<div />")
         .addClass("wt-severity-" + walkthroughlink.data("walkthrough-severity"))
         .html(walkthroughlink.data("walkthrough-severity-text"))
-        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+        .appendTo(settings);
     }
 
     // Use proxy.
@@ -267,13 +267,13 @@
         .attr("type", "checkbox")
         .attr("name", "useproxy")
         .attr("id", "useproxy")
-        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+        .appendTo(fieldset);
       $("<label />")
         .attr("for", "useproxy")
         .html(Drupal.t("Use proxy"))
-        .appendTo(dialog.find("fieldset.walkthrough-settings"));
-      $('<br />')
-        .appendTo(dialog.find("fieldset.walkthrough-settings"));
+        .appendTo(fieldset);
+      $("<br />")
+        .appendTo(fieldset);
 
       if (getdata.useproxy !== "0") {
         useproxy.attr("checked", "checked");
@@ -286,22 +286,22 @@
       .attr("name", "disableclicks")
       .attr("id", "disableclicks")
       .attr("checked", "checked")
-      .appendTo(dialog.find("fieldset.walkthrough-settings"));
+      .appendTo(fieldset);
     $("<label />")
       .attr("for", "disableclicks")
       .html(Drupal.t("Disable clicks outside of the walkthrough"))
-      .appendTo(dialog.find("fieldset.walkthrough-settings"));
+      .appendTo(fieldset);
 
     // Prerequisites.
     var prerequisites = getPrerequisites(walkthroughlink);
     if (prerequisites && !$.isEmptyObject(prerequisites)) {
       $("<p />")
         .html(Drupal.t("Before this Walkthrough you may need to run:"))
-        .appendTo(fieldset);
+        .appendTo(settings);
       for (var prerequsite in prerequisites) {
         if (prerequisites.hasOwnProperty(prerequsite)) {
           $("<label />")
-            .appendTo(fieldset)
+            .appendTo(settings)
             .html(prerequisites[prerequsite])
             .prepend($("<input />")
               .attr("type", "checkbox")
@@ -310,6 +310,7 @@
               .attr("value", prerequsite)
               .addClass("prerequisite")
             );
+          $("<br />").appendTo(settings);
         }
       }
 
