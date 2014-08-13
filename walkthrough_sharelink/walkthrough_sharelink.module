@@ -308,6 +308,9 @@ function walkthrough_sharelink_set_node_status_page($status, $ajax, $walkthrough
   $walkthrough->status = (bool) $status;
   node_save($walkthrough);
 
+  // Drupal core does this in node_form_submit().
+  cache_clear_all();
+
   if ($is_ajax) {
     $commands = array();
 
