@@ -397,7 +397,7 @@ function _walkhub_phpunit_export_steps_via_walkhub($node) {
     )
   );
   $output .= '$this->url("' . $walkthrough_node_url . '");' . "\n";
-  $output .= '$this->byPartialLinkText("Start walkthrough")->click();' . "\n";
+  $output .= '$this->byPartialLinkText("Play")->click();' . "\n";
 
   $output .= '$this->byCssSelector(".ui-widget button[type=\"button\"]")->click();' . "\n";
 
