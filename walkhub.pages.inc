@@ -136,7 +136,10 @@ function walkhub_create_walkthrough_form_step_2($form, $form_state) {
             $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] : NULL,
   );
 
-  $user_groups = og_get_entity_groups('user', $user);
+  $user_groups = array();
+  if (module_exists('og')) {
+    $user_groups = og_get_entity_groups('user', $user);
+  }
   $options = array();
   if (!empty($user_groups['node'])) {
     $group_nodes = node_load_multiple($user_groups['node']);
@@ -196,11 +199,14 @@ function walkhub_create_walkthrough_form_save($form, &$form_state) {
   $form_state['walkthrough']->title = $form_state['values']['title'];
   $form_state['walkthrough']->body[LANGUAGE_NONE][0]['value'] = $form_state['values']['body'];
   $form_state['walkthrough']->field_severity_of_the_change[LANGUAGE_NONE][0]['value'] = $form_state['values']['severity'];
-  // Set the group audience field value.
-  foreach ($form_state['values']['user_groups'] as $group) {
-    $form_state['walkthrough']->og_group_ref[LANGUAGE_NONE][] = array(
-      'target_id' => $group,
-    );
+
+  if (module_exists('og')) {
+    // Set the group audience field value.
+    foreach ($form_state['values']['user_groups'] as $group) {
+      $form_state['walkthrough']->og_group_ref[LANGUAGE_NONE][] = array(
+        'target_id' => $group,
+      );
+    }
   }
 
   // Save the walkthrough.
