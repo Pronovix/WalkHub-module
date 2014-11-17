@@ -98,6 +98,12 @@ function walkhub_strongarm() {
         'metatags' => array(
           'weight' => '40',
         ),
+        'path' => array(
+          'weight' => '30',
+        ),
+        'redirect' => array(
+          'weight' => '30',
+        ),
       ),
       'display' => array(
         '_walkthrough_sets_step_list' => array(

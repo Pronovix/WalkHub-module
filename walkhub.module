@@ -146,6 +146,12 @@ function walkhub_menu() {
     'file' => 'walkhub.admin.inc'
   );
 
+  $items['admin/config/services/walkhub/general'] = array(
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -99,
+  );
+
   return $items;
 }
 
