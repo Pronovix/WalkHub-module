@@ -241,8 +241,9 @@ function _walkhub_get_data_attributes(stdClass $walkthrough) {
 
   // Attach play via proxy flag.
   $proxy_url = variable_get('walkhub_proxy_url');
+  $attributes['data-walkthrough-proxy-url'] = $proxy_url;
   if ($proxy_url && $walkthrough->field_play_via_proxy[LANGUAGE_NONE][0]['value']) {
-    $attributes['data-walkthrough-proxy-url'] = $proxy_url;
+    $attributes['data-walkthrough-proxy-enabled'] = '1';
   }
 
   // Attach walkthrough uuid.
@@ -1245,7 +1246,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
   $form['use_proxy'] = array(
     '#type' => 'checkbox',
     '#title' => t('Record the walkthrough over the WalkHub proxy (in case you don\'t have the browser or site plugin available)'),
-    '#default_value' => 1,
+    '#default_value' => 0,
     '#attributes' => array(
       'class' => array('edit-use-proxy'),
     ),

@@ -45,6 +45,11 @@ function walkhub_record_form_submit($form, &$form_state) {
         array('value' => $form_state['values']['severity']),
       ),
     ),
+    'field_play_via_proxy' => array(
+      LANGUAGE_NONE => array(
+        array('value' => $form_state['values']['use_proxy']),
+      ),
+    ),
   );
 
   node_object_prepare($walkthrough_node);
