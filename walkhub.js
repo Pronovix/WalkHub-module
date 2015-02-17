@@ -262,6 +262,7 @@
     // Use proxy.
     var useproxy = null;
     var httpproxy = !!walkthroughlink.attr("data-walkthrough-proxy-url");
+    var proxy_enabled = !!walkthroughlink.attr("data-walkthrough-proxy-enabled");
     if (httpproxy) {
       useproxy = $("<input />")
         .attr("type", "checkbox")
@@ -275,7 +276,7 @@
       $("<br />")
         .appendTo(fieldset);
 
-      if (getdata.useproxy !== "0") {
+      if (proxy_enabled || getdata.useproxy === "1") {
         useproxy.attr("checked", "checked");
       }
     }
@@ -846,7 +847,7 @@
       return function (event) {
         event.preventDefault();
 
-        // @TODO detect if the urlField"s value is a valid url
+        // @TODO detect if the urlField's value is a valid url
 
         state = defaultState();
         state.recording = true;
