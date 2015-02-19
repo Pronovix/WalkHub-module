@@ -1238,6 +1238,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('Starting URL'),
+    '#maxlength' => 2000,
     '#attributes' => array(
       'class' => array('edit-url'),
     ),
