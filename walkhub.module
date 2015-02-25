@@ -1233,6 +1233,7 @@ function walkhub_record_form($form, &$form_state, $floating_record_button = FALS
     '#title' => $severity_info_instance['label'],
     '#required' => TRUE,
     '#options' => $severity_field['settings']['allowed_values'],
+    '#default_value' => reset($severity_field['settings']['allowed_values']),
   );
 
   $form['url'] = array(
