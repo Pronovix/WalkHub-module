@@ -19,6 +19,7 @@ dependencies[] = text
 dependencies[] = uuid
 dependencies[] = views
 dependencies[] = walkhub_client
+dependencies[] = walkthrough_screening
 features[ctools][] = field_group:field_group:1
 features[ctools][] = oauth_common:oauth:1
 features[ctools][] = services:services:3

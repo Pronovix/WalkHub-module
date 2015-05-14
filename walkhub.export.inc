@@ -196,7 +196,7 @@ function _walkhub_get_phpunit_export_output(stdClass $walkthrough, $via_walkhub 
  *   PHPUnit steps to play through the prerequisite steps.
  */
 function _walkhub_phpunit_export_prerequisites(stdClass $walkthrough) {
-  module_load_include('inc', 'walkthrough');
+  module_load_include('inc', 'walkhub', 'services/walkthrough');
 
   $return = '';
   $prerequisites = _walkthrough_prerequisites_retrieve($walkthrough->uuid);
